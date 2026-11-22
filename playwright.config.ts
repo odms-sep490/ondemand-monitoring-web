@@ -12,6 +12,7 @@ const ORIGIN = `http://localhost:${PORT}`
 export default defineConfig({
   testDir: './e2e',
   testMatch: '**/*.e2e.ts',
+  testIgnore: '**/live/**',
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: true,

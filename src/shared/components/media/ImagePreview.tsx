@@ -47,10 +47,30 @@ function ImagePreviewContent(props: ImagePreviewProps) {
     setInternalVisible(next)
     props.onVisibleChange?.(next)
   }
-  const small = useMediaRecovery({ ...props, alternateSrc: props.previewSrc })
+  const small = useMediaRecovery({
+    ...props,
+    alternateSrc: props.previewSrc,
+    onRefreshMedia: props.onRefreshMedia
+      ? async (signal) => {
+          const refreshed = await props.onRefreshMedia!(signal)
+          if (!refreshed) return null
+          const nextUrl =
+            refreshed.thumbnailUrl ?? refreshed.previewUrl ?? refreshed.viewUrl
+          return nextUrl ? { ...refreshed, viewUrl: nextUrl } : null
+        }
+      : undefined,
+  })
   const large = useMediaRecovery({
     ...props,
     src: props.previewSrc ?? props.src,
+    onRefreshMedia: props.onRefreshMedia
+      ? async (signal) => {
+          const refreshed = await props.onRefreshMedia!(signal)
+          if (!refreshed) return null
+          const nextUrl = refreshed.previewUrl ?? refreshed.viewUrl
+          return nextUrl ? { ...refreshed, viewUrl: nextUrl } : null
+        }
+      : undefined,
   })
   const recovery = visible ? large : small
   useEffect(() => {

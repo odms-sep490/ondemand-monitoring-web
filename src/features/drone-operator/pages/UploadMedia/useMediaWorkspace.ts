@@ -20,12 +20,38 @@ import { formatDeviceLabel } from '../../lib/deviceLabel'
 import { missionResultActions } from '../../components/common/MissionResultActions'
 import { missionApi } from '../../../mission/api/missionApi'
 import { uploadMediaPageMessages } from './UploadMediaPage.messages'
-import { useI18n } from '../../../../shared/i18n'
+import { defineMessages, getLanguage, useI18n } from '../../../../shared/i18n'
 import type { Dispatch, SetStateAction, RefObject } from 'react'
 import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
 import type { MissionResult } from '../../../mission/types/mission'
 import type { MissionPermissions } from '../../../mission/types/permissions'
 import type { BackendMission } from '../../api/liveMission'
+
+const mediaWorkspaceMessages = defineMessages({
+  vi: {
+    checklistItemNotInMission: 'Mục checklist không còn thuộc Mission này.',
+    attachFailed: 'Không gắn được bằng chứng.',
+    pcBackupUploadFailed: 'Không upload được bản sao PC',
+    filesQueuedForValidation: (count: number) =>
+      `${count} tệp đã được gửi vào luồng xác thực.`,
+    unknownDevice: 'chưa rõ',
+    resultSummary: (code: string, device: string) =>
+      `Mission ${code} đã hoàn thành. Thiết bị: ${device}.`,
+    resultNotes: 'Nghiệm thu viên xác nhận kết quả giám sát.',
+  },
+  en: {
+    checklistItemNotInMission:
+      'The checklist item no longer belongs to this Mission.',
+    attachFailed: 'Unable to attach evidence.',
+    pcBackupUploadFailed: 'Unable to upload PC backup copy',
+    filesQueuedForValidation: (count: number) =>
+      `${count} file(s) were sent for validation.`,
+    unknownDevice: 'unknown',
+    resultSummary: (code: string, device: string) =>
+      `Mission ${code} completed. Device: ${device}.`,
+    resultNotes: 'The inspector confirmed the monitoring results.',
+  },
+})
 
 export function useMediaWorkspace({
   missionId,
@@ -149,7 +175,10 @@ export function useMediaWorkspace({
         await checklistExecutionApi.getMissionChecklistExecutions(missionId)
       const targets = ids.map((id) => {
         const row = latest.executions.find((execution) => execution.id === id)
-        if (!row) throw new Error('Mục checklist không còn thuộc Mission này.')
+        if (!row)
+          throw new Error(
+            mediaWorkspaceMessages[getLanguage()].checklistItemNotInMission,
+          )
         return { executionId: id, expectedVersion: row.version }
       })
       await checklistEvidenceApi.batch(missionId, mediaId, targets)
@@ -163,7 +192,9 @@ export function useMediaWorkspace({
       setAttachFailures((previous) => ({
         ...previous,
         [item.localMediaId]:
-          cause instanceof Error ? cause.message : 'Không gắn được bằng chứng.',
+          cause instanceof Error
+            ? cause.message
+            : mediaWorkspaceMessages[getLanguage()].attachFailed,
       }))
       return false
     } finally {
@@ -352,7 +383,9 @@ export function useMediaWorkspace({
       refreshWorkspace()
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : 'Không upload được bản sao PC',
+        cause instanceof Error
+          ? cause.message
+          : mediaWorkspaceMessages[getLanguage()].pcBackupUploadFailed,
       )
     } finally {
       setBusyId(null)
@@ -380,7 +413,12 @@ export function useMediaWorkspace({
         },
       })
       if (failures.length) setError(failures.join('\n'))
-      else setUploadInfo(`${selectedFiles.length} tệp đã được gửi vào luồng xác thực.`)
+      else
+        setUploadInfo(
+          mediaWorkspaceMessages[getLanguage()].filesQueuedForValidation(
+            selectedFiles.length,
+          ),
+        )
     } finally {
       setBusyId(null)
       setBatchUploading(false)
@@ -466,17 +504,18 @@ export function useMediaWorkspace({
       return sort === 'newest' ? -diff : diff
     })
   function buildMissionResultPayload() {
+    const wsText = mediaWorkspaceMessages[getLanguage()]
     const mission = activeMission.data
     return {
       status: 'COMPLETED' as const,
       startedAt: null,
       endedAt: null,
       completedAt: new Date().toISOString(),
-      summary: [
-        `Mission ${mission?.missionCode ?? missionId} đã hoàn thành.`,
-        `Thiết bị: ${deviceLabel ?? 'chưa rõ'}.`,
-      ].join(' '),
-      notes: 'Nghiệm thu viên xác nhận kết quả giám sát.',
+      summary: wsText.resultSummary(
+        String(mission?.missionCode ?? missionId),
+        deviceLabel ?? wsText.unknownDevice,
+      ),
+      notes: wsText.resultNotes,
     }
   }
 

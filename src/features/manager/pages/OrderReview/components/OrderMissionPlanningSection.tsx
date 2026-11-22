@@ -46,7 +46,7 @@ export type PlanningWorkflowInfo = {
     code: string
     status: MissionStatus
     flightPermitStatus?:
-      'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED' | null
+    'NOT_REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED' | null
   }>
 }
 
@@ -131,8 +131,8 @@ function OrderPlanningWorkspace({
         reworkCaseId || inspectionContext
           ? Promise.resolve(null)
           : financeApi
-              .getManagerMissionPaymentAllocations(orderId, signal)
-              .catch(() => null),
+            .getManagerMissionPaymentAllocations(orderId, signal)
+            .catch(() => null),
       ])
       let plan = initialPlan
       let missions = initialMissions
@@ -162,16 +162,20 @@ function OrderPlanningWorkspace({
           inspectionContext.correctionId,
           signal,
         )
-        ;[plan, missions] = await Promise.all([
-          planningApi.getExecutionPlan(orderId, signal),
-          planningApi.getOrderMissions(orderId, signal),
-        ])
+          ;[plan, missions] = await Promise.all([
+            planningApi.getExecutionPlan(orderId, signal),
+            planningApi.getOrderMissions(orderId, signal),
+          ])
         correction = (
           await inspectionCorrectionApi.list(
             inspectionContext.sourceMissionId,
             signal,
           )
         ).find((row) => row.id === inspectionContext.correctionId)!
+        const sourceMission =
+          missions.find(
+            (m) => m.id === inspectionContext.sourceMissionId,
+          ) ?? null
         const related = missions.filter(
           (m) =>
             m.orderId === orderId &&
@@ -208,6 +212,7 @@ function OrderPlanningWorkspace({
           revisionCase: null,
           paymentAllocation: null,
           inspectionCorrection: correction,
+          inspectionSourceMission: sourceMission,
         }
       }
       if (reworkCaseId) {
@@ -218,11 +223,11 @@ function OrderPlanningWorkspace({
         )
           throw new Error(reworkT.reworkUnavailable)
         await deliveryApi.managerEnsureReworkDrafts(reworkCaseId, signal)
-        ;[plan, missions, revisionCase] = await Promise.all([
-          planningApi.getExecutionPlan(orderId, signal),
-          planningApi.getOrderMissions(orderId, signal),
-          deliveryApi.managerGetRevisionCase(orderId, signal),
-        ])
+          ;[plan, missions, revisionCase] = await Promise.all([
+            planningApi.getExecutionPlan(orderId, signal),
+            planningApi.getOrderMissions(orderId, signal),
+            deliveryApi.managerGetRevisionCase(orderId, signal),
+          ])
         if (
           !revisionCase ||
           revisionCase.caseId !== reworkCaseId ||
@@ -250,6 +255,7 @@ function OrderPlanningWorkspace({
           invoice,
           revisionCase,
           inspectionCorrection: null,
+          inspectionSourceMission: null,
           paymentAllocation,
         }
       }
@@ -289,6 +295,7 @@ function OrderPlanningWorkspace({
         invoice,
         revisionCase: null,
         inspectionCorrection: null,
+        inspectionSourceMission: null,
         paymentAllocation,
       }
     },
@@ -331,7 +338,7 @@ function OrderPlanningWorkspace({
     isOpen: false,
     title: '',
     hint: '',
-    onConfirm: async () => {},
+    onConfirm: async () => { },
   })
 
   const data = query.data
@@ -405,23 +412,31 @@ function OrderPlanningWorkspace({
     }
   }, [isFinalized, reworkCaseId])
 
+  const internalOrderAllowsPlanning = Boolean(
+    data &&
+    (['APPROVED', 'IN_PROGRESS'].includes(data.order.status) ||
+      (data.order.status === 'COMPLETED' &&
+        data.inspectionSourceMission?.purpose === 'REWORK' &&
+        Boolean(data.inspectionSourceMission.resultRevisionCaseId))),
+  )
+
   const writable =
     (!query.loading || Boolean(data)) &&
     !query.error &&
     Boolean(
       data &&
       (inspectionContext
-        ? ['APPROVED', 'IN_PROGRESS'].includes(data.order.status) &&
-          data.inspectionCorrection?.status === 'OPEN' &&
-          data.inspectionCorrection.mode !== 'DOSSIER_ADJUSTMENT' &&
-          depositPaid
+        ? internalOrderAllowsPlanning &&
+        data.inspectionCorrection?.status === 'OPEN' &&
+        data.inspectionCorrection.mode !== 'DOSSIER_ADJUSTMENT' &&
+        depositPaid
         : reworkCaseId
           ? ['IN_PROGRESS', 'COMPLETED'].includes(data.order.status) &&
-            data.revisionCase?.active &&
-            data.revisionCase.status === 'OPEN' &&
-            depositPaid
+          data.revisionCase?.active &&
+          data.revisionCase.status === 'OPEN' &&
+          depositPaid
           : depositPaid &&
-            ['APPROVED', 'IN_PROGRESS'].includes(data.order.status)),
+          ['APPROVED', 'IN_PROGRESS'].includes(data.order.status)),
     )
 
   const canConfirmPlan = Boolean(
@@ -693,9 +708,9 @@ function OrderPlanningWorkspace({
                     internalCorrection={
                       inspectionContext && data.inspectionCorrection
                         ? {
-                            sourceMissionId: inspectionContext.sourceMissionId,
-                            correction: data.inspectionCorrection,
-                          }
+                          sourceMissionId: inspectionContext.sourceMissionId,
+                          correction: data.inspectionCorrection,
+                        }
                         : undefined
                     }
                     onCreated={() => {
@@ -714,6 +729,7 @@ function OrderPlanningWorkspace({
                   order={data.order}
                   plan={workspacePlan ?? data.plan}
                   orderChecklistItems={data.order.checklistItems ?? []}
+                  reworkCase={data.revisionCase ?? undefined}
                   disabled={busy}
                   isOpen={true}
                   onClose={() => setEditingMission(null)}
@@ -798,151 +814,152 @@ function OrderPlanningWorkspace({
                           ))}
                         </div>
                       )}
-                    <PlanningWorkspaceBar
-                      sidebarCollapsed={sidebarCollapsed}
-                      onOpenSidebar={() => setSidebarCollapsed(false)}
-                      uncovered={data.plan.coverage.uncovered}
-                      canEdit={writable && data.plan.planStatus === 'DRAFT'}
-                      canAddMission={canCreateMission}
-                      addMissionLabel={
-                        inspectionContext || reworkCaseId
-                          ? ts.restoreDraft
-                          : undefined
-                      }
-                      creating={creating}
-                      busy={busy}
-                      canConfirmPlan={canConfirmPlan}
-                      reloading={query.loading}
-                      onAddMission={() =>
-                        inspectionContext || reworkCaseId
-                          ? void restoreDrafts()
-                          : setCreating(true)
-                      }
-                      onReload={query.reload}
-                      onFinalize={() => void handleFinalizePlan()}
-                    />
+                  <PlanningWorkspaceBar
+                    sidebarCollapsed={sidebarCollapsed}
+                    onOpenSidebar={() => setSidebarCollapsed(false)}
+                    uncovered={data.plan.coverage.uncovered}
+                    canEdit={writable && data.plan.planStatus === 'DRAFT'}
+                    canAddMission={canCreateMission}
+                    addMissionLabel={
+                      inspectionContext || reworkCaseId
+                        ? ts.restoreDraft
+                        : undefined
+                    }
+                    creating={creating}
+                    busy={busy}
+                    canConfirmPlan={canConfirmPlan}
+                    reloading={query.loading}
+                    onAddMission={() =>
+                      inspectionContext || reworkCaseId
+                        ? void restoreDrafts()
+                        : setCreating(true)
+                    }
+                    onReload={query.reload}
+                    onFinalize={() => void handleFinalizePlan()}
+                  />
 
-                    {originalWorkspace && workspaceMissions.length > 0 && (
-                      <h3>{ts.originalMissions}</h3>
-                    )}
-                    {workspaceMissions.length === 0 ? (
-                      <div className="odm-plan-empty">
-                        <h3>{ts.noMissions}</h3>
-                        <p>{ts.planEmptyHint}</p>
-                      </div>
-                    ) : (
-                      <div className="odm-workspace-grid odm-unified-mission-list">
-                        <ShowMoreList>
-                          {workspaceMissions.map((mission) => (
-                            <MissionGridCard
-                              key={mission.id}
-                              mission={mission}
-                              order={data.order}
-                              plan={workspacePlan ?? data.plan}
-                              orderChecklistItems={
-                                data.order.checklistItems ?? []
-                              }
-                              disabled={
-                                busy ||
-                                !writable ||
-                                Boolean(
-                                  (reworkCaseId || inspectionContext) &&
-                                  mission.status !== 'PLANNING',
-                                )
-                              }
-                              onPlanChanged={query.reload}
-                              onRequestReason={handleOpenReasonModal}
-                              onEditMission={setEditingMission}
-                              sourceMission={
-                                mission.inspectionSourceMissionId
-                                  ? {
-                                      id: mission.inspectionSourceMissionId,
-                                      code: data.missions.find(
-                                        (m) =>
-                                          m.id ===
-                                          mission.inspectionSourceMissionId,
-                                      )?.missionCode,
-                                    }
-                                  : undefined
-                              }
-                            />
-                          ))}
-                        </ShowMoreList>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-              {derivedMissions.length > 0 && (
-                <section className="odm-or-card">
-                  <header className="odm-or-card-head">
-                    <h3 className="odm-or-card-title">{ts.derivedMissions}</h3>
-                  </header>
-                  <div className="odm-or-card-body">
-                    <p className="odm-or-muted">{ts.derivedHint}</p>
+                  {originalWorkspace && workspaceMissions.length > 0 && (
+                    <h3>{ts.originalMissions}</h3>
+                  )}
+                  {workspaceMissions.length === 0 ? (
+                    <div className="odm-plan-empty">
+                      <h3>{ts.noMissions}</h3>
+                      <p>{ts.planEmptyHint}</p>
+                    </div>
+                  ) : (
                     <div className="odm-workspace-grid odm-unified-mission-list">
                       <ShowMoreList>
-                        {derivedMissions.map((mission) =>
-                          activeTab === 'permit' ? (
-                            <FlightPermitCard
-                              key={mission.id}
-                              mission={mission}
-                              readOnly
-                              depositPaid={depositPaid}
-                              onChanged={query.reload}
-                            />
-                          ) : (
-                            <MissionGridCard
-                              key={mission.id}
-                              mission={mission}
-                              order={data.order}
-                              plan={data.plan}
-                              orderChecklistItems={
-                                data.order.checklistItems ?? []
-                              }
-                              disabled
-                              onPlanChanged={query.reload}
-                              onRequestReason={handleOpenReasonModal}
-                              planningHref={missionPlanningReturnHref(
-                                mission,
-                                mission.id,
-                                orderId,
-                              )}
-                              sourceMission={
-                                mission.inspectionSourceMissionId
-                                  ? {
-                                      id: mission.inspectionSourceMissionId,
-                                      code: data.missions.find(
-                                        (m) =>
-                                          m.id ===
-                                          mission.inspectionSourceMissionId,
-                                      )?.missionCode,
-                                    }
-                                  : undefined
-                              }
-                            />
-                          ),
-                        )}
+                        {workspaceMissions.map((mission) => (
+                          <MissionGridCard
+                            key={mission.id}
+                            mission={mission}
+                            order={data.order}
+                            plan={workspacePlan ?? data.plan}
+                            orderChecklistItems={
+                              data.order.checklistItems ?? []
+                            }
+                            disabled={
+                              busy ||
+                              !writable ||
+                              Boolean(
+                                (reworkCaseId || inspectionContext) &&
+                                mission.status !== 'PLANNING',
+                              )
+                            }
+                            onPlanChanged={query.reload}
+                            onRequestReason={handleOpenReasonModal}
+                            onEditMission={setEditingMission}
+                            sourceMission={
+                              mission.inspectionSourceMissionId
+                                ? {
+                                  id: mission.inspectionSourceMissionId,
+                                  code: data.missions.find(
+                                    (m) =>
+                                      m.id ===
+                                      mission.inspectionSourceMissionId,
+                                  )?.missionCode,
+                                }
+                                : undefined
+                            }
+                          />
+                        ))}
                       </ShowMoreList>
                     </div>
-                  </div>
-                </section>
+                  )}
+                </div>
+                </div>
               )}
-              {!reworkCaseId &&
-              !inspectionContext &&
-              activeTab === 'planning' &&
-              data.invoice &&
-              data.plan.planStatus === 'FINALIZED' ? (
-                <MissionPaymentAllocationPanel
-                  orderId={orderId}
-                  invoice={data.invoice}
-                  allocation={data.paymentAllocation}
-                />
-              ) : null}
-            </>
+          {derivedMissions.length > 0 && (
+            <section className="odm-or-card">
+              <header className="odm-or-card-head">
+                <h3 className="odm-or-card-title">{ts.derivedMissions}</h3>
+              </header>
+              <div className="odm-or-card-body">
+                <p className="odm-or-muted">{ts.derivedHint}</p>
+                <div className="odm-workspace-grid odm-unified-mission-list">
+                  <ShowMoreList>
+                    {derivedMissions.map((mission) =>
+                      activeTab === 'permit' ? (
+                        <FlightPermitCard
+                          key={mission.id}
+                          mission={mission}
+                          readOnly
+                          depositPaid={depositPaid}
+                          onChanged={query.reload}
+                        />
+                      ) : (
+                        <MissionGridCard
+                          key={mission.id}
+                          mission={mission}
+                          order={data.order}
+                          plan={data.plan}
+                          orderChecklistItems={
+                            data.order.checklistItems ?? []
+                          }
+                          disabled
+                          onPlanChanged={query.reload}
+                          onRequestReason={handleOpenReasonModal}
+                          planningHref={missionPlanningReturnHref(
+                            mission,
+                            mission.id,
+                            orderId,
+                          )}
+                          sourceMission={
+                            mission.inspectionSourceMissionId
+                              ? {
+                                id: mission.inspectionSourceMissionId,
+                                code: data.missions.find(
+                                  (m) =>
+                                    m.id ===
+                                    mission.inspectionSourceMissionId,
+                                )?.missionCode,
+                              }
+                              : undefined
+                          }
+                        />
+                      ),
+                    )}
+                  </ShowMoreList>
+                </div>
+              </div>
+            </section>
           )}
+          {!reworkCaseId &&
+            !inspectionContext &&
+            activeTab === 'planning' &&
+            data.invoice &&
+            data.plan.planStatus === 'FINALIZED' ? (
+            <MissionPaymentAllocationPanel
+              orderId={orderId}
+              invoice={data.invoice}
+              allocation={data.paymentAllocation}
+            />
+          ) : null}
         </>
       )}
-    </section>
+    </>
+  )
+}
+    </section >
   )
 }

@@ -2,6 +2,7 @@ import { operatorApi } from '../../api/operatorApi'
 import { actionErrorMessage } from './missionResponse'
 import { missionApi } from '../../../mission/api/missionApi'
 import { formatVnDate } from './missionFormat'
+import { defineMessages, getLanguage } from '../../../../shared/i18n'
 import type { Dispatch, SetStateAction } from 'react'
 import type { UseApiQueryState } from '../../../../shared/hooks/useApiQuery'
 import type { OperatorMission } from '../../types/mission'
@@ -13,6 +14,67 @@ import { env } from '../../../../config/env'
 import type { WeatherPreflightStatus } from './types'
 import { isWeatherCheckFreshAfterPermit } from './weatherReadiness'
 import { acceptWeatherCheck } from './checkData'
+
+const missionDetailActionMessages = defineMessages({
+  vi: {
+    acceptFailed: 'Không thể chấp nhận mission. Vui lòng thử lại.',
+    missingCoordinates:
+      'Mission chưa có tọa độ để kiểm tra thời tiết trước khi bay.',
+    weatherCheckFailed:
+      'Không kiểm tra được thời tiết. Hãy thử lại trước khi bắt đầu Mission.',
+    weatherInvalid: 'Kết quả kiểm tra thời tiết không hợp lệ. Hãy thử lại.',
+    weatherApprovalRequired:
+      'Người phụ trách cần xác nhận quyết định thời tiết trước khi bắt đầu Mission.',
+    startFailed:
+      'Chưa thể bắt đầu nhiệm vụ. Hãy bảo đảm thiết bị đã đạt kiểm tra trước bay và quyền điều khiển đã được bàn giao.',
+    weatherFreshnessRequired:
+      'Chỉ có thể xác nhận quyết định khi thời tiết được kiểm tra lại sau khi cấp phép và còn mới trong 15 phút.',
+    saveWeatherFailed:
+      'Không thể lưu quyết định thời tiết. Vui lòng thử lại.',
+    rejectFailed: 'Không thể từ chối mission. Vui lòng thử lại.',
+    unknownValue: 'Chưa rõ',
+    unknownRadius: 'chưa rõ bán kính',
+    radiusValue: (m: number) => `bán kính ${m} m`,
+    resultSummary: (
+      code: string,
+      service: string,
+      location: string,
+      date: string,
+      radius: string,
+    ) =>
+      `Mission ${code} đã hoàn thành. Dịch vụ: ${service}. Địa điểm: ${location}. Ngày bay: ${date}. Vùng giám sát: ${radius}.`,
+    resultNotes: 'Nghiệm thu viên xác nhận kết quả giám sát.',
+  },
+  en: {
+    acceptFailed: 'Unable to accept the mission. Please try again.',
+    missingCoordinates:
+      'The Mission does not have coordinates for preflight weather checks.',
+    weatherCheckFailed:
+      'Unable to check the weather. Please retry before starting the Mission.',
+    weatherInvalid: 'The weather check result is invalid. Please try again.',
+    weatherApprovalRequired:
+      'The responsible crew member must confirm the weather decision before starting the Mission.',
+    startFailed:
+      'Unable to start the mission. Ensure the device passed preflight checks and control has been handed over.',
+    weatherFreshnessRequired:
+      'The weather decision can only be confirmed when weather was checked after permit approval and within the last 15 minutes.',
+    saveWeatherFailed:
+      'Unable to save the weather decision. Please try again.',
+    rejectFailed: 'Unable to decline the mission. Please try again.',
+    unknownValue: 'Unknown',
+    unknownRadius: 'unknown radius',
+    radiusValue: (m: number) => `radius ${m} m`,
+    resultSummary: (
+      code: string,
+      service: string,
+      location: string,
+      date: string,
+      radius: string,
+    ) =>
+      `Mission ${code} completed. Service: ${service}. Location: ${location}. Flight date: ${date}. Monitoring area: ${radius}.`,
+    resultNotes: 'The inspector confirmed the monitoring results.',
+  },
+})
 
 export function useMissionDetailActions({
   setActionError,
@@ -67,6 +129,7 @@ export function useMissionDetailActions({
   }
 
   async function handleAccept() {
+    const t = missionDetailActionMessages[getLanguage()]
     setSubmitting(true)
     setActionError(null)
     try {
@@ -74,18 +137,14 @@ export function useMissionDetailActions({
       // Refresh mission permissions after acceptance so the pre-flight actions update.
       refreshWorkspace(false)
     } catch (error) {
-      setActionError(
-        actionErrorMessage(
-          error,
-          'Không thể chấp nhận mission. Vui lòng thử lại.',
-        ),
-      )
+      setActionError(actionErrorMessage(error, t.acceptFailed))
     } finally {
       setSubmitting(false)
     }
   }
 
   async function handleStartWorkflow() {
+    const t = missionDetailActionMessages[getLanguage()]
     setSubmitting(true)
     setActionError(null)
     try {
@@ -103,7 +162,7 @@ export function useMissionDetailActions({
           !Number.isFinite(mission.latitude) ||
           !Number.isFinite(mission.longitude)
         ) {
-          throw new Error('Mission chưa có tọa độ để kiểm tra thời tiết trước khi bay.')
+          throw new Error(t.missingCoordinates)
         }
         const weatherResponse = await authenticatedFetch(
           `${env.apiBaseUrl}/api/weather/preflight-check`,
@@ -118,7 +177,7 @@ export function useMissionDetailActions({
           },
         )
         if (!weatherResponse.ok) {
-          throw new Error('Không kiểm tra được thời tiết. Hãy thử lại trước khi bắt đầu Mission.')
+          throw new Error(t.weatherCheckFailed)
         }
         const weatherPayload = await weatherResponse.json()
         const weather = weatherPayload?.data ?? weatherPayload
@@ -133,7 +192,7 @@ export function useMissionDetailActions({
           typeof weather.temperatureC !== 'number' ||
           typeof weather.humidityPercent !== 'number'
         ) {
-          throw new Error('Kết quả kiểm tra thời tiết không hợp lệ. Hãy thử lại.')
+          throw new Error(t.weatherInvalid)
         }
         setWeatherStatus(weather as WeatherPreflightStatus)
         void monitoring.reload()
@@ -141,7 +200,7 @@ export function useMissionDetailActions({
         return
       }
       if (weatherStatus?.inspectorAccepted !== true) {
-        throw new Error('Người phụ trách cần xác nhận quyết định thời tiết trước khi bắt đầu Mission.')
+        throw new Error(t.weatherApprovalRequired)
       }
       await missionApi.startMission(mission.id)
       refreshWorkspace(false)
@@ -149,7 +208,7 @@ export function useMissionDetailActions({
       setActionError(
         actionErrorMessage(
           error,
-          'Chưa thể bắt đầu nhiệm vụ. Hãy bảo đảm thiết bị đã đạt kiểm tra trước bay và quyền điều khiển đã được bàn giao.',
+          t.startFailed,
           flightPermitNotApprovedMessage,
           weatherAfterPermitRequiredMessage,
         ),
@@ -160,6 +219,7 @@ export function useMissionDetailActions({
   }
 
   async function handleAcceptWeather() {
+    const t = missionDetailActionMessages[getLanguage()]
     if (
       !weatherStatus?.id ||
       mission.flightPermitStatus !== 'APPROVED' ||
@@ -168,7 +228,7 @@ export function useMissionDetailActions({
         mission.flightPermitUpdatedAt,
       )
     ) {
-      setActionError('Chỉ có thể xác nhận quyết định khi thời tiết được kiểm tra lại sau khi cấp phép và còn mới trong 15 phút.')
+      setActionError(t.weatherFreshnessRequired)
       return
     }
     setSubmitting(true)
@@ -178,9 +238,7 @@ export function useMissionDetailActions({
       setWeatherStatus(accepted)
       void monitoring.reload()
     } catch (error) {
-      setActionError(
-        actionErrorMessage(error, 'Không thể lưu quyết định thời tiết. Vui lòng thử lại.'),
-      )
+      setActionError(actionErrorMessage(error, t.saveWeatherFailed))
     } finally {
       setSubmitting(false)
     }
@@ -198,6 +256,7 @@ export function useMissionDetailActions({
   }
 
   async function handleReject(reason: string, notes: string) {
+    const t = missionDetailActionMessages[getLanguage()]
     setSubmitting(true)
     setActionError(null)
     try {
@@ -205,31 +264,29 @@ export function useMissionDetailActions({
       setShowReject(false)
       refreshWorkspace(false)
     } catch (error) {
-      setActionError(
-        actionErrorMessage(
-          error,
-          'Không thể từ chối mission. Vui lòng thử lại.',
-        ),
-      )
+      setActionError(actionErrorMessage(error, t.rejectFailed))
     } finally {
       setSubmitting(false)
     }
   }
 
   function buildMissionResultPayload() {
+    const t = missionDetailActionMessages[getLanguage()]
     return {
       status: 'COMPLETED',
       startedAt: mission.flightStartedAt ?? null,
       endedAt: mission.completedAt ?? null,
       completedAt: mission.completedAt ?? new Date().toISOString(),
-      summary: [
-        `Mission ${mission.missionCode ?? mission.id} đã hoàn thành.`,
-        `Dịch vụ: ${mission.serviceLabel || 'Chưa rõ'}.`,
-        `Địa điểm: ${mission.location || 'Chưa rõ'}.`,
-        `Ngày bay: ${formatVnDate(mission.date)}.`,
-        `Vùng giám sát: ${mission.radiusMeters == null ? 'chưa rõ bán kính' : `bán kính ${mission.radiusMeters} m`}.`,
-      ].join(' '),
-      notes: 'Nghiệm thu viên xác nhận kết quả giám sát.',
+      summary: t.resultSummary(
+        mission.missionCode ?? mission.id,
+        mission.serviceLabel || t.unknownValue,
+        mission.location || t.unknownValue,
+        formatVnDate(mission.date),
+        mission.radiusMeters == null
+          ? t.unknownRadius
+          : t.radiusValue(mission.radiusMeters),
+      ),
+      notes: t.resultNotes,
     } as const
   }
 

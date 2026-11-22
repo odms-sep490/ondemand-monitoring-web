@@ -34,7 +34,7 @@ export function MissionScopedAssignmentPage({
   useEffect(() => {
     if (planningOrderId) {
       window.location.hash = managerHref({
-        screen: 'missionCreate',
+        screen: 'orderReview',
         orderId: planningOrderId,
       })
     }

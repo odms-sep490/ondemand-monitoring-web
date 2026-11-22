@@ -99,11 +99,11 @@ export function MissionDashboard({
   const flightPermitApproved = mission.flightPermitStatus === 'APPROVED'
   const flightPermitRejected = mission.flightPermitStatus === 'REJECTED'
   const tabs: Array<{ id: MissionTab; label: string }> = [
-    { id: 'overview', label: 'Tổng quan' },
-    { id: 'checklist', label: 'Checklist' },
-    { id: 'checks', label: 'Kiểm tra thiết bị' },
+    { id: 'overview', label: t.tabOverview },
+    { id: 'checklist', label: t.tabChecklist },
+    { id: 'checks', label: t.tabDeviceChecks },
     ...(canViewMissionMedia
-      ? [{ id: 'media' as const, label: 'Ảnh & video' }]
+      ? [{ id: 'media' as const, label: t.tabMedia }]
       : []),
   ]
 
@@ -188,7 +188,7 @@ export function MissionDashboard({
         >
           <div className="mds-action-bar-text">
             <h2 id="mission-response-heading" className="mds-card-heading">
-              Bạn có muốn nhận nhiệm vụ này?
+              {t.acceptPromptTitle}
             </h2>
             {access?.canRespond !== true && (
               <small>
@@ -207,7 +207,7 @@ export function MissionDashboard({
               onClick={onOpenReject}
               disabled={submitting || access?.canRespond !== true}
             >
-              Từ chối
+              {t.rejectAction}
             </button>
             <button
               type="button"
@@ -215,7 +215,7 @@ export function MissionDashboard({
               onClick={onAccept}
               disabled={submitting || access?.canRespond !== true}
             >
-              {submitting ? 'Đang xử lý...' : 'Chấp nhận nhiệm vụ'}
+              {submitting ? t.processingAction : t.acceptAction}
             </button>
           </div>
         </div>
@@ -240,10 +240,10 @@ export function MissionDashboard({
             <MissionMapCard mission={mission} />
             <details className="odm-card mds-pending-checklist">
               <summary>
-                <span>Checklist thực hiện</span>
+                <span>{t.checklistExecutionTitle}</span>
                 <small>
                   <Icon name="lock" width={14} height={14} aria-hidden="true" />
-                  Checklist chỉ đọc trước khi nhận nhiệm vụ. Bấm để xem trước.
+                  {t.checklistPreviewHint}
                 </small>
               </summary>
               <div className="mds-pending-checklist-body">
@@ -339,24 +339,24 @@ export function MissionDashboard({
         </div>
       ) : null}
 
-      <div className="mds-tabs" role="tablist" aria-label="Nội dung nhiệm vụ">
-        {tabs.map((t, index) => (
+      <div className="mds-tabs" role="tablist" aria-label={t.contentAria}>
+        {tabs.map((item, index) => (
           <button
-            key={t.id}
+            key={item.id}
             ref={(node) => {
               tabButtonRefs.current[index] = node
             }}
             type="button"
             role="tab"
-            id={`mds-tab-${t.id}`}
+            id={`mds-tab-${item.id}`}
             aria-controls="mds-tab-panel"
-            aria-selected={tab === t.id}
-            tabIndex={tab === t.id ? 0 : -1}
-            className={`mds-tab${tab === t.id ? ' is-active' : ''}`}
-            onClick={() => setTab(t.id)}
+            aria-selected={tab === item.id}
+            tabIndex={tab === item.id ? 0 : -1}
+            className={`mds-tab${tab === item.id ? ' is-active' : ''}`}
+            onClick={() => setTab(item.id)}
             onKeyDown={(event) => handleTabKeyDown(event, index)}
           >
-            {t.label}
+            {item.label}
           </button>
         ))}
       </div>

@@ -1,5 +1,5 @@
 import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { Alert, Button, Checkbox, Empty, Tag } from 'antd'
 import { CheckOutlined, PictureOutlined, SendOutlined } from '@ant-design/icons'
 import { useLanguage } from '../../../shared/i18n'
@@ -48,6 +48,11 @@ export function CustomerEvidenceSelection({
   const changed =
     ids.length !== persistedIds.length ||
     ids.some((id) => !persistedIds.includes(id))
+  useEffect(() => {
+    if (saved && !changed) {
+      setSaved(false)
+    }
+  }, [saved, changed])
   const progress = customerSelectionProgress(item, ids)
   async function save() {
     if (

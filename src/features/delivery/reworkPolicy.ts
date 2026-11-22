@@ -13,13 +13,24 @@ export function canCreateRework(item: ResultRevisionCase['items'][number]) {
 export function canUseDeliveryMedia(
   item: ResultRevisionCase['items'][number] | undefined,
   asset: ChecklistDeliveryAsset,
+  eligibleMedia?: readonly Pick<
+    ChecklistDeliveryAsset,
+    'mediaAssetId' | 'missionId'
+  >[],
 ): boolean {
-  return (
-    item?.strategy !== 'REWORK' ||
-    Boolean(
-      item.assignedReworkMissionId &&
-      item.assignedReworkMissionStatus === 'COMPLETED' &&
-      asset.missionId === item.assignedReworkMissionId,
+  if (item?.strategy !== 'REWORK') return true
+  if (
+    !item.assignedReworkMissionId ||
+    item.assignedReworkMissionStatus !== 'COMPLETED'
+  ) {
+    return false
+  }
+  if (eligibleMedia) {
+    return eligibleMedia.some(
+      (candidate) =>
+        candidate.mediaAssetId === asset.mediaAssetId &&
+        candidate.missionId === asset.missionId,
     )
-  )
+  }
+  return asset.missionId === item.assignedReworkMissionId
 }

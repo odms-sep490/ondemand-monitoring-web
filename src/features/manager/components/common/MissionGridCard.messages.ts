@@ -30,6 +30,12 @@ export const missionGridCardMessages = defineMessages({
     replace: 'Thay thế',
     replaceTitle: (code: string) => `Tạo nhiệm vụ thay thế cho ${code}`,
     schedule: 'Thời gian thực hiện',
+    scheduleUpdateButton: 'Cập nhật lịch',
+    scheduleRequiredBadge: 'Chưa có lịch bay',
+    scheduleRequiredForStaff:
+      'Vui lòng cập nhật lịch bay trước khi phân công nhân sự.',
+    scheduleRequiredForDevices:
+      'Vui lòng cập nhật lịch bay trước khi phân công thiết bị.',
     work: (n: number) => `Công việc (${n})`,
     workEmpty: 'Chưa có công việc nào được phân công',
     workRemoveTitle: 'Gỡ khỏi nhiệm vụ (chuyển về Chưa phân công)',
@@ -212,6 +218,12 @@ export const missionGridCardMessages = defineMessages({
     replace: 'Replace',
     replaceTitle: (code: string) => `Create a replacement for ${code}`,
     schedule: 'Scheduled time',
+    scheduleUpdateButton: 'Set schedule',
+    scheduleRequiredBadge: 'Schedule required',
+    scheduleRequiredForStaff:
+      'Please set a flight schedule before assigning staff.',
+    scheduleRequiredForDevices:
+      'Please set a flight schedule before assigning devices.',
     work: (n: number) => `Work items (${n})`,
     workEmpty: 'No work items assigned yet',
     workRemoveTitle: 'Remove from mission (return to Unassigned)',

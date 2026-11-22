@@ -47,3 +47,14 @@ it('still fails closed for rework without either a customer case or internal ori
     screen.queryByText('Internal shared planning workspace'),
   ).not.toBeInTheDocument()
 })
+it('routes a customer rework mission to ReworkPlanningPage', async () => {
+  vi.spyOn(missionsApi, 'getMissionResponse').mockResolvedValue({
+    id: 'rwk',
+    orderId: 'order',
+    status: 'PLANNING',
+    purpose: 'REWORK',
+    resultRevisionCaseId: 'case-1',
+  } as never)
+  render(<MissionScopedAssignmentPage missionId="rwk" />)
+  expect(await screen.findByText('Customer rework workspace')).toBeInTheDocument()
+})

@@ -18,7 +18,13 @@ export type MissionPermissions = {
 }
 
 export type MissionAction =
-  'connect' | 'handover' | 'flight' | 'preflight' | 'postflight' | 'upload'
+  | 'connect'
+  | 'handover'
+  | 'flight'
+  | 'preflight'
+  | 'postflight'
+  | 'upload'
+  | 'corrections'
 
 export function mayPerformMissionAction(
   permissions: MissionPermissions | null | undefined,
@@ -29,6 +35,12 @@ export function mayPerformMissionAction(
     return permissions.canOperatePayload === true
   if (action === 'postflight')
     return permissions.canMaintainDevice === true || permissions.canAccessMissionInspection === true
+  if (action === 'corrections')
+    return (
+      permissions.canAttachChecklistEvidence === true ||
+      permissions.canExecuteMonitoringChecklist === true ||
+      hasInspectionWorkspaceAccess(permissions)
+    )
   if (action === 'upload')
     return (
       permissions.canUploadMedia === true ||

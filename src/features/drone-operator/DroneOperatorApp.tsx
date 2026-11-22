@@ -155,7 +155,16 @@ function renderScreen(
         />
       </MissionActionGuard>
     )
-  if (route.screen === 'corrections') return <MissionCorrectionPage missionId={route.missionId} />
+  if (route.screen === 'corrections')
+    return (
+      <MissionActionGuard
+        key={`${route.missionId}:${route.screen}`}
+        missionId={route.missionId}
+        action="corrections"
+      >
+        <MissionCorrectionPage missionId={route.missionId} />
+      </MissionActionGuard>
+    )
   if (route.screen === 'inspection') return <MissionActionGuard missionId={route.missionId} action="postflight"><PostflightPage missionId={route.missionId} inspectionOnly /></MissionActionGuard>
   if (route.screen === 'postflight')
     return (

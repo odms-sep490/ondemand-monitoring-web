@@ -479,7 +479,7 @@ export default function MissionDetail({
   return (
     <div
       className="fade-in"
-      style={{ flex: 1, overflowY: 'auto', padding: '32px 36px' }}
+      style={{ flex: 1, overflowY: 'auto', padding: 'clamp(16px, 3vw, 32px) clamp(16px, 3vw, 36px)' }}
     >
       {/* Breadcrumb */}
       <button
@@ -672,7 +672,7 @@ export default function MissionDetail({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr 280px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
           gap: 20,
         }}
       >
@@ -706,14 +706,7 @@ export default function MissionDetail({
           <KV label={t.fields.targetLocation} value={mission.location} />
           <KV
             label={t.fields.scheduled}
-            value={new Date(mission.scheduledAt).toLocaleString(locale, {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            })}
+            value={mission.scheduledAt && !Number.isNaN(new Date(mission.scheduledAt).getTime()) ? new Date(mission.scheduledAt).toLocaleString(locale, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : t.unscheduled}
           />
           <KV
             label={t.fields.durationEstimate}

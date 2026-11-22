@@ -1,7 +1,7 @@
 import { monitoringChecklistMessages } from './MonitoringChecklistSection.messages'
 import type { EvidenceCandidateLoader } from '../types/checklistExecution'
 import { checklistReadyForInspection } from '../lib/customerEvidenceSelection'
-import { useState, type ComponentProps } from 'react'
+import { useEffect, useState, type ComponentProps } from 'react'
 import { InspectionCorrectionPanel } from '../inspection/InspectionCorrectionPanel'
 import { getLanguage, useI18n } from '../../../shared/i18n'
 import {
@@ -155,16 +155,41 @@ export function monitoringErrorMessage(error: unknown) {
 
 export function MonitoringChecklistSection(props: ComponentProps<typeof MonitoringChecklistContent>) {
   const known = !props.preview && props.resultKnown !== false
-  return <>
-    {known && !props.hideWorkflowPanels && props.data && (props.showInspectionCorrections || props.canAssess || props.canAttach || props.canExecute) && <InspectionCorrectionPanel
-      missionId={props.missionId}
-      rows={props.data.executions}
-      canRequest={(props.canReviewCorrections ?? props.canAssess) && props.resultStatus !== 'APPROVED'}
-      canRespond={props.canAttach || props.canExecute}
-      refresh={props.refresh}
-    />}
-    <MonitoringChecklistContent {...props} />
-  </>
+  const [focusRequest, setFocusRequest] = useState<{
+    executionId?: string
+    nonce: number
+  } | null>(null)
+  const hasCorrectionPanel =
+    known &&
+    !props.hideWorkflowPanels &&
+    Boolean(props.data) &&
+    Boolean(
+      props.showInspectionCorrections ||
+        props.canAssess ||
+        props.canAttach ||
+        props.canExecute,
+    )
+  if (!hasCorrectionPanel) {
+    return <MonitoringChecklistContent {...props} />
+  }
+  return (
+    <div className="monitoring-inspection-stack">
+      <InspectionCorrectionPanel
+        missionId={props.missionId}
+        rows={props.data!.executions}
+        canRequest={(props.canReviewCorrections ?? props.canAssess) && props.resultStatus !== 'APPROVED'}
+        canRespond={props.canAttach || props.canExecute}
+        refresh={props.refresh}
+        onReviewChecklist={(executionId) =>
+          setFocusRequest((prev) => ({
+            executionId,
+            nonce: (prev?.nonce ?? 0) + 1,
+          }))
+        }
+      />
+      <MonitoringChecklistContent {...props} focusRequest={focusRequest} />
+    </div>
+  )
 }
 function MonitoringChecklistContent({
   missionId,
@@ -192,6 +217,7 @@ function MonitoringChecklistContent({
   completionOnly = false,
   assessmentOnly = false,
   preview = false,
+  focusRequest = null,
 }: {
   missionId: string
   hideWorkflowPanels?: boolean
@@ -234,11 +260,32 @@ function MonitoringChecklistContent({
   assessmentOnly?: boolean
   /** Read-only preview shown before the pilot accepts the mission. */
   preview?: boolean
+  /** Triggered by correction workflows to scroll to and open a checklist row. */
+  focusRequest?: { executionId?: string; nonce: number } | null
 }) {
   const { lang, t } = useI18n(monitoringChecklistMessages)
   const assessments = assessmentLabels[lang]
   const finalReady = data ? checklistReadyForInspection(data) : false
   const [openId, setOpenId] = useState<string | null>(null)
+  useEffect(() => {
+    if (!focusRequest || !data?.executions?.length) return
+    const target =
+      (focusRequest.executionId &&
+        data.executions.find((row) => row.id === focusRequest.executionId)) ??
+      data.executions.find((row) => row.assessmentStatus !== 'COMPLIANT') ??
+      data.executions[0]
+    if (!target) return
+    setOpenId(target.id)
+    const frame = window.requestAnimationFrame(() => {
+      const element = document.getElementById(
+        `monitoring-checklist-item-${missionId}-${target.id}`,
+      )
+      element?.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
+      const trigger = element?.querySelector<HTMLButtonElement>('button.mc-row')
+      trigger?.focus({ preventScroll: true })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [focusRequest, data?.executions, missionId])
   const locked =
     resultStatus === 'PENDING_MANAGER_APPROVAL' || resultStatus === 'APPROVED'
   const canEditExecution =
@@ -388,6 +435,7 @@ function MonitoringChecklistContent({
               return (
                 <li
                   key={`evidence:${missionId}:${item.id}`}
+                  id={`monitoring-checklist-item-${missionId}-${item.id}`}
                   className={`mc-item ${tone}${open ? ' is-open' : ''}`}
                 >
                   <button

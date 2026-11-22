@@ -96,3 +96,25 @@ it('renders the related-media controls in English', () => {
     screen.getByRole('button', { name: 'View evidence roof.jpg' }),
   ).toBeInTheDocument()
 })
+it('renders a friendly label instead of an opaque UUID filename while preserving full accessible labels', () => {
+  const uuidPhoto = {
+    ...photo,
+    fileName: '7601f9d9-47d2-4a8e-9b1c-1234567890ab',
+  } as MissionChecklistEvidence
+  render(
+    <CorrectionEvidenceGallery
+      {...props}
+      links={[uuidPhoto]}
+      onChange={vi.fn()}
+    />,
+  )
+  expect(screen.getByText('Ảnh #1')).toBeInTheDocument()
+  expect(
+    screen.queryByText('7601f9d9-47d2-4a8e-9b1c-1234567890ab'),
+  ).toBeNull()
+  expect(
+    screen.getByRole('checkbox', {
+      name: 'Chọn tệp liên quan 7601f9d9-47d2-4a8e-9b1c-1234567890ab',
+    }),
+  ).toBeInTheDocument()
+})

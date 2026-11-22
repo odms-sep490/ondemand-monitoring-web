@@ -381,6 +381,17 @@ it('edits a planning rework schedule in the shared editor while keeping its chec
   expect(
     within(dialog).queryByText('Khoảng thời gian khách yêu cầu'),
   ).not.toBeInTheDocument()
+  expect(within(dialog).getByText('Thực hiện lại')).toBeInTheDocument()
+  expect(
+    within(dialog).getByText(/Thực hiện lại theo phiếu TKT-1/),
+  ).toBeInTheDocument()
+  expect(within(dialog).getByText('Phạm vi cố định')).toBeInTheDocument()
+  expect(
+    within(dialog).queryByRole('button', { name: 'Chọn tất cả' }),
+  ).not.toBeInTheDocument()
+  expect(
+    within(dialog).getByText('Xem ảnh và phản hồi trước đó của khách hàng'),
+  ).toBeInTheDocument()
   fireEvent.change(within(dialog).getByLabelText('Giờ cất cánh'), {
     target: { value: '2099-11-12T10:00' },
   })
@@ -393,6 +404,35 @@ it('edits a planning rework schedule in the shared editor while keeping its chec
       scheduledStartAt: new Date('2099-11-12T10:00').toISOString(),
       scheduledEndAt: new Date('2099-11-12T11:00').toISOString(),
     }),
+  )
+})
+
+it('defaults unscheduled rework weather check date to today instead of the original order date', async () => {
+  vi.spyOn(ordersApi, 'getOrder').mockResolvedValue({
+    id: 'order',
+    status: 'COMPLETED',
+    preferredDateFrom: '2099-12-25',
+    preferredDateTo: '2099-12-25',
+    checklistItems,
+    customer: { fullName: 'Customer' },
+  } as OrderDetail)
+  missions.push({
+    ...reworkMission(),
+    scheduledStartAt: null,
+    scheduledEndAt: null,
+  } as unknown as MissionResponse)
+  assignments['rework-1'] = ['A', 'B']
+  render(<ReworkPlanningPage orderId="order" caseId="case" />)
+  const card = await screen.findByRole('article', { name: 'MS-REWORK' })
+  fireEvent.click(within(card).getByRole('button', { name: 'Chỉnh sửa' }))
+  const dialog = await screen.findByRole('dialog', {
+    name: 'Chỉnh sửa nhiệm vụ MS-REWORK',
+  })
+  const now = new Date()
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const todayLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+  expect(within(dialog).getByLabelText('Ngày muốn kiểm tra')).toHaveValue(
+    todayLocal,
   )
 })
 
@@ -704,4 +744,66 @@ it('uses each derived Mission assignment scope without changing original coverag
     'rework-1',
     expect.any(AbortSignal),
   )
+})
+
+it('keeps internal correction planning writable when source is a REWORK mission on a COMPLETED order', async () => {
+  vi.mocked(ordersApi.getOrder).mockResolvedValue({
+    id: 'order',
+    status: 'COMPLETED',
+    code: 'ORD-1',
+    serviceName: 'Monitoring',
+    checklistItems,
+    customer: { fullName: 'Customer' },
+  } as OrderDetail)
+  const sourceRework = {
+    ...reworkMission(),
+    id: 'source-rework',
+    missionCode: 'MS-34099',
+    status: 'IN_PROGRESS',
+    resultRevisionCaseId: 'case',
+  } as unknown as MissionResponse
+  const childInternal = {
+    ...reworkMission(),
+    id: 'internal-1',
+    missionCode: 'MS-68575',
+    scheduledStartAt: null,
+    scheduledEndAt: null,
+    resultRevisionCaseId: null,
+    inspectionCorrectionId: 'correction',
+    inspectionSourceMissionId: 'source-rework',
+  } as unknown as MissionResponse
+  missions.push(sourceRework, childInternal)
+  assignments['internal-1'] = ['A']
+  const correction = {
+    ...internalRequest(),
+    missionId: 'source-rework',
+    supplementalMissionId: 'internal-1',
+    supplementalMissionStatus: 'PLANNING' as const,
+  }
+  vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([correction])
+
+  render(
+    <InternalCorrectionPlanningPage
+      orderId="order"
+      sourceMissionId="source-rework"
+      correctionId="correction"
+    />,
+  )
+
+  const card = within(await screen.findByRole('article', { name: 'MS-68575' }))
+  expect(
+    screen.queryByText(
+      'Yêu cầu bổ sung hoặc đơn hàng không còn cho phép lập kế hoạch. Nội dung được hiển thị để tra cứu.',
+    ),
+  ).not.toBeInTheDocument()
+  expect(
+    card.getByRole('button', { name: 'Cập nhật lịch' }),
+  ).toBeInTheDocument()
+  expect(
+    card.getByText('Vui lòng cập nhật lịch bay trước khi phân công nhân sự.'),
+  ).toBeInTheDocument()
+  expect(
+    card.getByText('Vui lòng cập nhật lịch bay trước khi phân công thiết bị.'),
+  ).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Chốt kế hoạch' })).toBeInTheDocument()
 })

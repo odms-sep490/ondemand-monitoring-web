@@ -67,11 +67,6 @@ const DroneOperatorHomePage = lazy(() =>
 const AdminApp = lazy(() =>
   import('../features/admin/AdminApp').then((m) => ({ default: m.AdminApp })),
 )
-const OperatorDashboardPage = lazy(() =>
-  import('../features/mission/pages/OperatorDashboardPage').then((m) => ({
-    default: m.OperatorDashboardPage,
-  })),
-)
 const PaymentResultPage = lazy(() =>
   import('../features/finance/PaymentResult').then((m) => ({
     default: m.PaymentResultPage,
@@ -451,7 +446,7 @@ function Routes() {
     return (
       <RoleRoute role="STAFF">
         <RouteContent>
-          <OperatorDashboardPage />
+          <StaffPortalRedirect />
         </RouteContent>
       </RoleRoute>
     )
@@ -461,4 +456,13 @@ function Routes() {
       <LandingPage />
     </RouteContent>
   )
+}
+
+function StaffPortalRedirect() {
+  useEffect(() => {
+    if (window.location.hash === '#operator') {
+      window.location.hash = '#portal/staff'
+    }
+  }, [])
+  return <DroneOperatorHomePage />
 }

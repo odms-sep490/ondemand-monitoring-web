@@ -1,5 +1,6 @@
-import { CloseOutlined, EditOutlined } from '@ant-design/icons'
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { EditOutlined, RightOutlined } from '@ant-design/icons'
+import { Button, Collapse, Tag } from 'antd'
+import { useState, useEffect, useId, useMemo, useCallback } from 'react'
 import { missionsApi } from '../../api/missionsApi'
 import { customerApi } from '../../../customer/api/customerApi'
 import { planningError } from '../../lib/planningErrors'
@@ -9,8 +10,10 @@ import { orderReviewPageMessages } from '../../pages/OrderReview/OrderReviewPage
 import { humanizeMediaRequirement } from './format'
 import { OrderIcon } from './OrderIcon'
 import { missionUpdatePanelMessages } from './MissionUpdatePanel.messages'
+import { PlanningFormModal } from '../../pages/OrderReview/components/PlanningFormModal'
+import { TicketResultReviewCard } from '../../../support/components/TicketResultReviewCard'
+import type { ResultRevisionCase } from '../../../delivery/api'
 import './MissionGridCard.css'
-import { Button } from 'antd'
 import {
   dateRangeFromBrief,
   forecastTimeFromBrief,
@@ -47,6 +50,7 @@ interface MissionUpdatePanelProps {
   order: OrderDetail
   plan: ExecutionPlan
   orderChecklistItems: OrderChecklistSnapshot[]
+  reworkCase?: ResultRevisionCase
   disabled: boolean
   onUpdated: () => void
   isOpen?: boolean
@@ -59,6 +63,7 @@ export function MissionUpdatePanel({
   order,
   plan,
   orderChecklistItems,
+  reworkCase,
   disabled,
   onUpdated,
   isOpen: externalIsOpen,
@@ -67,7 +72,10 @@ export function MissionUpdatePanel({
   const { t } = useI18n(missionCreatePageMessages)
   const { t: reviewT } = useI18n(orderReviewPageMessages)
   const { t: tu } = useI18n(missionUpdatePanelMessages)
-  const rework = mission.purpose === 'REWORK'
+  const scopeInputId = useId()
+  const rework =
+    mission.purpose === 'REWORK' || Boolean(mission.inspectionCorrectionId)
+  const internalSupplemental = Boolean(mission.inspectionCorrectionId)
   const localizeMediaLabel = (label: string) =>
     humanizeMediaRequirement(label, reviewT)
 
@@ -136,6 +144,9 @@ export function MissionUpdatePanel({
         )
         setWeatherCheckTime(`${p(d.getHours())}:${p(d.getMinutes())}`)
       }
+    } else if (rework) {
+      setWeatherCheckDate(toLocalInput(new Date()).slice(0, 10))
+      setWeatherCheckTime(forecastTimeFromBrief(brief))
     } else {
       const dates = dateRangeFromBrief(brief)
       setWeatherCheckDate(dates[0] ?? '')
@@ -147,6 +158,7 @@ export function MissionUpdatePanel({
     mission.scheduledEndAt,
     initialAssignedIds,
     brief,
+    rework,
   ])
 
   // Sync initial data when modal opens
@@ -337,196 +349,211 @@ export function MissionUpdatePanel({
       )}
 
       {open && (
-        <div
-          className="odm-planning-modal-backdrop"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              closeForm()
-            }
-          }}
-          role="dialog"
-          aria-modal="true"
-          aria-label={tu.editTitle(mission.missionCode ?? '')}
+        <PlanningFormModal
+          kind="edit"
+          ariaLabel={tu.editTitle(mission.missionCode ?? '')}
+          heading={tu.heading(mission.missionCode ?? '')}
+          subtitle={tu.subtitle}
+          closeAria={tu.closeAria}
+          closeTitle={tu.closeTitle}
+          onRequestClose={closeForm}
         >
-          <div
-            className="odm-planning-modal-dialog"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <header className="odm-planning-create-head">
-              <span className="odm-planning-create-icon" aria-hidden="true">
-                <EditOutlined />
-              </span>
-              <div>
-                <h3>{tu.heading(mission.missionCode ?? '')}</h3>
-                <p>{tu.subtitle}</p>
-              </div>
-              <button
-                className="odm-planning-create-close"
-                type="button"
-                aria-label={tu.closeAria}
-                title={tu.closeTitle}
-                onClick={closeForm}
-              >
-                <CloseOutlined aria-hidden="true" />
-              </button>
-            </header>
-
-            <div className="odm-planning-modal-body">
-              <div className="odm-or odm-plan-page is-embedded">
-                <section
-                  className="odm-or-card odm-plan-create"
-                  aria-label={tu.contextAria}
-                >
-                  <div className="odm-plan-create-body">
-                    <div className="odm-plan-create-grid">
-                      <div className="odm-plan-form">
-                        <h3>{tu.scopeHeading}</h3>
-                        <p className="odm-plan-description">
-                          {tu.scopeDescription}
-                        </p>
-                        <div className="odm-or-field">
-                          <span className="odm-or-field-label">
-                            {tu.scopeFieldLabel}
-                          </span>
-                          <input
-                            className="odm-or-input"
-                            readOnly
-                            value={
-                              mission.scopeLabel ||
-                              mission.orderTitle ||
-                              tu.scopeFallback
-                            }
-                          />
-                        </div>
-                      </div>
-                      <aside
-                        className="odm-plan-geography"
-                        aria-labelledby="mission-geography-title"
-                      >
-                        <h3 id="mission-geography-title">
-                          <OrderIcon name="info" size={18} />
-                          {tu.planInfo}
-                        </h3>
-                        <ul>
-                          <li>
-                            {tu.orderCode} <strong>{brief.code}</strong>
-                          </li>
-                          <li>
-                            {tu.planStatus}{' '}
-                            <strong>
-                              {plan.planStatus} ({tu.planVersion(plan.revision)}
-                              )
-                            </strong>
-                          </li>
-                          <li>
-                            {tu.location}{' '}
-                            <strong>
-                              {brief.addressText || tu.locationFallback}
-                            </strong>
-                          </li>
-                        </ul>
-                      </aside>
-                    </div>
-                  </div>
-                </section>
-
-                <div className="odm-or-grid">
-                  <div className="odm-or-col">
-                    {!rework && <CustomerTimeWindowCard brief={brief} />}
-                    {rework && <section className="odm-or-card odm-plan-window"><div className="odm-or-card-body">{t.reworkScheduleHelp}</div></section>}
-
-                    <WeatherForecastCard
-                      onCreated={() => {}}
-                      forecastTime={weatherCheckTime}
-                      weatherCheckDate={weatherCheckDate}
-                      setWeatherCheckDate={setWeatherCheckDate}
-                      weatherCheckTime={weatherCheckTime}
-                      setWeatherCheckTime={setWeatherCheckTime}
-                      brief={brief}
-                      forecastRows={forecastRows}
-                    />
-
-                    <FlightScheduleCard
-                      durationText={durationText}
-                      canFillFromCustomer={!rework && Boolean(
-                        dateRangeFromBrief(brief)[0],
-                      )}
-                      fillFromCustomer={fillFromCustomer}
-                      scheduledStart={scheduledStart}
-                      setScheduledStart={setScheduledStart}
-                      scheduledEnd={scheduledEnd}
-                      setScheduledEnd={setScheduledEnd}
-                      submit={submit}
-                      scopeLabel={
-                        mission.scopeLabel || mission.missionCode || ''
-                      }
-                    />
-
-                    <MissionChecklistSelectionCard
-                      disabled={rework}
-                      items={orderChecklistItems}
-                      plan={plan}
-                      selectedIds={selected}
-                      onToggle={handleToggleChecklist}
-                      onSelectAll={handleSelectAllChecklist}
-                      onSelectUncovered={handleSelectUncoveredChecklist}
-                      onDeselectAll={handleDeselectAllChecklist}
-                      error={
-                        submit.kind === 'validationFailed' &&
-                        selected.length === 0
-                          ? submit.message
-                          : undefined
+          <div className="odm-or odm-plan-page is-embedded">
+            <section
+              className="odm-or-card odm-plan-create"
+              aria-label={tu.contextAria}
+            >
+              <div className="odm-plan-create-body">
+                <div className="odm-plan-create-grid">
+                  <div className="odm-plan-form">
+                    <h3>{tu.scopeHeading}</h3>
+                    <p className="odm-plan-description">{tu.scopeDescription}</p>
+                    <label className="odm-or-field" htmlFor={scopeInputId}>
+                      <span className="odm-or-field-label">
+                        {tu.scopeFieldLabel}
+                      </span>
+                    </label>
+                    <input
+                      id={scopeInputId}
+                      className="odm-or-input"
+                      readOnly
+                      value={
+                        mission.scopeLabel ||
+                        mission.orderTitle ||
+                        tu.scopeFallback
                       }
                     />
                   </div>
-
-                  <div className="odm-or-col">
-                    <OrderSummaryCard
-                      summaryRows={summaryRows}
-                      brief={brief}
-                      localizeMediaLabel={localizeMediaLabel}
-                    />
-                  </div>
-                </div>
-
-                <div className="odm-or-actionbar">
-                  <div className="odm-or-actionbar-hint">
-                    <span className="odm-or-actionbar-hint-icon">
+                  <aside
+                    className="odm-plan-geography is-summary"
+                    aria-labelledby="mission-geography-title"
+                  >
+                    <h3 id="mission-geography-title">
                       <OrderIcon name="info" size={18} />
-                    </span>
-                    <span>
-                      {submit.kind === 'validationFailed' ? (
-                        <strong className="odm-mcard-error-text">
-                          {submit.message}
+                      {tu.planInfo}
+                    </h3>
+                    <ul>
+                      <li>
+                        {tu.orderCode} <strong>{brief.code}</strong>
+                      </li>
+                      <li>
+                        {tu.planStatus}{' '}
+                        <strong>
+                          {plan.planStatus} ({tu.planVersion(plan.revision)})
                         </strong>
-                      ) : (
-                        tu.actionHint
-                      )}
-                    </span>
-                  </div>
-                  <div className="odm-or-actionbar-actions">
-                    <Button
-                      size="large"
-                      disabled={submitting}
-                      onClick={closeForm}
-                    >
-                      {tu.cancel}
-                    </Button>
-                    <Button
-                      size="large"
-                      type="primary"
-                      loading={submitting}
-                      onClick={() => void handleSubmit()}
-                    >
-                      {submitting ? tu.saving : tu.save}
-                      <OrderIcon name="chevron-right" size={16} />
-                    </Button>
-                  </div>
+
+                      </li>
+                      <li>
+                        {tu.location}{' '}
+                        <strong>{brief.addressText || tu.locationFallback}</strong>
+                      </li>
+                    </ul>
+                  </aside>
                 </div>
+              </div>
+            </section>
+
+            <div className="odm-or-grid">
+              <div className="odm-or-col">
+                {!rework && <CustomerTimeWindowCard brief={brief} />}
+                {rework && (
+                  <section className="odm-or-card odm-plan-window">
+                    <header className="odm-or-card-head">
+                      <span className="odm-or-card-title">
+                        <Tag color="orange">
+                          {internalSupplemental ? t.internalScope : t.reworkBadge}
+                        </Tag>
+                        {reworkCase
+                          ? t.reworkScopeLabel(reworkCase.ticketCode)
+                          : internalSupplemental
+                            ? t.internalTitle
+                            : mission.scopeLabel || t.reworkBadge}
+                      </span>
+                    </header>
+                    <div className="odm-or-card-body">
+                      <p className="odm-or-muted">
+                        {internalSupplemental
+                          ? t.internalDescription
+                          : t.reworkScheduleHelp}
+                      </p>
+                    </div>
+                  </section>
+                )}
+
+                <WeatherForecastCard
+                  customSchedule={rework}
+                  onCreated={() => {}}
+                  forecastTime={weatherCheckTime}
+                  weatherCheckDate={weatherCheckDate}
+                  setWeatherCheckDate={setWeatherCheckDate}
+                  weatherCheckTime={weatherCheckTime}
+                  setWeatherCheckTime={setWeatherCheckTime}
+                  brief={brief}
+                  forecastRows={forecastRows}
+                />
+
+                <FlightScheduleCard
+                  durationText={durationText}
+                  canFillFromCustomer={
+                    !rework && Boolean(dateRangeFromBrief(brief)[0])
+                  }
+                  fillFromCustomer={fillFromCustomer}
+                  scheduledStart={scheduledStart}
+                  setScheduledStart={setScheduledStart}
+                  scheduledEnd={scheduledEnd}
+                  setScheduledEnd={setScheduledEnd}
+                  submit={submit}
+                  scopeLabel={mission.scopeLabel || mission.missionCode || ''}
+                />
+
+                <MissionChecklistSelectionCard
+                  disabled={rework}
+                  items={orderChecklistItems}
+                  plan={rework ? null : plan}
+                  selectedIds={selected}
+                  onToggle={handleToggleChecklist}
+                  onSelectAll={handleSelectAllChecklist}
+                  onSelectUncovered={handleSelectUncoveredChecklist}
+                  onDeselectAll={handleDeselectAllChecklist}
+                  error={
+                    submit.kind === 'validationFailed' && selected.length === 0
+                      ? submit.message
+                      : undefined
+                  }
+                />
+
+                {rework && reworkCase?.ticketId && (
+                  <Collapse
+                    className="odm-plan-feedback"
+                    items={[
+                      {
+                        key: 'feedback',
+                        label: t.reworkFeedback,
+                        children: (
+                          <TicketResultReviewCard
+                            ticketId={reworkCase.ticketId}
+                          />
+                        ),
+                      },
+                    ]}
+                  />
+                )}
+              </div>
+
+              <div className="odm-or-col">
+                <OrderSummaryCard
+                  summaryRows={summaryRows}
+                  brief={brief}
+                  localizeMediaLabel={localizeMediaLabel}
+                />
+              </div>
+            </div>
+
+            {submit.kind === 'validationFailed' && (
+              <div role="alert" className="odm-or-error odm-plan-submit-error">
+                {submit.message}
+              </div>
+            )}
+
+                        <div className="odm-or-actionbar">
+              <div className="odm-or-actionbar-hint">
+                <span className="odm-or-actionbar-hint-icon">
+                  <OrderIcon name="info" size={18} />
+                </span>
+                <span>
+                  {submit.kind === 'validationFailed' ? (
+                    <strong className="odm-mcard-error-text">
+                      {submit.message}
+                    </strong>
+                  ) : (
+                    tu.actionHint
+                  )}
+                </span>
+              </div>
+              <div className="odm-or-actionbar-actions">
+                <Button
+                  size="large"
+                  htmlType="button"
+                  disabled={submitting}
+                  onClick={closeForm}
+                >
+                  {tu.cancel}
+                </Button>
+                <Button
+                  size="large"
+                  type="primary"
+                  htmlType="button"
+                  loading={submitting}
+                  disabled={submitting}
+                  onClick={() => void handleSubmit()}
+                >
+                  {submitting ? tu.saving : tu.save}
+                  <RightOutlined aria-hidden="true" />
+                </Button>
               </div>
             </div>
           </div>
-        </div>
+        </PlanningFormModal>
       )}
     </>
   )

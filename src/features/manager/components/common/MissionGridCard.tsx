@@ -20,6 +20,7 @@ import { OrderIcon } from './OrderIcon'
 import { planningSchedule } from './planningSchedule'
 import { planningApi } from '../../api/planningApi'
 import { missionsApi } from '../../api/missionsApi'
+import { planningError } from '../../lib/planningErrors'
 import { getVisibleMissionStaffAssignments } from '../../lib/missionStaffAssignments'
 import { canAssignMissionDrone } from '../../lib/missionDroneAssignments'
 import { droneApi, type AvailableDrone } from '../../../staff/api/droneApi'
@@ -70,6 +71,11 @@ export function MissionGridCard({
   const isPlanning = mission.status === 'PLANNING'
   const isReady = mission.status === 'READY'
   const isCancelled = mission.status === 'CANCELLED'
+  const hasFlightWindow = Boolean(
+    mission.scheduledStartAt && mission.scheduledEndAt,
+  )
+  const requiresScheduleBeforeAssignment =
+    !disabled && !isCancelled && !hasFlightWindow
   const cardRef = useRef<HTMLElement>(null)
   const missionIdRef = useRef(mission.id)
   missionIdRef.current = mission.id
@@ -116,7 +122,8 @@ export function MissionGridCard({
   useEffect(() => {
     setRecommendationData(null)
     setRecommendationError('')
-  }, [mission.id])
+    setErrorMsg('')
+  }, [mission.id, hasFlightWindow])
 
   useEffect(() => {
     if (animation.phase !== 'SUCCESS') return
@@ -188,7 +195,7 @@ export function MissionGridCard({
       )
       onPlanChanged()
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : t.errRemoveWork)
+      setErrorMsg(planningError(err))
     } finally {
       setBusy(false)
     }
@@ -196,6 +203,10 @@ export function MissionGridCard({
 
   // 3. Open Add Device
   async function handleOpenAddDevice() {
+    if (!hasFlightWindow) {
+      setErrorMsg(t.scheduleRequiredForDevices)
+      return
+    }
     const missionId = mission.id
     const requestId = ++deviceLoadAttemptRef.current
     setShowAddDevice(true)
@@ -214,7 +225,7 @@ export function MissionGridCard({
         requestId !== deviceLoadAttemptRef.current ||
         missionId !== missionIdRef.current
       ) return
-      setErrorMsg(err instanceof Error ? err.message : t.errLoadDevices)
+      setErrorMsg(planningError(err))
     } finally {
       if (
         requestId === deviceLoadAttemptRef.current &&
@@ -290,7 +301,7 @@ export function MissionGridCard({
         if (!isCurrentRequest()) return
         await animation.rollback()
         if (!isCurrentRequest()) return
-        setErrorMsg(err instanceof Error ? err.message : t.errAssignDevice)
+        setErrorMsg(planningError(err))
       } finally {
         if (isCurrentRequest()) {
           requestSettled.current = true
@@ -324,7 +335,7 @@ export function MissionGridCard({
         await missionsApi.removeDevice(mission.id, assignmentId)
         onPlanChanged()
       } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : t.errRemoveDevice)
+        setErrorMsg(planningError(err))
       } finally {
         setBusy(false)
       }
@@ -357,7 +368,7 @@ export function MissionGridCard({
           })
           onPlanChanged()
         } catch (err: unknown) {
-          setErrorMsg(err instanceof Error ? err.message : t.errCancel)
+          setErrorMsg(planningError(err))
         } finally {
           setBusy(false)
         }
@@ -374,7 +385,7 @@ export function MissionGridCard({
       await missionsApi.confirmMissionPlanning(mission.id)
       onPlanChanged()
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : t.errConfirmMission)
+      setErrorMsg(planningError(err))
     } finally {
       setBusy(false)
     }
@@ -399,7 +410,7 @@ export function MissionGridCard({
         requestId !== recommendationAttemptRef.current ||
         missionId !== missionIdRef.current
       ) return
-      setRecommendationError(err instanceof Error ? err.message : t.recommendationError)
+      setRecommendationError(planningError(err))
     } finally {
       if (
         requestId === recommendationAttemptRef.current &&
@@ -512,11 +523,15 @@ export function MissionGridCard({
 
       {errorMsg && (
         <div className="odm-mcard-error" role="alert">
-          {errorMsg}
+          {planningError(new Error(errorMsg))}
         </div>
       )}
 
-      {recommendationError && <p className="odm-mcard-error" role="alert">{recommendationError}</p>}
+      {recommendationError && (
+        <p className="odm-mcard-error" role="alert">
+          {planningError(new Error(recommendationError))}
+        </p>
+      )}
       {recommendationData && (
         <section className="odm-mcard-ai-estimate-result odm-mcard-recommendations">
           <div className="odm-mcard-recommendations-heading">
@@ -580,8 +595,22 @@ export function MissionGridCard({
       <div className="odm-mcard-section odm-mcard-section--schedule">
         <div className="odm-mcard-sec-head">
           <span>{t.schedule}</span>
+          {requiresScheduleBeforeAssignment && isPlanning && onEditMission && (
+            <button
+              type="button"
+              className="odm-btn odm-btn-sm odm-btn-p"
+              disabled={busy}
+              onClick={() => onEditMission(mission)}
+            >
+              {t.scheduleUpdateButton}
+            </button>
+          )}
         </div>
-        <div className="odm-mcard-schedule">
+        <div
+          className={`odm-mcard-schedule${
+            requiresScheduleBeforeAssignment ? ' is-schedule-missing' : ''
+          }`}
+        >
           <OrderIcon name="calendar" size={14} />
           <span>
             {planningSchedule(mission.scheduledStartAt, mission.scheduledEndAt)}
@@ -624,33 +653,42 @@ export function MissionGridCard({
         <div className="odm-mcard-sec-head odm-mcard-staff-head">
           <span>{t.staffHead(assignedStaffCount, maxStaff)}</span>
           <div className="odm-mcard-staff-actions">
-            <a
-              href={managerHref({
-                screen: 'schedule',
-                assignmentMissionId: mission.id,
-                assignmentCanEdit: !disabled && !isCancelled,
-                assignmentReturnOrderId: order.id,
-              })}
-              className="odm-mcard-office-link"
-              title={
-                disabled || isCancelled
-                  ? t.office3dViewLinkTitle
-                  : t.office3dLinkTitle
-              }
-            >
-              <ApartmentOutlined aria-hidden="true" />
-              <span>
-                {disabled || isCancelled ? t.office3dViewLink : t.office3dLink}
+            {requiresScheduleBeforeAssignment ? (
+              <span className="odm-mcard-sec-badge is-warn">
+                {t.scheduleRequiredBadge}
               </span>
-              <ArrowRightOutlined aria-hidden="true" />
-            </a>
+            ) : (
+              <a
+                href={managerHref({
+                  screen: 'schedule',
+                  assignmentMissionId: mission.id,
+                  assignmentCanEdit: !disabled && !isCancelled,
+                  assignmentReturnOrderId: order.id,
+                })}
+                className="odm-mcard-office-link"
+                title={
+                  disabled || isCancelled
+                    ? t.office3dViewLinkTitle
+                    : t.office3dLinkTitle
+                }
+              >
+                <ApartmentOutlined aria-hidden="true" />
+                <span>
+                  {disabled || isCancelled ? t.office3dViewLink : t.office3dLink}
+                </span>
+                <ArrowRightOutlined aria-hidden="true" />
+              </a>
+            )}
           </div>
         </div>
 
-        <MissionGridStaffList
-          t={t}
-          staff={assignedStaff}
-        />
+        {requiresScheduleBeforeAssignment && assignedStaff.length === 0 ? (
+          <p className="odm-mission-meta odm-mcard-note">
+            {t.scheduleRequiredForStaff}
+          </p>
+        ) : (
+          <MissionGridStaffList t={t} staff={assignedStaff} />
+        )}
       </div>
 
       {/* Device Section */}
@@ -658,108 +696,132 @@ export function MissionGridCard({
         <div className="odm-mcard-sec-head odm-mcard-staff-head">
           <span>{t.deviceHead(currentDevices.length, maxDevices)}</span>
           <div className="odm-mcard-staff-actions">
-            {!disabled && canAssignMissionDrone(mission) && (
-              <a
-                href={managerHref({
-                  screen: 'drones',
-                  assignmentMissionId: mission.id,
-                })}
-                className="odm-mcard-office-link"
-                title={t.droneTeamLinkTitle}
-              >
-                <SendOutlined aria-hidden="true" />
-                <span>{t.droneTeamLink}</span>
-                <ArrowRightOutlined aria-hidden="true" />
-              </a>
-            )}
-            {!isCancelled && !disabled && currentDevices.length < maxDevices && (
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm"
-                onClick={handleOpenAddDevice}
-                disabled={busy}
-              >
-                {t.add}
-              </button>
+            {requiresScheduleBeforeAssignment ? (
+              <span className="odm-mcard-sec-badge is-warn">
+                {t.scheduleRequiredBadge}
+              </span>
+            ) : (
+              <>
+                {!disabled && canAssignMissionDrone(mission) && (
+                  <a
+                    href={managerHref({
+                      screen: 'drones',
+                      assignmentMissionId: mission.id,
+                    })}
+                    className="odm-mcard-office-link"
+                    title={t.droneTeamLinkTitle}
+                  >
+                    <SendOutlined aria-hidden="true" />
+                    <span>{t.droneTeamLink}</span>
+                    <ArrowRightOutlined aria-hidden="true" />
+                  </a>
+                )}
+                {!isCancelled &&
+                  !disabled &&
+                  hasFlightWindow &&
+                  currentDevices.length < maxDevices && (
+                    <button
+                      type="button"
+                      className="odm-btn odm-btn-sm"
+                      onClick={handleOpenAddDevice}
+                      disabled={busy}
+                    >
+                      {t.add}
+                    </button>
+                  )}
+              </>
             )}
           </div>
         </div>
 
-        <MissionGridDeviceList
-          t={t}
-          devices={currentDevices}
-          canRemove={!isCancelled && !disabled}
-          busy={busy}
-          onRemove={handleRemoveDevice}
-          enteringDeviceId={revealedDeviceId}
-        />
+        {requiresScheduleBeforeAssignment && currentDevices.length === 0 ? (
+          <p className="odm-mission-meta odm-mcard-note">
+            {t.scheduleRequiredForDevices}
+          </p>
+        ) : (
+          <>
+            <MissionGridDeviceList
+              t={t}
+              devices={currentDevices}
+              canRemove={!isCancelled && !disabled}
+              busy={busy}
+              onRemove={handleRemoveDevice}
+              enteringDeviceId={revealedDeviceId}
+            />
 
-        {!isCancelled && !disabled && currentDevices.length < maxDevices && (
-          <div
-            ref={animation.targetRef}
-            className={`mg-drone-assignment-target${
-              animation.phase !== 'IDLE' &&
-              animation.phase !== 'SUCCESS' &&
-              animation.phase !== 'ERROR'
-                ? ' is-active'
-                : ''
-            }`}
-          >
-            <span className="mg-drone-target-pulse mg-drone-target-pulse--first" />
-            <span className="mg-drone-target-pulse mg-drone-target-pulse--second" />
-            <span className="mg-drone-target-crosshair" aria-hidden="true">
-              <i />
-            </span>
-            <span className="mg-drone-target-copy">
-              <strong>{t.deviceAssignTarget}</strong>
-              <span>{t.deviceAssignTargetHint}</span>
-            </span>
-          </div>
+            {!isCancelled &&
+              !disabled &&
+              hasFlightWindow &&
+              currentDevices.length < maxDevices && (
+                <div
+                  ref={animation.targetRef}
+                  className={`mg-drone-assignment-target${
+                    animation.phase !== 'IDLE' &&
+                    animation.phase !== 'SUCCESS' &&
+                    animation.phase !== 'ERROR'
+                      ? ' is-active'
+                      : ''
+                  }`}
+                >
+                  <span className="mg-drone-target-pulse mg-drone-target-pulse--first" />
+                  <span className="mg-drone-target-pulse mg-drone-target-pulse--second" />
+                  <span className="mg-drone-target-crosshair" aria-hidden="true">
+                    <i />
+                  </span>
+                  <span className="mg-drone-target-copy">
+                    <strong>{t.deviceAssignTarget}</strong>
+                    <span>{t.deviceAssignTargetHint}</span>
+                  </span>
+                </div>
+              )}
+
+            {showAddDevice && hasFlightWindow && (
+              <MissionGridAddDeviceForm
+                t={t}
+                loading={loadingDevices}
+                busy={busy}
+                role={selectedDeviceRole}
+                onRoleChange={setSelectedDeviceRole}
+                drones={assignableDrones}
+                activeDeviceId={activeDeviceId}
+                onCancel={() => {
+                  deviceLoadAttemptRef.current += 1
+                  setShowAddDevice(false)
+                  setErrorMsg('')
+                }}
+                onAssign={handleConfirmAddDevice}
+                onSourceRef={(deviceId, element) => {
+                  if (element) sourceRefs.current.set(deviceId, element)
+                  else sourceRefs.current.delete(deviceId)
+                }}
+              />
+            )}
+
+            {!disabled && !isCancelled && hasFlightWindow && (
+              <p
+                className={`mg-drone-assignment-feedback is-${animation.phase.toLowerCase()}`}
+                role="status"
+                aria-live="polite"
+              >
+                {animation.phase === 'IDLE'
+                  ? t.deviceAssignIdle
+                  : animation.phase === 'PREPARING'
+                    ? t.deviceAssignPreparing
+                    : animation.phase === 'FLYING'
+                      ? t.deviceAssignFlying
+                      : animation.phase === 'AWAITING_CONFIRMATION'
+                        ? t.deviceAssignWaiting
+                        : animation.phase === 'LANDING'
+                          ? t.deviceAssignLanding
+                          : animation.phase === 'SUCCESS'
+                            ? t.deviceAssignSuccess
+                            : animation.phase === 'ROLLING_BACK'
+                              ? t.deviceAssignRollback
+                              : errorMsg || t.errAssignDevice}
+              </p>
+            )}
+          </>
         )}
-
-        {showAddDevice && (
-          <MissionGridAddDeviceForm
-            t={t}
-            loading={loadingDevices}
-            busy={busy}
-            role={selectedDeviceRole}
-            onRoleChange={setSelectedDeviceRole}
-            drones={assignableDrones}
-            activeDeviceId={activeDeviceId}
-            onCancel={() => {
-              deviceLoadAttemptRef.current += 1
-              setShowAddDevice(false)
-              setErrorMsg('')
-            }}
-            onAssign={handleConfirmAddDevice}
-            onSourceRef={(deviceId, element) => {
-              if (element) sourceRefs.current.set(deviceId, element)
-              else sourceRefs.current.delete(deviceId)
-            }}
-          />
-        )}
-
-        <p
-          className={`mg-drone-assignment-feedback is-${animation.phase.toLowerCase()}`}
-          role="status"
-          aria-live="polite"
-        >
-          {animation.phase === 'IDLE'
-            ? t.deviceAssignIdle
-            : animation.phase === 'PREPARING'
-              ? t.deviceAssignPreparing
-              : animation.phase === 'FLYING'
-                ? t.deviceAssignFlying
-                : animation.phase === 'AWAITING_CONFIRMATION'
-                  ? t.deviceAssignWaiting
-                  : animation.phase === 'LANDING'
-                    ? t.deviceAssignLanding
-                    : animation.phase === 'SUCCESS'
-                      ? t.deviceAssignSuccess
-                      : animation.phase === 'ROLLING_BACK'
-                        ? t.deviceAssignRollback
-                        : errorMsg || t.errAssignDevice}
-        </p>
       </div>
 
       <div className="odm-mcard-navigation">

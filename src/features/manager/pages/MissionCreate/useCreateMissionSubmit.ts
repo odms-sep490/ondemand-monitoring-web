@@ -111,7 +111,7 @@ export function useCreateMissionSubmit({
     if (hasChecklistItems && selectedChecklistIds.length === 0) {
       setSubmit({
         kind: 'validationFailed',
-        message: 'Vui lòng chọn ít nhất một hạng mục checklist cho Mission.',
+        message: t.validationChecklistRequired,
       })
       return
     }

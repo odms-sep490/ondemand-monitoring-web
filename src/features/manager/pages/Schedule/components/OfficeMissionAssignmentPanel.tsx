@@ -11,6 +11,7 @@ import {
 import { Button, Checkbox, Empty, Input, Popconfirm, Skeleton, Tag } from 'antd'
 
 import { missionsApi, toMissionCalendarItem } from '../../../api/missionsApi'
+import { planningError } from '../../../lib/planningErrors'
 import { getVisibleMissionStaffAssignments } from '../../../lib/missionStaffAssignments'
 import type { MissionCalendarItem, MissionStaffAssignmentResponse } from '../../../types/missions'
 import type { AvailableOperator } from '../../../../staff/api/operatorApi'
@@ -28,6 +29,7 @@ const COPY = {
     loading: 'Đang tải thông tin nhiệm vụ…',
     missionMissing: 'Không tìm thấy nhiệm vụ này.',
     canceled: 'Nhiệm vụ đã hủy nên không thể thay đổi phân công.',
+    scheduleRequired: 'Nhiệm vụ chưa có lịch bay. Vui lòng cập nhật giờ cất cánh và kết thúc trước khi phân công nhân sự.',
     readOnly: 'Nhiệm vụ hiện chỉ xem được. Quay lại bước lập kế hoạch để tiếp tục phân công.',
     assigned: 'Đã phân công',
     staff: (count: number) => `${count}/${MAX_STAFF} nhân sự`,
@@ -77,6 +79,8 @@ const COPY = {
     loading: 'Loading mission details…',
     missionMissing: 'This mission could not be found.',
     canceled: 'This mission is cancelled, so assignments cannot be changed.',
+    scheduleRequired:
+      'This mission has no flight schedule yet. Set start and end times before assigning staff.',
     readOnly: 'This mission is view-only. Return to planning to continue staff assignment.',
     assigned: 'Assigned staff',
     staff: (count: number) => `${count}/${MAX_STAFF} staff`,
@@ -290,7 +294,10 @@ export function OfficeMissionAssignmentPanel({
       !assignments.some((assignment) => assignment.responseStatus === 'REJECTED'),
   ).length
   const staffLimitReached = activeStaffCount >= MAX_STAFF
-  const isEditable = Boolean(canEdit && mission && mission.status !== 'CANCELLED')
+  const hasSchedule = Boolean(mission?.scheduledStartAt && mission?.scheduledEndAt)
+  const isEditable = Boolean(
+    canEdit && mission && mission.status !== 'CANCELLED' && hasSchedule,
+  )
   const currentMissionId = mission?.id ?? null
   const assignmentEditorOpen = Boolean(selectedStaffId) || (
     assignmentEditor.missionId === currentMissionId
@@ -362,13 +369,7 @@ export function OfficeMissionAssignmentPanel({
       setNotice(isReplacementMode ? copy.replacementSuccess : copy.success)
       onAssignmentChanged(updatedMission)
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : isReplacementMode
-            ? copy.replacementError
-            : copy.assignError,
-      )
+      setError(planningError(cause))
     } finally {
       setSaving(false)
     }
@@ -386,7 +387,7 @@ export function OfficeMissionAssignmentPanel({
       setNotice(copy.success)
       onAssignmentChanged(updatedMission)
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : copy.removeError)
+      setError(planningError(cause))
     } finally {
       setRemovingId(null)
     }
@@ -423,7 +424,10 @@ export function OfficeMissionAssignmentPanel({
           {mission.status === 'CANCELLED' && (
             <p className="mgr-office-assignment-muted" role="status">{copy.canceled}</p>
           )}
-          {mission.status !== 'CANCELLED' && !canEdit && (
+          {mission.status !== 'CANCELLED' && !hasSchedule && (
+            <p className="mgr-office-assignment-muted" role="status">{copy.scheduleRequired}</p>
+          )}
+          {mission.status !== 'CANCELLED' && hasSchedule && !canEdit && (
             <p className="mgr-office-assignment-muted" role="status">{copy.readOnly}</p>
           )}
 

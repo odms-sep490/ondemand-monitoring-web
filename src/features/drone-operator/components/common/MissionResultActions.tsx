@@ -77,23 +77,20 @@ export function missionResultActions(
 
 /** Keep the original error object in state for diagnostics; never present server internals. */
 export function staffResultError(error: unknown) {
+  const t = missionResultActionsMessages[getLanguage()]
   if (error instanceof ApiError) {
-    if (error.status === 401)
-      return 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.'
-    if (error.status === 403)
-      return 'Bạn không có quyền thực hiện thao tác này.'
-    if (error.code === 'MISSION_STATUS_INVALID')
-      return 'Trạng thái Mission đã thay đổi. Dữ liệu mới đang được cập nhật.'
-    if (error.code === 'CHECKLIST_EXECUTION_LOCKED')
-      return 'Kết quả đã được gửi hoặc duyệt. Dữ liệu mới đang được cập nhật.'
+    if (error.status === 401) return t.error401
+    if (error.status === 403) return t.error403
+    if (error.code === 'MISSION_STATUS_INVALID') return t.errorStatusInvalid
+    if (error.code === 'CHECKLIST_EXECUTION_LOCKED') return t.errorLocked
     if (error.code === 'CHECKLIST_NOT_READY')
       return error.message.includes('EVIDENCE_TYPE_NOT_ELIGIBLE')
-        ? 'Một hoặc nhiều mục có media sai loại. Thay bằng đúng loại ảnh/video theo yêu cầu của từng mục.'
+        ? t.errorWrongType
         : error.message.includes('INSUFFICIENT_EVIDENCE')
-          ? 'Chưa đủ bằng chứng hợp lệ theo số lượng yêu cầu. Kiểm tra tiến độ từng mục và bổ sung phần còn thiếu.'
-          : 'Checklist chưa hoàn tất hoặc chưa đủ bằng chứng hợp lệ.'
+          ? t.errorInsufficient
+          : t.errorNotReady
   }
-  return 'Không thể thực hiện thao tác. Dữ liệu mới đang được cập nhật; vui lòng kiểm tra và thử lại.'
+  return t.errorFallback
 }
 
 export function MissionResultActions({
