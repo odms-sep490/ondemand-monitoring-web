@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Card, Image, Select, Space, Tag, Tooltip } from 'antd'
+import { Alert, Button, Card, Image, Select, Tag, Tooltip } from 'antd'
+import './MissionQualityPanel.css'
 import {
   CheckCircleFilled,
   WarningFilled,
@@ -195,12 +196,13 @@ function Panel({
   const selectedMedia = selected ? mediaMap[selected] : undefined
 
   return (
-    <Card size="small" title="Hỗ trợ kiểm duyệt chất lượng ảnh">
-      <Button onClick={() => setOpen(value => !value)}>
+    <Card className="mission-quality-panel" size="small" title="Hỗ trợ kiểm duyệt chất lượng ảnh" extra={
+      <Button size="small" aria-expanded={open} onClick={() => setOpen(value => !value)}>
         {open ? 'Thu gọn' : 'Mở kiểm tra chất lượng AI'}
       </Button>
+    }>
       {open && (
-        <Space direction="vertical" style={{ width: '100%', marginTop: 12 }}>
+        <div className="mission-quality-content">
           <div className="mission-quality-summary">
             <span>{`Tổng ảnh: ${rows.length}`}</span>
             <span>{`Đã kiểm tra: ${completed.length}`}</span>
@@ -215,7 +217,7 @@ function Panel({
             message={`Chưa kiểm tra được ${rows.filter(row => row.status === 'FAILED').length} ảnh`}
             description="Dịch vụ xử lý chưa trả được kết quả. Mở từng ảnh để xem chi tiết hoặc thử kiểm tra lại." />}
           <div className="image-quality-actions">
-            <Button loading={busy} onClick={() => void batch()}>
+            <Button type="primary" loading={busy} onClick={() => void batch()}>
               Kiểm tra tất cả ảnh
             </Button>
             <Button onClick={() => void load()}>Tải lại</Button>
@@ -310,7 +312,7 @@ function Panel({
           <p className="mission-quality-footer">
             Người duyệt xác nhận ảnh trước khi bàn giao.
           </p>
-        </Space>
+        </div>
       )}
     </Card>
   )

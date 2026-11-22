@@ -82,6 +82,11 @@ export type ChecklistQuoteContext = {
   permitStatus?: 'NONE' | 'HAVE_PERMIT' | 'NEED_SUPPORT'
 }
 
+export type CustomerQuoteSelection = ChecklistQuoteContext & {
+  serviceId: string
+  items: CustomerQuoteItem[]
+}
+
 export const checklistPricingApi = {
   defaultPrice: (serviceId: string, signal?: AbortSignal) =>
     apiRequest<ServicePricePreview>(

@@ -1,0 +1,28 @@
+export const requestAssistantMessages = {
+  vi: {
+    title: 'Hỏi AI về dịch vụ', hint: 'Hiểu nội dung, chi phí và các bước tiếp theo', open: 'Hỏi ngay',
+    intro: 'Bạn muốn hiểu rõ điều gì?', context: 'AI giải thích theo nội dung bạn đang chọn. Chi phí là tạm tính.',
+    suggestions: ['Tôi sẽ nhận được những gì?', 'Vì sao có chi phí này?', 'Sau khi gửi yêu cầu, tôi cần làm gì?'],
+    label: 'Câu hỏi của bạn', placeholder: 'Ví dụ: Tôi có thể thay đổi số ảnh không?', send: 'Gửi câu hỏi',
+    thinking: 'AI đang xem lựa chọn của bạn…', answer: 'AI giải thích',
+    unavailable: 'Chưa kết nối được AI. Bạn có thể thử lại hoặc liên hệ hỗ trợ.',
+    busy: 'AI đang bận. Vui lòng đợi một chút rồi thử lại.', retry: 'Thử lại',
+    choose: 'Hãy chọn nội dung giám sát hợp lệ trước khi hỏi AI.',
+    selectionChanged: 'Dịch vụ đang chọn đã thay đổi hoặc không còn tồn tại. Hãy chọn lại dịch vụ để cập nhật nội dung và chi phí.',
+    reselect: 'Chọn lại dịch vụ',
+    note: 'Bạn tự quyết định và chỉnh sửa lựa chọn trên biểu mẫu.',
+  },
+  en: {
+    title: 'Ask AI about this service', hint: 'Understand the scope, costs and next steps', open: 'Ask AI',
+    intro: 'What would you like to understand?', context: 'AI uses your current selection. Costs are estimates.',
+    suggestions: ['What will I receive?', 'Why does it cost this much?', 'What happens after I submit my request?'],
+    label: 'Your question', placeholder: 'For example: Can I change the number of photos?', send: 'Send question',
+    thinking: 'AI is reviewing your selection…', answer: 'AI explanation',
+    unavailable: 'AI is unavailable. Please try again or contact support.',
+    busy: 'AI is busy. Please wait a moment and try again.', retry: 'Try again',
+    choose: 'Please select valid monitoring items before asking AI.',
+    selectionChanged: 'The selected service has changed or is no longer available. Select a service again to update the items and cost.',
+    reselect: 'Select a service again',
+    note: 'You decide and edit your choices in the form.',
+  },
+}

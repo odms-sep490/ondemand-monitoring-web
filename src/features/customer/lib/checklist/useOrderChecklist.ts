@@ -225,11 +225,12 @@ export function useOrderChecklist(
         }))
       : null
   const selectedMediaTotals = mediaTotals(rows)
-  const quote = useChecklistQuote(serviceId, quoteItems, {
+  const quoteContext = {
     ...(pricingContext ?? {}),
     // Keep the preview inputs identical to the formats buildOrderPayload persists.
     resultFormats: resultFormatsFromMediaTotals(selectedMediaTotals),
-  })
+  }
+  const quote = useChecklistQuote(serviceId, quoteItems, quoteContext)
 
   function change(
     key: string,
@@ -270,6 +271,7 @@ export function useOrderChecklist(
     totalCount: rows.filter((row) => row.packageItem !== false || row.selected)
       .length,
     quote,
+    quoteSelection: quoteItems ? { serviceId, items: quoteItems, ...quoteContext } : null,
     /** Choices and quantities for the backend price quote; null while the form is incomplete. */
     quoteItems: () => quoteItems,
     valid: status === 'ready' && !validation,
@@ -332,4 +334,4 @@ export function useOrderChecklist(
   }
 }
 
-export type OrderChecklistEditorState = ReturnType<typeof useOrderChecklist>
+export type OrderChecklistEditorState = Omit<ReturnType<typeof useOrderChecklist>, 'quoteSelection'>

@@ -1,3 +1,4 @@
+import { SmartQuoteAssistant } from '../../SmartQuoteAssistant'
 import { useState, type ReactNode } from 'react'
 import { QuoteGuidance } from './QuoteGuidance'
 import { Button } from 'antd'
@@ -67,7 +68,7 @@ export function QuoteSection({
             </div>
             <QuoteLines items={quote.items} />
           </section>
-          <QuoteGuidance quote={quote} />
+          <QuoteGuidance quote={quote} /><SmartQuoteAssistant orderId={quote.orderId} quoteId={quote.id} customer />
           <div className="customer-quote-financial-summary">
             <section
               className="customer-quote-summary-section"

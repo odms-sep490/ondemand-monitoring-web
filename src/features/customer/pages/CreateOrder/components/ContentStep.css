@@ -37,6 +37,11 @@
   border-radius: 0;
   overflow: visible;
   box-shadow: none;
+  align-self: stretch;
+}
+
+.co-content-aside .cus-service-ai {
+  margin-top: 0;
 }
 
 .co-content-editor {
@@ -950,12 +955,49 @@
 }
 
 @container monitoring-step (min-width: 1000px) {
+  /* Let the sidebar determine the shared height; the checklist fills that space. */
+  .co-content-editor {
+    position: relative;
+    min-height: clamp(520px, calc(100dvh - 220px), 740px);
+  }
+
+  .co-content-editor > [role='region'] {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .co-page .co-content-editor .checklist-card.is-compact {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .co-page .co-content-editor .checklist-card.is-compact > .ant-card-head {
+    flex-shrink: 0;
+  }
+
+  .co-page .co-content-editor .checklist-card.is-compact > .ant-card-body {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .co-page .co-content-editor .checklist-card.is-compact > .ant-card-body > :not(.checklist-fields) {
+    flex-shrink: 0;
+  }
+
   .co-page .co-content-editor .checklist-card.is-compact .checklist-fields {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     min-height: 0;
-    max-height: clamp(200px, calc(100dvh - 400px), 520px);
+    flex: 1 1 0;
+    max-height: none;
     padding-right: 7px;
     overflow-x: hidden;
     overflow-y: auto;
