@@ -64,4 +64,3 @@ for (const role of ['customer','manager']) {
     await page.screenshot({path:`test-results/smart-quote-${role}.png`,fullPage:true})
   })
 }
-

@@ -20,4 +20,3 @@ test('opens authoritative breakdown and sends read-only scope comparison', async
   expect(await screen.findByText('Phương án mới: Cần báo giá lại')).toBeTruthy()
   expect(vi.mocked(apiRequest).mock.calls[1][0]).toBe('/api/customer/orders/o/quotes/q/compare')
 })
-
