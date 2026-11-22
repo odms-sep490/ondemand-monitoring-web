@@ -1,4 +1,3 @@
-import { SmartQuoteAssistant } from '../../SmartQuoteAssistant'
 import { QuoteBreakdown } from './QuoteBreakdown'
 import { SummaryRow } from './SummaryRow'
 import { MIN_REASON_LENGTH } from '../pricingHelpers'
@@ -28,7 +27,6 @@ export function QuoteSummary({
   adjustmentReasonRequired,
   approveBlockedReason,
   approve,
-  prepareAnalysis,
   data,
 }: {
   systemPrice: number
@@ -48,17 +46,11 @@ export function QuoteSummary({
   adjustmentReasonRequired: boolean
   approveBlockedReason: string | null | undefined
   approve: () => Promise<void>
-  prepareAnalysis: () => Promise<void>
   data: PricingReview
 }) {
   const { t } = useI18n(pricingMessages)
-  const prepareDisabled = busy || approved || pendingCustomCount > 0 ||
-    outOfRangeCount > 0 || Boolean(approveBlockedReason)
-  const prepareHint = pendingCustomCount > 0
-    ? t.approveTitlePending
-    : outOfRangeCount > 0
-      ? t.approveTitleOutOfRange
-      : (approveBlockedReason ?? undefined)
+  const prepareDisabled = busy || approved || pendingCustomCount > 0 || outOfRangeCount > 0 || Boolean(approveBlockedReason)
+  const prepareHint = pendingCustomCount > 0 ? t.approveTitlePending : outOfRangeCount > 0 ? t.approveTitleOutOfRange : (approveBlockedReason ?? undefined)
   return (
     <aside className="odm-or-card finance-quote" aria-label={t.summaryAria}>
       <header className="finance-heading finance-quote-heading">
@@ -71,14 +63,7 @@ export function QuoteSummary({
       </header>
       <div className="finance-quote-body">
         <div className="finance-quote-content">
-          <SmartQuoteAssistant
-            orderId={data.orderId}
-            quoteId={data.currentQuote?.id}
-            onPrepare={prepareAnalysis}
-            preparing={busy}
-            prepareDisabled={prepareDisabled}
-            prepareHint={prepareHint}
-          />
+
           <QuoteBreakdown
             items={data.systemCalculation?.items ?? []}
             checklistItems={data.checklistItems}

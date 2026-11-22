@@ -16,8 +16,6 @@ import type { ChecklistRow } from '../../../lib/checklist/types'
 import { contentStepMessages } from './ContentStep.messages'
 import { PricingEstimateCard } from './PricingEstimateCard'
 import './ContentStep.css'
-import { RequestServiceAssistant } from '../../../components/request-assistant/RequestServiceAssistant'
-import type { CustomerQuoteSelection } from '../../../../../shared/api/checklistPricingApi'
 
 type Props = {
   selected?: ServiceOption
@@ -30,8 +28,6 @@ type Props = {
   valid: boolean
   pricingEstimate: ServicePricingEstimate | null
   pricingLoading: boolean
-  assistantSelection?: CustomerQuoteSelection | null
-  onServiceCatalogChanged?: () => void
 }
 
 /** Edit requirements while summary and navigation remain available on all screens. */
@@ -59,11 +55,7 @@ export function ContentStep(p: Props) {
               hasService={Boolean(p.selected)}
               additionalChecklists={p.additionalChecklists}
             />
-            <RequestServiceAssistant
-              key={JSON.stringify(p.assistantSelection)}
-              selection={p.assistantSelection ?? null}
-              onSelectionInvalid={p.onServiceCatalogChanged}
-            />
+
           </aside>
           <Card
             className="co-content-overview-card"
