@@ -401,6 +401,7 @@ export function MissionUpdatePanel({
                         <strong>
                           {plan.planStatus} ({tu.planVersion(plan.revision)})
                         </strong>
+
                       </li>
                       <li>
                         {tu.location}{' '}
@@ -514,15 +515,24 @@ export function MissionUpdatePanel({
               </div>
             )}
 
-            <div className="odm-or-actionbar">
+                        <div className="odm-or-actionbar">
               <div className="odm-or-actionbar-hint">
                 <span className="odm-or-actionbar-hint-icon">
                   <OrderIcon name="info" size={18} />
                 </span>
-                <span>{tu.actionHint}</span>
+                <span>
+                  {submit.kind === 'validationFailed' ? (
+                    <strong className="odm-mcard-error-text">
+                      {submit.message}
+                    </strong>
+                  ) : (
+                    tu.actionHint
+                  )}
+                </span>
               </div>
               <div className="odm-or-actionbar-actions">
                 <Button
+                  size="large"
                   htmlType="button"
                   disabled={submitting}
                   onClick={closeForm}
@@ -530,8 +540,10 @@ export function MissionUpdatePanel({
                   {tu.cancel}
                 </Button>
                 <Button
+                  size="large"
                   type="primary"
                   htmlType="button"
+                  loading={submitting}
                   disabled={submitting}
                   onClick={() => void handleSubmit()}
                 >

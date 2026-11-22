@@ -13,6 +13,7 @@ import { MediaInfoList } from './MediaInfoList'
 import { MediaViewer } from './MediaViewer'
 import { mediaPreviewModalMessages } from './MediaPreviewModal.messages'
 import { useFreshMedia } from './useFreshMedia'
+import { ImageQualityPanel } from '../../../../media/components/ImageQualityPanel'
 
 type Props = {
   item: MediaItem
@@ -49,6 +50,10 @@ export function MediaPreviewModal({
         {t.next}
       </Button>
       <span className="md-footer-spacer" />
+      {item.kind === 'image' && shown.canDownloadOriginal && <Popover trigger="click" placement="top" zIndex={1200}
+        content={<div style={{ width: 'min(620px, 85vw)', maxHeight: '65vh', overflow: 'auto' }}><ImageQualityPanel mediaId={item.id} customer /></div>}>
+        <Button>Kiểm tra chất lượng AI</Button>
+      </Popover>}
       {showDetailLink && (
         <Button
           href={customerHref({ screen: 'mediaDetail', mediaId: item.id })}

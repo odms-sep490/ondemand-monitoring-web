@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError } from '../../../../shared/api/httpClient'
+import * as httpClient from '../../../../shared/api/httpClient'
 import { contractApi } from '../../../contract/contractApi'
 import { financeApi } from '../../api'
 import { ManagerPricingPanel } from '../ManagerPricingPanel'
@@ -82,6 +83,48 @@ function reviewWith(amount: number) {
 }
 
 describe('ManagerPricingPanel', () => {
+  it('shows analysis before a quote exists, saves explicitly and opens the saved quote without approving it', async () => {
+    vi.spyOn(financeApi, 'getPricingReview').mockResolvedValue(reviewWith(400_000))
+    const save = vi.spyOn(financeApi, 'saveDraft').mockResolvedValue({
+      id: 'quote-1', orderId: 'order-1', version: 1, status: 'DRAFT',
+      packagePrice: 400_000, additionalAmount: 0, discountAmount: 0,
+      adjustmentAmount: 0, totalAmount: 400_000, managerNote: null,
+      approvedByName: null, approvedAt: null, acceptedAt: null, items: [],
+    })
+    const approve = vi.spyOn(financeApi, 'approveQuote')
+    const analysis = vi.spyOn(httpClient, 'apiRequest').mockResolvedValue({
+      revision: 'r1', version: 1, total: 400_000, warnings: [], items: [],
+    })
+    render(<ManagerPricingPanel orderId="order-1" />)
+
+    const details = (await screen.findByText('Phân tích báo giá')).closest('details')!
+    details.open = true
+    fireEvent(details, new Event('toggle'))
+    expect(save).not.toHaveBeenCalled()
+    expect(analysis).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu và phân tích' }))
+
+    await waitFor(() => expect(analysis).toHaveBeenCalledWith(
+      '/api/manager/orders/order-1/quotes/quote-1/analysis',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    ))
+    expect(screen.getByText('Phân tích báo giá').closest('details')).toHaveAttribute('open')
+    expect(save).toHaveBeenCalledTimes(1)
+    expect(approve).not.toHaveBeenCalled()
+  })
+
+  it('keeps the save-and-analyze action blocked by the same readiness conditions as contract preparation', async () => {
+    vi.spyOn(financeApi, 'getPricingReview').mockResolvedValue(reviewWith(400_000))
+    const save = vi.spyOn(financeApi, 'saveDraft')
+    render(<ManagerPricingPanel orderId="order-1" approveBlockedReason="Cần kiểm tra pháp lý" />)
+    const details = (await screen.findByText('Phân tích báo giá')).closest('details')!
+    details.open = true
+    fireEvent(details, new Event('toggle'))
+    expect(screen.getByRole('button', { name: 'Lưu và phân tích' })).toBeDisabled()
+    expect(screen.getByText('Cần kiểm tra pháp lý')).toBeVisible()
+    expect(save).not.toHaveBeenCalled()
+  })
+
   it('blocks approval for unconfirmed custom guidance and links directly to its editor', async () => {
     const review = reviewWith(400_000)
     vi.spyOn(financeApi, 'getPricingReview').mockResolvedValue({

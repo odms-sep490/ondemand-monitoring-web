@@ -18,6 +18,7 @@ import type {
 } from '../types/missionMedia'
 import { missionUploadedMediaMessages } from './MissionUploadedMedia.messages'
 import './MissionUploadedMedia.css'
+import { MissionQualityPanel } from './MissionQualityPanel'
 
 type MissionMediaMessages = (typeof missionUploadedMediaMessages)['vi']
 
@@ -218,6 +219,7 @@ function Gallery({
             {t.refresh}
           </button>
         </header>
+        <MissionQualityPanel missionId={missionId} mediaItems={data?.items} />
         {error ? (
           <div
             className="mission-media__state mission-media__state--error"

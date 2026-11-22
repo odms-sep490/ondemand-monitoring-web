@@ -1,5 +1,3 @@
-import type { ReactNode } from 'react'
-
 import type {
   FormErrors,
   FormState,
@@ -13,11 +11,10 @@ type Props = {
   form: FormState
   errors: FormErrors
   update: UpdateField
-  footer?: ReactNode
 }
 
 /** Operational site details and the customer's monitoring authorization. */
-export function SiteDetailsStep({ form, errors, update, footer }: Props) {
+export function SiteDetailsStep({ form, errors, update }: Props) {
   return (
     <div className="co-site-details-step">
       <SiteDetailsPanel form={form} errors={errors} update={update} />
@@ -25,7 +22,6 @@ export function SiteDetailsStep({ form, errors, update, footer }: Props) {
         form={form}
         errors={errors}
         update={update}
-        footer={footer}
       />
     </div>
   )

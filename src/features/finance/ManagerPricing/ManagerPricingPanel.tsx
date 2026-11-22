@@ -71,6 +71,7 @@ export function ManagerPricingPanel({
   const [approvalSucceeded, setApprovalSucceeded] = useState(false)
   const [preparedQuote, setPreparedQuote] = useState<Quote | null>(null)
   const [editingQuote, setEditingQuote] = useState(false)
+  const [analysisOpen, setAnalysisOpen] = useState(false)
   useEffect(() => {
     if (editRequest > 0) {
       setEditingQuote(true)
@@ -92,6 +93,7 @@ export function ManagerPricingPanel({
     setApprovalSucceeded(false)
     setPreparedQuote(null)
     setEditingQuote(false)
+    setAnalysisOpen(false)
     setGuidanceItem(null)
     dirtyPriceIds.current.clear()
     dirtyPriceReasonIds.current.clear()
@@ -239,8 +241,8 @@ export function ManagerPricingPanel({
   const missingGuidance = (query.data?.checklistItems ?? []).filter(
     needsGuidance,
   )
-  async function prepareQuote() {
-    if (!query.data) return
+  async function prepareQuote(openAnalysis = false) {
+    if (!query.data || busy) return
     if (missingGuidance.length) {
       setError(g.pending)
       return
@@ -291,6 +293,7 @@ export function ManagerPricingPanel({
       })
       dirtyPriceIds.current.clear()
       dirtyPriceReasonIds.current.clear()
+      setAnalysisOpen(openAnalysis)
       setPreparedQuote(quote)
       setEditingQuote(false)
       query.reload()
@@ -331,6 +334,7 @@ export function ManagerPricingPanel({
         key={preparationQuote.id}
         orderId={orderId}
         quote={preparationQuote}
+        analysisOpen={analysisOpen}
         blockedReason={
           missingGuidance.length ? g.pending : approveBlockedReason
         }
@@ -461,6 +465,7 @@ export function ManagerPricingPanel({
             missingGuidance.length ? g.pending : approveBlockedReason
           }
           approve={prepareQuote}
+          prepareAnalysis={() => prepareQuote(true)}
           data={query.data}
         />
       </div>

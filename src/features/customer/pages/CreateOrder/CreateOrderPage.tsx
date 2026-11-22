@@ -35,7 +35,7 @@ export function CreateOrderPage() {
   const leaveTriggerRef = useRef<HTMLButtonElement | null>(null)
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false)
   const { t } = useI18n(createOrderPageMessages)
-  const { f, meta, wizard, submit, service, time, checklist } =
+  const { f, meta, wizard, submit, service, time, checklist, refreshServiceCatalog } =
     useCreateOrderWizard()
   const { form, step } = f
   const estimate = selectionEstimate(
@@ -194,6 +194,8 @@ export function CreateOrderPage() {
         <ContentStep
           selected={meta.services.find((s) => s.id === form.serviceId)}
           selectedCount={checklist.selectedCount}
+          assistantSelection={checklist.quoteSelection}
+          onServiceCatalogChanged={refreshServiceCatalog}
           packageSelectedCount={packageSelectedCount}
           packageCount={packageChecklists.length}
           mediaTotals={checklist.mediaTotals}
@@ -217,7 +219,6 @@ export function CreateOrderPage() {
           form={form}
           errors={f.errors}
           update={f.update}
-          footer={footer}
         />
       )}
       {step === 5 && (
@@ -257,7 +258,7 @@ export function CreateOrderPage() {
         </div>
       )}
 
-      {step !== 4 && footer}
+      {footer}
 
       {submit.confirmOpen && (
         <ConfirmSubmitModal

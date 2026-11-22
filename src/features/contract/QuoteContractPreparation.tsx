@@ -5,6 +5,7 @@ import { Alert, Button } from 'antd'
 import { useI18n } from '../../shared/i18n'
 import { financeApi } from '../finance/api'
 import type { Quote } from '../finance/types'
+import { SmartQuoteAssistant } from '../finance/SmartQuoteAssistant'
 import { OrderContractPanel } from './OrderContractPanel'
 import { contractMessages } from './contract.messages'
 
@@ -16,6 +17,7 @@ export function QuoteContractPreparation({
   onSent,
   onEdit,
   hideEditAction = false,
+  analysisOpen = false,
 }: {
   orderId: string
   quote: Quote
@@ -23,6 +25,7 @@ export function QuoteContractPreparation({
   onSent: () => void
   onEdit: () => void
   hideEditAction?: boolean
+  analysisOpen?: boolean
 }) {
   const { t } = useI18n(contractMessages)
   const [prepared, setPrepared] = useState(false)
@@ -44,6 +47,7 @@ export function QuoteContractPreparation({
   }
   return (
     <section className="order-contract-preparation">
+      <SmartQuoteAssistant orderId={orderId} quoteId={quote.id} defaultOpen={analysisOpen} />
       <OrderContractPanel
         embedded
         orderId={orderId}

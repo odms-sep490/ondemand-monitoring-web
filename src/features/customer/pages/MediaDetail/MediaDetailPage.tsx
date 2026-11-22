@@ -10,6 +10,7 @@ import { SiblingNav } from './components/SiblingNav'
 import { useMediaDetail } from './hooks/useMediaDetail'
 import './MediaDetail.css'
 import { mediaDetailPageMessages } from './MediaDetailPage.messages'
+import { ImageQualityPanel } from '../../../media/components/ImageQualityPanel'
 
 /** One result file, backed by `GET /api/media/{mediaId}/download`. */
 export function MediaDetailPage({ mediaId }: { mediaId: string }) {
@@ -32,6 +33,7 @@ export function MediaDetailPage({ mediaId }: { mediaId: string }) {
       <div className="cus-main-grid">
         <div className="cus-stack">
           <MediaViewer item={item} />
+          {item.kind === 'image' && item.canDownloadOriginal && <ImageQualityPanel mediaId={item.id} customer />}
           <SiblingNav prev={detail.nav.prev} next={detail.nav.next} />
         </div>
         <Card title={t.fileInfo} icon={<FileImageOutlined />}>
