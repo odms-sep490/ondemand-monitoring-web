@@ -13,7 +13,7 @@ describe('ImageQualityPanel', () => {
     } }])
     render(<ImageQualityPanel mediaId="image" customer />)
     expect(await screen.findByText('Ảnh có dấu hiệu mờ')).toBeInTheDocument()
-    expect(screen.getByText(/Phân loại AI chuyên biệt chưa được cấu hình/)).toBeInTheDocument()
+    expect(screen.getByText('Kết quả tham khảo. Người duyệt xác nhận trước khi bàn giao.')).toBeInTheDocument()
     expect(screen.queryByText('Lưu quyết định')).not.toBeInTheDocument()
     expect(api).toHaveBeenCalledWith('/api/customer/media/image/quality-checks', expect.anything())
   })
