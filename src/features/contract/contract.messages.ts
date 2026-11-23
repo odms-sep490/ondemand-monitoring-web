@@ -54,7 +54,7 @@ export const contractMessages = defineMessages({
     download: 'Tải hợp đồng chính thức',
     signedDownload: 'Tải bản đã ký',
     pending:
-      'Đã nhận bản đã ký. Nếu gửi nhầm, bạn có thể thay bản mới trước khi quản lý xác nhận. Bạn vẫn có thể thanh toán cọc trong khi chờ xác minh.',
+      'Đã nhận bản đã ký. Nếu gửi nhầm, bạn có thể thay bản mới trước khi quản lý xác nhận. Bạn có thể đặt cọc sau khi quản lý xác nhận hợp đồng.',
     declaration:
       'Tôi xác nhận tệp này là bản hợp đồng đã ký mà tôi muốn gửi để kiểm tra.',
     checked:
@@ -96,7 +96,7 @@ export const contractMessages = defineMessages({
         'Chưa thể truy cập kho lưu trữ hợp đồng. Hãy thử lại sau.',
       ACCESS_DENIED: 'Bạn không có quyền thực hiện thao tác với hợp đồng này.',
       CONTRACT_NOT_CONFIRMED:
-        'Cần gửi bản hợp đồng đã ký trước khi thanh toán cọc.',
+        'Quản lý cần xác nhận hợp đồng trước khi bạn có thể đặt cọc.',
     } as Record<string, string>,
   },
   en: {
@@ -156,7 +156,7 @@ export const contractMessages = defineMessages({
     download: 'Download official contract',
     signedDownload: 'Download signed copy',
     pending:
-      'Your signed contract was received. You may replace it before manager confirmation and pay the deposit while verification is pending. Mission planning remains locked.',
+      'Your signed contract was received. You may replace it before manager confirmation. You can pay the deposit once the manager confirms the contract.',
     declaration:
       'I confirm this file is the signed contract I wish to submit for review.',
     checked:
@@ -198,7 +198,7 @@ export const contractMessages = defineMessages({
         'Contract storage is unavailable. Please try again later.',
       ACCESS_DENIED: 'You are not authorized to access this contract.',
       CONTRACT_NOT_CONFIRMED:
-        'Submit the signed contract before paying the deposit.',
+        'The manager must confirm the contract before you can pay the deposit.',
     } as Record<string, string>,
   },
 })

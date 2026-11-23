@@ -7,10 +7,11 @@ import { env } from '../../../../config/env'
 import { ApiError } from '../../../../shared/api/httpClient'
 import { setLanguage } from '../../../../shared/i18n'
 import type { Invoice } from '../../types'
-const server = vi.hoisted(() => ({ submitted: false }))
+const server = vi.hoisted(() => ({ submitted: false, confirmed: false }))
 vi.mock('../../../contract/OrderContractPanel', () => ({
   OrderContractPanel: (props: {
     onUpdated?: () => void
+    onConfirmed?: () => void
     onProceedToPayment?: () => void
   }) => (
     <div>
@@ -22,7 +23,17 @@ vi.mock('../../../contract/OrderContractPanel', () => ({
       >
         Send signed copy
       </button>
-      <button onClick={props.onProceedToPayment}>Open payment</button>
+      <button
+        onClick={() => {
+          server.confirmed = true
+          props.onConfirmed?.()
+        }}
+      >
+        Refresh confirmed contract
+      </button>
+      {props.onProceedToPayment && (
+        <button onClick={props.onProceedToPayment}>Go to payment</button>
+      )}
     </div>
   ),
 }))
@@ -46,6 +57,7 @@ const invoice: Invoice = {
 beforeEach(() => {
   setLanguage('vi')
   server.submitted = false
+  server.confirmed = false
   vi.spyOn(financeApi, 'getQuote').mockRejectedValue(
     new ApiError('No quote', {
       status: 404,
@@ -56,6 +68,7 @@ beforeEach(() => {
   vi.spyOn(financeApi, 'getInvoice').mockImplementation(async () => ({
     ...invoice,
     contractSubmittedAt: server.submitted ? '2026-11-16T01:00:00Z' : null,
+    contractConfirmedAt: server.confirmed ? '2026-11-16T02:00:00Z' : null,
   }))
   vi.spyOn(
     financeApi,
@@ -79,7 +92,7 @@ afterEach(() => {
   vi.restoreAllMocks()
   setLanguage('vi')
 })
-it('refreshes invoice eligibility after signing and creates a deposit without manager confirmation', async () => {
+it('keeps deposit locked after upload and refreshes eligibility when the manager confirms', async () => {
   const changed = vi.fn()
   const create = vi.spyOn(financeApi, 'createDeposit').mockRejectedValue(
     new ApiError('Provider unavailable', {
@@ -105,15 +118,27 @@ it('refreshes invoice eligibility after signing and creates a deposit without ma
     ),
   )
   view.rerender(<CustomerFinancePanel {...props} section="payment" />)
+  expect(screen.queryByRole('button', { name: /Thanh to.n .*c.c/i })).toBeNull()
+  expect(create).not.toHaveBeenCalled()
+
+  view.rerender(<CustomerFinancePanel {...props} section="contract" />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Refresh confirmed contract' }))
+  await waitFor(() =>
+    expect(changed).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        invoice: expect.objectContaining({
+          contractConfirmedAt: '2026-11-16T02:00:00Z',
+        }),
+      }),
+    ),
+  )
+  view.rerender(<CustomerFinancePanel {...props} section="payment" />)
   fireEvent.click(
     await screen.findByRole('button', { name: /Thanh to.n .*c.c/i }),
   )
   await waitFor(() => expect(create).toHaveBeenCalledExactlyOnceWith('i'))
-  expect(
-    screen.queryByText('Hoàn tất xác nhận hợp đồng để thanh toán tiền cọc.'),
-  ).toBeNull()
 })
-it('does not show deposit checkout until a required signed copy has been submitted', async () => {
+it('does not show deposit checkout before a required contract is submitted', async () => {
   const create = vi.spyOn(financeApi, 'createDeposit')
   render(
     <CustomerFinancePanel
@@ -123,24 +148,34 @@ it('does not show deposit checkout until a required signed copy has been submitt
     />,
   )
   expect(
-    await screen.findByText('Gửi bản hợp đồng đã ký để thanh toán tiền cọc.'),
+    await screen.findByText('Chờ quản lý xác nhận hợp đồng trước khi thanh toán tiền cọc.'),
   ).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /Thanh to.n .*c.c/i })).toBeNull()
   expect(create).not.toHaveBeenCalled()
 })
-it('keeps demo deposit payments aligned with the signed-submission rule', async () => {
+it('blocks demo deposit before confirmation and allows it afterwards', async () => {
   server.submitted = true
   vi.spyOn(env, 'testPaymentsEnabled', 'get').mockReturnValue(true)
   const pay = vi
     .spyOn(financeApi, 'completeTestDeposit')
     .mockResolvedValue({} as never)
-  render(<CustomerFinancePanel orderId="o" section="payment" />)
+  const view = render(
+    <CustomerFinancePanel orderId="o" section="payment" onOpenContract={vi.fn()} />,
+  )
+  expect(
+    await screen.findByText('Chờ quản lý xác nhận hợp đồng trước khi thanh toán tiền cọc.'),
+  ).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Thanh toán nhanh (Test)' })).toBeNull()
+  expect(pay).not.toHaveBeenCalled()
+
+  server.confirmed = true
+  view.rerender(<CustomerFinancePanel key="confirmed" orderId="o" section="payment" />)
   fireEvent.click(
     await screen.findByRole('button', { name: 'Thanh toán nhanh (Test)' }),
   )
   await waitFor(() => expect(pay).toHaveBeenCalledExactlyOnceWith('i'))
 })
-it('shows paid but pending verification without offering a second deposit', async () => {
+it('shows an existing paid deposit pending verification without offering a second deposit', async () => {
   vi.mocked(financeApi.getInvoice).mockResolvedValue({
     ...invoice,
     contractSubmittedAt: '2026-11-16T01:00:00Z',
@@ -154,4 +189,30 @@ it('shows paid but pending verification without offering a second deposit', asyn
     await screen.findByText('Đã nhận cọc · Chờ xác minh hợp đồng'),
   ).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /Thanh to.n .*c.c/i })).toBeNull()
+})
+
+it.each([
+  { status: 'PAID', depositStatus: 'DEPOSIT_PAID', paidAmount: 1000 },
+  { status: 'PARTIALLY_PAID', depositStatus: 'DEPOSIT_PAID', paidAmount: 300 },
+  { status: 'PARTIALLY_PAID', depositStatus: undefined, paidAmount: 300 },
+] satisfies Partial<Invoice>[])(
+  'hides the contract payment shortcut once the deposit is covered ($status)',
+  async (payment) => {
+    vi.mocked(financeApi.getInvoice).mockResolvedValue({
+      ...invoice,
+      contractConfirmedAt: '2026-11-16T02:00:00Z',
+      ...payment,
+    })
+    render(<CustomerFinancePanel orderId="o" section="contract" onOpenPayment={vi.fn()} />)
+    await screen.findByRole('button', { name: 'Refresh confirmed contract' })
+    expect(screen.queryByRole('button', { name: 'Go to payment' })).toBeNull()
+  },
+)
+
+it('keeps the contract payment shortcut for a confirmed invoice with an outstanding deposit', async () => {
+  server.confirmed = true
+  const open = vi.fn()
+  render(<CustomerFinancePanel orderId="o" section="contract" onOpenPayment={open} />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Go to payment' }))
+  expect(open).toHaveBeenCalledOnce()
 })
