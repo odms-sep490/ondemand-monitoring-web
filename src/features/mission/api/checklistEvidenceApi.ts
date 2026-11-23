@@ -1,12 +1,30 @@
 import { apiRequest } from '../../../shared/api/httpClient'
 import type {
+  ContentAssessment,
+  ContentAssessmentRequest,
   CustomerEvidenceSelectionRequest,
+  DeliverySuggestion,
   EvidenceCandidate,
   MissionChecklistEvidence,
 } from '../types/checklistExecution'
 const root = (missionId: string) =>
   `/api/missions/${encodeURIComponent(missionId)}`
 export const checklistEvidenceApi = {
+  getDeliverySuggestion: (missionId: string, executionId: string) =>
+    apiRequest<DeliverySuggestion>(
+      `${root(missionId)}/checklist-executions/${encodeURIComponent(executionId)}/delivery-suggestion`,
+    ),
+  assessImageContent: (
+    missionId: string,
+    executionId: string,
+    evidenceId: string,
+    body: ContentAssessmentRequest,
+    signal?: AbortSignal,
+  ) =>
+    apiRequest<ContentAssessment>(
+      `${root(missionId)}/checklist-executions/${encodeURIComponent(executionId)}/evidence/${encodeURIComponent(evidenceId)}/content-assessment`,
+      { method: 'POST', body, signal },
+    ),
   selectForCustomer: (
     missionId: string,
     executionId: string,

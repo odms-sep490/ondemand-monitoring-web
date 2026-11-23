@@ -313,6 +313,18 @@ export function CustomerFinancePanel({
   ) : null
 
   if (section === 'contract') {
+    const hasOutstandingDeposit =
+      invoice &&
+      (invoice.status === 'ISSUED' || invoice.status === 'PARTIALLY_PAID') &&
+      !invoice.orderCancellationReason &&
+      invoice.depositStatus !== 'DEPOSIT_PAID' &&
+      invoice.paidAmount < invoice.depositAmount
+    const proceedToPayment = legalReady && hasOutstandingDeposit && onOpenPayment
+      ? () => {
+          void load()
+          onOpenPayment()
+        }
+      : undefined
     return (
       <CardComponent title={t.contractTitle}>
         {loading && !invoice ? <Skeleton active paragraph={{ rows: 3 }} /> : (
@@ -320,7 +332,7 @@ export function CustomerFinancePanel({
             <OrderContractPanel
               orderId={orderId}
               mode="customer"
-              onProceedToPayment={onOpenPayment ? () => { void load(); onOpenPayment() } : undefined}
+              onProceedToPayment={proceedToPayment}
               onUpdated={() => void load()}
               onConfirmed={invoice.contractConfirmedAt ? undefined : () => void load()}
             />
