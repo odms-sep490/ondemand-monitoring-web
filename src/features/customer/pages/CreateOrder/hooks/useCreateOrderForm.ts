@@ -29,7 +29,14 @@ export function useCreateOrderForm(stored: StoredCreateOrderDraft | null) {
 
   const update = useCallback(
     <K extends keyof FormState>(key: K, value: FormState[K]) => {
-      setForm((current) => ({ ...current, [key]: value }))
+      setForm((current) => {
+        if (key === 'descriptionAssistant') {
+          const draft = value as FormState['descriptionAssistant']
+          return { ...current, descriptionAssistant: draft,
+            description: draft?.status === 'CUSTOMER_CONFIRMED' ? draft.description : current.description }
+        }
+        return { ...current, [key]: value }
+      })
       setErrors((current) => ({ ...current, [key]: undefined }))
       setSubmitError(null)
     },

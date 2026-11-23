@@ -16,6 +16,9 @@ import { useWizard } from './useWizard'
 import { useOrderChecklist } from '../../../lib/checklist/useOrderChecklist'
 import { ApiError } from '../../../../../shared/api/httpClient'
 import type { FormErrors, FormState } from '../../../lib/createOrder/types'
+import { canonicalDraftToFormState, type OrderAgentSession } from '../../../lib/createOrder/orderAgent'
+import { validateStep } from '../../../lib/createOrder/validators'
+import { CREATE_ORDER_DRAFT_STORAGE_KEY } from '../../../lib/createOrder/draftStorage'
 
 const formFields = new Set<keyof FormState>([
   'serviceId',
@@ -60,7 +63,17 @@ export function useCreateOrderWizard() {
         ? form.recurrenceOccurrences
         : 1,
     permitStatus: form.permitStatus,
-  })
+  }, form.agentChecklistItems)
+  const descriptionContext = JSON.stringify([form.serviceId, form.flightPurpose, form.address, checklist.quoteSelection?.items ?? []])
+  useEffect(() => {
+    if(checklist.status !== 'ready' || !checklist.quoteSelection) return
+    const draft = form.descriptionAssistant
+    if (draft && draft.status !== 'STALE' &&
+      (draft.contextKey !== descriptionContext || (draft.status === 'CUSTOMER_CONFIRMED' && draft.description !== form.description))) {
+      f.setForm(current => ({...current, descriptionAssistant: current.descriptionAssistant
+        ? {...current.descriptionAssistant, status:'STALE'} : undefined}))
+    }
+  }, [descriptionContext, checklist.status, form.description, form.descriptionAssistant, f.setForm])
   const meta = useCreateOrderMeta(form.serviceId, f.setForm)
   const service = meta.services.find((s) => s.id === form.serviceId)
   const quoteErrorCode = checklist.quote.error?.code
@@ -135,6 +148,10 @@ export function useCreateOrderWizard() {
         form,
         score,
       }),
+      descriptionAssistantSessionId: form.descriptionAssistant?.status === 'CUSTOMER_CONFIRMED'
+        && form.descriptionAssistant.description === form.description
+        && form.descriptionAssistant.contextKey === JSON.stringify([form.serviceId, form.flightPurpose, form.address, checklist.quoteSelection?.items ?? []])
+        ? form.descriptionAssistant.id : undefined,
       checklistItems: checklist.serialize(),
     }),
   })
@@ -149,6 +166,24 @@ export function useCreateOrderWizard() {
   )
 
   return {
+    applyValidatedAgentDraft: (session:OrderAgentSession, expectedForm:FormState) => {
+      if(JSON.stringify(form)!==JSON.stringify(expectedForm)) throw new Error('Biểu mẫu đã thay đổi. Hãy kiểm tra lại bản nháp mới nhất.')
+      const next=canonicalDraftToFormState(form,session)
+      if(checklist.status!=='ready' || next.agentChecklistItems?.some(item=>item.sourceChecklistId &&
+        checklist.rows.find(row=>row.sourceChecklistId===item.sourceChecklistId)?.version!==item.expectedChecklistVersion))
+        throw new Error('Nội dung giám sát đã thay đổi. Hãy tải lại và kiểm tra bản nháp trước khi xem lại.')
+      const errors=validateStep(6,next,{monitoringValid:next.locationStatus==='confirmed',blockedZoneNames:[]},t.validation)
+      if(Object.keys(errors).length) {
+        f.setErrors(errors)
+        throw new Error('Vui lòng bổ sung các trường còn thiếu trên biểu mẫu trước khi xem lại.')
+      }
+      // Persist before replacing the live form: quota errors leave the current form intact.
+      try {window.localStorage.setItem(CREATE_ORDER_DRAFT_STORAGE_KEY,JSON.stringify({form:next,step:6,mapPoint:f.mapPoint}))}
+      catch {throw new Error('Chưa lưu được bản nháp trên máy này. Biểu mẫu được giữ nguyên; hãy kiểm tra dung lượng lưu trữ rồi thử lại.')}
+      f.setForm(next)
+      f.setErrors({})
+      f.setStep(6)
+    },
     checklist,
     refreshServiceCatalog,
     f,

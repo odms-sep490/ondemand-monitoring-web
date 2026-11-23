@@ -1,3 +1,4 @@
+import type { CustomerQuoteSelection } from '../../../../../shared/api/checklistPricingApi'
 import type {
   ServiceOption,
   ServicePricingEstimate,
@@ -13,6 +14,7 @@ import { RequestInfoPanel } from './RequestInfoPanel'
 import { ServicePicker } from './ServicePicker'
 
 type Props = {
+  selection?: CustomerQuoteSelection | null
   form: FormState
   errors: FormErrors
   update: UpdateField
@@ -39,7 +41,7 @@ export function ServiceStep(p: Props) {
         />
       </div>
       <aside className="co-stack co-summary is-tall">
-        <RequestInfoPanel form={p.form} errors={p.errors} update={p.update} />
+        <RequestInfoPanel form={p.form} errors={p.errors} update={p.update} selection={p.selection} />
         <PricingEstimateCard
           estimate={p.pricingEstimate}
           loading={p.pricingLoading}

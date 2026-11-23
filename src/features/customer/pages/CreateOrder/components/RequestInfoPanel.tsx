@@ -1,3 +1,5 @@
+import { DescriptionAssistant } from './DescriptionAssistant'
+import type { CustomerQuoteSelection } from '../../../../../shared/api/checklistPricingApi'
 import { FormOutlined } from '@ant-design/icons'
 import { InnerCollapse } from '../../../components/common/InnerCollapse'
 import { Card, FormField } from '../../../components/common/ui'
@@ -21,12 +23,13 @@ const FLIGHT_PURPOSE_OPTIONS = [
   'OTHER',
 ] as const satisfies readonly FlightPurpose[]
 type Props = {
+  selection?: CustomerQuoteSelection | null
   form: FormState
   errors: FormErrors
   update: UpdateField
 }
 
-export function RequestInfoPanel({ form, errors, update }: Props) {
+export function RequestInfoPanel({ form, errors, update, selection }: Props) {
   const { t } = useI18n(requestInfoPanelMessages)
 
   return (
@@ -95,6 +98,7 @@ export function RequestInfoPanel({ form, errors, update }: Props) {
           {form.description.length} / {DESCRIPTION_MAX}
         </div>
       </div>
+      <DescriptionAssistant form={form} update={update} selection={selection} />
       <InnerCollapse
         className="co-attachment-details"
         title={

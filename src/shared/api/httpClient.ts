@@ -111,6 +111,7 @@ async function defaultTransport(
     // in interactive hybrid mode. Its aggregate endpoint must remain real.
     if (
       (method === 'GET' && pathname === '/api/manager/dashboard') ||
+      pathname.startsWith('/api/customer/order-conversations') ||
       matchesRealApiRoute(env.realApiRoutes, method, pathname)
     ) {
       return authenticatedFetch(input, init)

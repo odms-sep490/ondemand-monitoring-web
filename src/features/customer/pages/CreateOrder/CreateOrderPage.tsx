@@ -13,6 +13,7 @@ import { LocationStep } from './components/LocationStep'
 import { ReviewStep } from './components/ReviewStep'
 import { ScheduleStep } from './components/ScheduleStep'
 import { ServiceStep } from './components/ServiceStep'
+import { OrderConversation } from './components/OrderConversation'
 import { SiteDetailsStep } from './components/SiteDetailsStep'
 import { WizardFooter } from './components/WizardFooter'
 import { createOrderPageMessages } from './CreateOrderPage.messages'
@@ -35,7 +36,7 @@ export function CreateOrderPage() {
   const leaveTriggerRef = useRef<HTMLButtonElement | null>(null)
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false)
   const { t } = useI18n(createOrderPageMessages)
-  const { f, meta, wizard, submit, service, time, checklist } =
+  const { f, meta, wizard, submit, service, time, checklist, applyValidatedAgentDraft } =
     useCreateOrderWizard()
   const { form, step } = f
   const estimate = selectionEstimate(
@@ -175,8 +176,13 @@ export function CreateOrderPage() {
         />
       )}
 
+      <OrderConversation form={form} setForm={f.setForm} services={meta.services} deliverables={meta.deliverables}
+        preferredTimes={meta.preferredTimes}
+        serializeChecklist={checklist.serialize} mediaTotals={checklist.mediaTotals} onApply={applyValidatedAgentDraft}
+        onOpenStep={f.setStep}/>
       {step === 1 && (
         <ServiceStep
+          selection={checklist.quoteSelection}
           form={form}
           errors={f.errors}
           update={f.update}

@@ -1,0 +1,67 @@
+.order-agent {
+  display: grid;
+  gap: 12px;
+}
+.order-agent-hint {
+  color: #64748b;
+  margin: 0;
+}
+.order-agent-history {
+  max-height: min(32vh, 280px);
+  overflow: auto;
+  background: #f7f9fd;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+}
+.order-agent-message {
+  max-width: 92%;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+.order-agent-message p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 4px 0 0;
+}
+.order-agent-message.is-user {
+  margin-left: auto;
+  background: #edf4ff;
+  border-color: #d5e5ff;
+}
+.order-agent-proposal {
+  padding: 12px;
+  border: 1px solid #cfe0ff;
+  border-radius: 10px;
+  background: #f8fbff;
+}
+.order-agent-proposal dl {
+  margin: 8px 0;
+  max-height: 180px;
+  overflow: auto;
+}
+.order-agent-proposal dl > div {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px;
+  padding: 4px 0;
+}
+.order-agent-proposal dt {
+  color: #64748b;
+}
+.order-agent-proposal dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .order-agent-proposal dl > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .order-agent-message {
+    max-width: 100%;
+  }
+}

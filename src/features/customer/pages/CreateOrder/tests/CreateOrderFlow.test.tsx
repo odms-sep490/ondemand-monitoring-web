@@ -9,6 +9,30 @@ import { CreateOrderPage } from '../CreateOrderPage'
 import { customerApi } from '../../../api/customerApi'
 import { CREATE_ORDER_DRAFT_STORAGE_KEY } from '../../../lib/createOrder/draftStorage'
 import { ApiError } from '../../../../../shared/api/httpClient'
+import { mockServiceChecklist } from '../../../../../mocks/handlers/customerCreateOrderBe'
+import {
+  checklistPricingApi,
+  type ServicePricePreview,
+} from '../../../../../shared/api/checklistPricingApi'
+
+function priceFixture(serviceId: string): ServicePricePreview {
+  return {
+    serviceId,
+    serviceName: 'Giám sát công trình',
+    currency: 'VND',
+    policyId: null,
+    policyVersion: 1,
+    draftPolicy: false,
+    priceSource: 'CHECKLISTS',
+    packageFee: 0,
+    checklists: [],
+    checklistSubtotal: 3500000,
+    total: 3500000,
+    complete: true,
+    warnings: [],
+    quotePending: false,
+  }
+}
 
 const originalScrollIntoView = Object.getOwnPropertyDescriptor(
   HTMLElement.prototype,
@@ -18,6 +42,37 @@ const originalScrollIntoView = Object.getOwnPropertyDescriptor(
 beforeEach(() => {
   resetMockDb()
   localStorage.removeItem(CREATE_ORDER_DRAFT_STORAGE_KEY)
+  vi.spyOn(customerApi, 'getServiceChecklist').mockImplementation(
+    async (serviceId) =>
+      mockServiceChecklist(serviceId).map((item) => ({
+        ...item,
+        includedImageCount: 4,
+        includedVideoCount: 0,
+      })),
+  )
+  vi.spyOn(checklistPricingApi, 'defaultPrice').mockImplementation(
+    async (serviceId) => priceFixture(serviceId),
+  )
+  vi.spyOn(checklistPricingApi, 'customerQuote').mockImplementation(
+    async (serviceId, items) => ({
+      ...priceFixture(serviceId),
+      checklists: items.map((item) => ({
+        checklistId: item.sourceChecklistId ?? null,
+        content: item.content ?? 'Catalog item',
+        custom: !item.sourceChecklistId,
+        includedImageCount: 4,
+        includedVideoCount: 0,
+        requestedImageCount: item.requestedImageCount ?? 4,
+        requestedVideoCount: item.requestedVideoCount ?? 0,
+        extraImageCount: 0,
+        extraVideoCount: 0,
+        standardVideoDurationSeconds: null,
+        lines: [],
+        subtotal: 100,
+        quotePending: false,
+      })),
+    }),
+  )
   Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
     configurable: true,
     value: vi.fn(),
@@ -49,9 +104,6 @@ async function fillService() {
   fireEvent.click(
     await screen.findByRole('button', { name: /Giám sát công trình/ }),
   )
-  fireEvent.change(screen.getByLabelText(/Tiêu đề/), {
-    target: { value: 'Đơn kiểm thử' },
-  })
   fireEvent.change(screen.getByLabelText(/Mục đích chuyến bay/), {
     target: { value: 'CONSTRUCTION_MONITORING' },
   })
@@ -82,15 +134,22 @@ async function fillLocation(
   })
   map.getBoundingClientRect = () => new DOMRect(0, 0, 800, 500)
   fireEvent(window, new Event('resize'))
+  await act(async () => {
+    await new Promise((resolve) => window.setTimeout(resolve, 50))
+  })
+  const locationMarker = map.querySelector('.co-area-location-marker') as
+    (HTMLElement & { _leaflet_pos?: { x: number; y: number } }) | null
+  const center = locationMarker?._leaflet_pos ?? { x: 400, y: 250 }
   for (const [x, y] of [
-    [280, 175],
-    [520, 175],
-    [520, 325],
-    [280, 325],
-    [280, 175],
+    [center.x - 120, center.y - 75],
+    [center.x + 120, center.y - 75],
+    [center.x + 120, center.y + 75],
+    [center.x - 120, center.y + 75],
   ]) {
     fireEvent.click(map, { clientX: x, clientY: y })
   }
+  const firstHandle = map.querySelector('.co-area-handle')
+  if (firstHandle) fireEvent.click(firstHandle)
   await waitFor(() =>
     expect(screen.getByText('Số đỉnh').parentElement).toHaveTextContent('4'),
   )
@@ -138,6 +197,8 @@ describe('CreateOrderPage wizard', () => {
         content,
         serviceActive: true,
         checklistActive: true,
+        includedImageCount: 4,
+        includedVideoCount: 0,
       })),
     )
 
@@ -157,7 +218,10 @@ describe('CreateOrderPage wizard', () => {
           return
         }
         fireEvent.click(screen.getByLabelText('Sửa: Edit'))
-        expect(screen.getByLabelText('Nội dung giám sát 2')).toHaveAttribute('aria-readonly', 'true')
+        expect(screen.getByLabelText('Nội dung giám sát 2')).toHaveAttribute(
+          'aria-readonly',
+          'true',
+        )
         fireEvent.click(screen.getByLabelText('Chọn Remove'))
         fireEvent.click(screen.getByRole('button', { name: '+ Thêm nội dung' }))
         fireEvent.change(screen.getByLabelText('Nội dung giám sát 4'), {
@@ -187,14 +251,14 @@ describe('CreateOrderPage wizard', () => {
         {
           sourceChecklistId: 'catalog-0',
           expectedChecklistVersion: 10,
-          minimumEvidenceCount: 1,
-          requiredEvidenceType: 'IMAGE',
+          requestedImageCount: 4,
+          requestedVideoCount: 0,
         },
         {
           sourceChecklistId: 'catalog-1',
           expectedChecklistVersion: 11,
-          minimumEvidenceCount: 1,
-          requiredEvidenceType: 'IMAGE',
+          requestedImageCount: 4,
+          requestedVideoCount: 0,
         },
         {
           contentOverride: 'Custom requirement',
@@ -206,26 +270,27 @@ describe('CreateOrderPage wizard', () => {
     20_000,
   )
 
-  it('shows services and the request title on step 1', async () => {
+  it('shows services and request purpose on step 1', async () => {
     await renderWizard()
     expect(
       await screen.findByRole('button', { name: /Giám sát công trình/ }),
     ).toBeInTheDocument()
-    expect(screen.getByLabelText(/Tiêu đề/)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Mục đích chuyến bay/)).toBeInTheDocument()
   })
 
-  it('blocks step 1 without a title when the catalog selects its default service', async () => {
+  it('continues with the selected service without requiring a removed title field', async () => {
     await renderWizard()
-    await screen.findByRole('button', { name: /Giám sát công trình/ })
-    next('Vị trí & vùng giám sát')
-    expect(await screen.findByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
-    expect(screen.queryByText('Chọn dịch vụ giám sát.')).not.toBeInTheDocument()
+    await fillService()
     expect(
-      screen.queryByLabelText(/Địa chỉ hoặc khu vực/),
-    ).not.toBeInTheDocument()
+      await screen.findByRole('region', {
+        name: 'Bản đồ chọn vị trí và khu vực giám sát',
+      }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Chọn dịch vụ giám sát.')).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/Địa chỉ hoặc khu vực/)).toBeInTheDocument()
   })
 
-  it('requires a service and title when the active catalog is empty', async () => {
+  it('requires a service when the active catalog is empty', async () => {
     vi.spyOn(customerApi, 'listServices').mockResolvedValue([])
     render(<CreateOrderPage />)
     await screen.findByText('Chưa có dịch vụ nào đang hoạt động')
@@ -233,7 +298,7 @@ describe('CreateOrderPage wizard', () => {
     expect(
       await screen.findByText('Chọn dịch vụ giám sát.'),
     ).toBeInTheDocument()
-    expect(screen.getByText('Nhập tiêu đề yêu cầu.')).toBeInTheDocument()
+    expect(screen.queryByText('Nhập tiêu đề yêu cầu.')).not.toBeInTheDocument()
     expect(
       screen.queryByLabelText(/Địa chỉ hoặc khu vực/),
     ).not.toBeInTheDocument()
@@ -271,7 +336,7 @@ describe('CreateOrderPage wizard', () => {
     expect(await screen.findByLabelText(/Ngày sớm nhất/)).toBeInTheDocument()
   })
 
-  it('shows the chosen service price and defers the estimate until the checklist is priced', async () => {
+  it('shows the chosen service catalog price without a failed-price warning', async () => {
     await renderWizard()
     fireEvent.click(
       await screen.findByRole('button', { name: /Giám sát công trình/ }),
@@ -285,8 +350,8 @@ describe('CreateOrderPage wizard', () => {
     )
     expect(screen.getByText('Chi phí dự kiến')).toBeInTheDocument()
     expect(
-      await screen.findByText(/Chưa lấy được báo giá cho dịch vụ này/),
-    ).toBeInTheDocument()
+      screen.queryByText(/Chưa lấy được báo giá cho dịch vụ này/),
+    ).not.toBeInTheDocument()
   })
 
   it('walks through all steps and submits via the confirm dialog', async () => {
@@ -307,7 +372,7 @@ describe('CreateOrderPage wizard', () => {
 
     const dialog = await screen.findByRole('dialog')
     expect(dialog).toHaveTextContent('Gửi yêu cầu giám sát?')
-    expect(dialog).toHaveTextContent('Đơn kiểm thử')
+    expect(dialog).toHaveTextContent('Giám sát công trình')
     fireEvent.click(screen.getByRole('button', { name: 'Xác nhận gửi' }))
 
     expect(await screen.findByText('Đã tạo yêu cầu')).toBeInTheDocument()
@@ -472,6 +537,6 @@ describe('CreateOrderPage wizard', () => {
         name: 'Continue: Location & monitoring area',
       }),
     ).toBeInTheDocument()
-    expect(screen.getByLabelText(/Title/)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Purpose of the flight/)).toBeInTheDocument()
   })
 })

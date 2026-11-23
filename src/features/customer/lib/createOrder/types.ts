@@ -105,6 +105,10 @@ export type FormState = {
   /** Free-text detail required when `flightPurpose` is OTHER. */
   otherFlightPurpose: string
   description: string
+  descriptionAssistant?: { id:string; revision:number; status:string; description:string; purpose:string; contextKey:string }
+  descriptionAssistantPendingId?: string
+  orderAgentSessionId?: string
+  agentChecklistItems?: import('../checklist/types').ChecklistInput[]
   address: string
   normalizedAddress: string
   latitude: string

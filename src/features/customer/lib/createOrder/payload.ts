@@ -141,6 +141,10 @@ export function buildOrderPayload(input: {
     siteContactName: form.siteContactName.trim() || undefined,
     siteContactPhone: form.siteContactPhone.trim() || undefined,
     accessNotes: buildAccessNotes(form),
+    permitStatus: form.permitStatus,
+    permitNumber: form.permitStatus === 'HAVE_PERMIT' ? form.permitNumber : undefined,
+    permitExpiresOn: form.permitStatus === 'HAVE_PERMIT' ? form.permitExpiresOn : undefined,
+    permitDocuments: form.permitStatus === 'HAVE_PERMIT' ? form.permitDocuments : undefined,
     monitoringRelationship: form.monitoringRelationship || undefined,
     monitoringAuthorizationConfirmed: form.monitoringAuthorizationConfirmed,
     monitoringAuthorizationDocuments:
