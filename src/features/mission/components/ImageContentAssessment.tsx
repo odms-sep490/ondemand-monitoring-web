@@ -1,0 +1,272 @@
+import { useEffect, useId, useRef, useState } from 'react'
+import { Alert, Button } from 'antd'
+import { ApiError } from '../../../shared/api/httpClient'
+import type { Language } from '../../../shared/i18n'
+import { checklistEvidenceApi } from '../api/checklistEvidenceApi'
+import { EvidenceThumbnail } from './EvidenceThumbnail'
+import type {
+  ContentAssessment,
+  DeliverySuggestion,
+  MissionChecklistEvidence,
+} from '../types/checklistExecution'
+
+const messages = {
+  en: {
+    image: 'Image to assess',
+    choose: 'Choose an image',
+    preview: (fileName: string) => 'Selected image preview for ' + fileName,
+    assess: 'Assess image content',
+    advisory:
+      'The selected image preview is sent to the configured AI provider. The result is advisory. Review the image and make your own assessment.',
+    error:
+      'Could not assess this image. You can still select evidence manually.',
+    rateLimited: 'Too many assessment requests. Try again later.',
+    stale:
+      'The assessment no longer matches this suggestion. Get new image suggestions before trying again.',
+    previewNotReady:
+      'The preview for this image is not ready. Try again later or choose another image.',
+    verdict: 'Content assessment',
+    noDetails: 'No criterion details provided.',
+    noObservation: 'No observation provided.',
+    verdicts: { MATCH: 'Match', MISMATCH: 'Mismatch', UNCERTAIN: 'Uncertain' },
+  },
+  vi: {
+    image: 'Ảnh cần đánh giá',
+    choose: 'Chọn một ảnh',
+    preview: (fileName: string) => 'Bản xem trước của ảnh đã chọn ' + fileName,
+    assess: 'Đánh giá nội dung ảnh',
+    advisory:
+      'Bản xem trước của ảnh đã chọn sẽ được gửi đến nhà cung cấp AI đã cấu hình. Kết quả chỉ để tham khảo. Hãy xem ảnh và tự đưa ra đánh giá.',
+    error: 'Không thể đánh giá ảnh này. Bạn vẫn có thể tự chọn bằng chứng.',
+    rateLimited: 'Có quá nhiều yêu cầu đánh giá. Hãy thử lại sau.',
+    stale:
+      'Đánh giá không còn khớp với gợi ý hiện tại. Hãy lấy gợi ý ảnh mới trước khi thử lại.',
+    previewNotReady:
+      'Bản xem trước của ảnh này chưa sẵn sàng. Hãy thử lại sau hoặc chọn ảnh khác.',
+    verdict: 'Kết quả đánh giá nội dung',
+    noDetails: 'Không có thông tin chi tiết về tiêu chí.',
+    noObservation: 'Không có nhận xét.',
+    verdicts: {
+      MATCH: 'Phù hợp',
+      MISMATCH: 'Không phù hợp',
+      UNCERTAIN: 'Chưa xác định',
+    },
+  },
+}
+
+export function ImageContentAssessment({
+  missionId,
+  executionId,
+  context,
+  suggestion,
+  links,
+  lang,
+  disabled,
+}: {
+  missionId: string
+  executionId: string
+  context: string
+  suggestion?: DeliverySuggestion
+  links: MissionChecklistEvidence[]
+  lang: Language
+  disabled: boolean
+}) {
+  // Keep the in-flight guard when the form resets for a new suggestion or language.
+  const inFlight = useRef<AbortController | null>(null)
+  const [busy, setBusy] = useState(false)
+  useEffect(() => () => inFlight.current?.abort(), [])
+
+  if (suggestion?.contentAssessmentAvailable !== true) return null
+  const candidateIds = new Set(
+    suggestion.candidates.map(({ evidenceId }) => evidenceId),
+  )
+  const images = links.filter(
+    (link) => link.mediaType === 'IMAGE' && candidateIds.has(link.evidenceId),
+  )
+  if (images.length === 0) return null
+  const expectedVersion = suggestion.executionVersion
+
+  function assess(evidenceId: string) {
+    if (inFlight.current || disabled || !candidateIds.has(evidenceId)) return
+    const controller = new AbortController()
+    inFlight.current = controller
+    setBusy(true)
+    return checklistEvidenceApi
+      .assessImageContent(
+        missionId,
+        executionId,
+        evidenceId,
+        {
+          expectedVersion,
+          language: lang,
+        },
+        controller.signal,
+      )
+      .finally(() => {
+        inFlight.current = null
+        if (!controller.signal.aborted) setBusy(false)
+      })
+  }
+
+  return (
+    <AssessmentForm
+      key={context}
+      images={images}
+      expectedVersion={expectedVersion}
+      assess={assess}
+      lang={lang}
+      busy={busy}
+      disabled={disabled}
+    />
+  )
+}
+
+function AssessmentForm({
+  images,
+  expectedVersion,
+  assess,
+  lang,
+  busy,
+  disabled,
+}: {
+  images: MissionChecklistEvidence[]
+  expectedVersion: number
+  assess: (id: string) => Promise<ContentAssessment> | undefined
+  lang: Language
+  busy: boolean
+  disabled: boolean
+}) {
+  const id = useId()
+  const t = messages[lang]
+  const [imageId, setImageId] = useState('')
+  const [result, setResult] = useState<ContentAssessment | null>(null)
+  const [error, setError] = useState<
+    'error' | 'stale' | 'previewNotReady' | 'rateLimited' | null
+  >(null)
+  const selectedImage = images.find(({ evidenceId }) => evidenceId === imageId)
+  const locked = busy || disabled || error === 'stale'
+
+  async function requestAssessment() {
+    if (locked || !imageId) return
+    const response = assess(imageId)
+    if (!response) return
+    setError(null)
+    setResult(null)
+    try {
+      const data = await response
+      if (!hasAssessmentDetails(data)) {
+        setError('error')
+      } else if (
+        data.executionVersion !== expectedVersion ||
+        data.evidenceId !== imageId
+      ) {
+        setError('stale')
+      } else {
+        setResult(data)
+      }
+    } catch (cause) {
+      const code = cause instanceof ApiError ? cause.code : undefined
+      if (code === 'CONCURRENT_UPDATE') setError('stale')
+      else if (code === 'MEDIA_DERIVATIVE_UNAVAILABLE')
+        setError('previewNotReady')
+      else if (cause instanceof ApiError && cause.status === 429)
+        setError('rateLimited')
+      else setError('error')
+    }
+  }
+
+  return (
+    <div className="image-content-assessment">
+      <p id={id} className="customer-evidence-selection__metric-label">
+        {t.advisory}
+      </p>
+      <div className="customer-evidence-selection__actions">
+        {selectedImage && (
+          <div className="image-content-assessment__thumbnail">
+            <EvidenceThumbnail
+              key={imageId}
+              link={selectedImage}
+              alt={t.preview(selectedImage.fileName)}
+            />
+          </div>
+        )}
+        <label className="image-content-assessment__choice">
+          {t.image}
+          <select
+            value={imageId}
+            disabled={locked}
+            onChange={(event) => {
+              setImageId(event.target.value)
+              setResult(null)
+              setError(null)
+            }}
+          >
+            <option value="">{t.choose}</option>
+            {images.map(({ evidenceId, fileName }) => (
+              <option key={evidenceId} value={evidenceId}>
+                {fileName}
+              </option>
+            ))}
+          </select>
+        </label>
+        <Button
+          size="small"
+          disabled={locked || !imageId}
+          loading={busy}
+          aria-label={t.assess}
+          aria-busy={busy}
+          aria-describedby={id}
+          onClick={() => void requestAssessment()}
+        >
+          {t.assess}
+        </Button>
+      </div>
+      {error && <Alert type="warning" showIcon message={t[error]} />}
+      <div aria-live="polite">
+        {result && (
+          <div className="image-content-assessment__result">
+            <strong>
+              {t.verdict} · {t.verdicts[result.verdict]}
+            </strong>
+            {result.criteria.length ? (
+              <ul>
+                {result.criteria.map(
+                  ({ code, label, verdict, observation }) => (
+                    <li key={code}>
+                      <strong>
+                        {label.trim() || code} · {t.verdicts[verdict]}
+                      </strong>
+                      <div>{observation.trim() || t.noObservation}</div>
+                    </li>
+                  ),
+                )}
+              </ul>
+            ) : (
+              <div>{t.noDetails}</div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function hasAssessmentDetails(
+  data: ContentAssessment | null | undefined,
+): data is ContentAssessment {
+  return Boolean(
+    data &&
+    typeof data.executionVersion === 'number' &&
+    typeof data.evidenceId === 'string' &&
+    Object.hasOwn(messages.en.verdicts, data.verdict) &&
+    Array.isArray(data.criteria) &&
+    data.criteria.every(
+      (criterion) =>
+        criterion &&
+        typeof criterion.code === 'string' &&
+        typeof criterion.label === 'string' &&
+        typeof criterion.observation === 'string' &&
+        Object.hasOwn(messages.en.verdicts, criterion.verdict),
+    ),
+  )
+}
