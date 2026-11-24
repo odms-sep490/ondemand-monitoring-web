@@ -106,6 +106,7 @@ export function useNotifications() {
   return {
     items,
     readIds,
+    loaded: query.data?.ownerId === userId,
     loading: query.loading,
     error: query.error,
     unreadCount,

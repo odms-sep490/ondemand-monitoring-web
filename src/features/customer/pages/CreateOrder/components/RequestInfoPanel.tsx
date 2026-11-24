@@ -1,4 +1,3 @@
-import { DescriptionAssistant } from './DescriptionAssistant'
 import type { CustomerQuoteSelection } from '../../../../../shared/api/checklistPricingApi'
 import { FormOutlined } from '@ant-design/icons'
 import { InnerCollapse } from '../../../components/common/InnerCollapse'
@@ -29,7 +28,7 @@ type Props = {
   update: UpdateField
 }
 
-export function RequestInfoPanel({ form, errors, update, selection }: Props) {
+export function RequestInfoPanel({ form, errors, update }: Props) {
   const { t } = useI18n(requestInfoPanelMessages)
 
   return (
@@ -98,7 +97,6 @@ export function RequestInfoPanel({ form, errors, update, selection }: Props) {
           {form.description.length} / {DESCRIPTION_MAX}
         </div>
       </div>
-      <DescriptionAssistant form={form} update={update} selection={selection} />
       <InnerCollapse
         className="co-attachment-details"
         title={
@@ -114,3 +112,5 @@ export function RequestInfoPanel({ form, errors, update, selection }: Props) {
     </Card>
   )
 }
+
+

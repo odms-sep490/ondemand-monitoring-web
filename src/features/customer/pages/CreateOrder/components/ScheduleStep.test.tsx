@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createDefaultForm } from '../../../lib/createOrder/draftStorage'
@@ -42,13 +42,8 @@ describe('ScheduleStep', () => {
       />,
     )
 
-    expect(
-      screen.queryByRole('heading', { name: 'Tùy chọn lịch bay' }),
-    ).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Tùy chọn nâng cao/ }))
-    expect(
-      screen.getByRole('heading', { name: 'Tùy chọn lịch bay' }),
-    ).toBeInTheDocument()
+    expect(screen.queryByText('Tùy chọn nâng cao')).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Tùy chọn lịch bay' })).not.toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: 'Tóm tắt lịch bay' }),
     ).toBeInTheDocument()

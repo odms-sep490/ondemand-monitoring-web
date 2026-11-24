@@ -76,7 +76,7 @@ describe('create-order location draft', () => {
     })
   })
 
-  it('replaces old delivery preferences with the current defaults', () => {
+  it('restores valid delivery preferences from the saved draft', () => {
     const form = {
       ...createDefaultForm(),
       deliveryMethods: ['EMAIL'] as const,
@@ -88,7 +88,24 @@ describe('create-order location draft', () => {
     )
 
     expect(readStoredDraft()?.form).toMatchObject({
-      deliveryMethods: ['DOWNLOAD'],
+      deliveryMethods: ['EMAIL'],
+      dataRetentionDays: 90,
+    })
+  })
+
+  it('filters invalid saved delivery methods and restores a safe retention default', () => {
+    const form: Record<string, unknown> = {
+      ...createDefaultForm(),
+      deliveryMethods: ['FAX'],
+      dataRetentionDays: 60,
+    }
+    window.localStorage.setItem(
+      CREATE_ORDER_DRAFT_STORAGE_KEY,
+      JSON.stringify({ step: 6, form }),
+    )
+
+    expect(readStoredDraft()?.form).toMatchObject({
+      deliveryMethods: [],
       dataRetentionDays: 30,
     })
   })

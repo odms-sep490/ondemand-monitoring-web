@@ -255,15 +255,6 @@ export function RequestSummaryCard(p: Props) {
       label: t.schedule,
       lines: [
         [dates, timeWindow].filter(Boolean).join(' · ') || t.noValue,
-        form.recurrenceType === 'WEEKLY'
-          ? t.repeatWeekly(form.recurrenceOccurrences)
-          : form.recurrenceType === 'MONTHLY'
-            ? t.repeatMonthly(form.recurrenceOccurrences)
-            : '',
-        form.resultDeadline
-          ? t.deadline(formatDate(form.resultDeadline, lang))
-          : '',
-        t.fallbackValues[form.weatherFallback],
       ].filter(Boolean),
       lead: 1,
       step: 5,
@@ -398,19 +389,6 @@ export function RequestSummaryCard(p: Props) {
       label: t.groupSchedule,
       icon: 'clock',
       primary: [dates, timeWindow].filter(Boolean).join(' · ') || t.noValue,
-      secondary: [
-        form.recurrenceType === 'WEEKLY'
-          ? t.repeatWeekly(form.recurrenceOccurrences)
-          : form.recurrenceType === 'MONTHLY'
-            ? t.repeatMonthly(form.recurrenceOccurrences)
-            : '',
-        form.resultDeadline
-          ? t.deadline(formatDate(form.resultDeadline, lang))
-          : '',
-        t.fallbackValues[form.weatherFallback],
-      ]
-        .filter(Boolean)
-        .join(' · '),
     },
   ]
 

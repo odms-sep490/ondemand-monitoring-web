@@ -43,6 +43,24 @@ describe('apiRequest', () => {
     expect(result).toEqual({ id: '1' })
   })
 
+  it('returns authenticated audio responses as blobs', async () => {
+    const wav = new Uint8Array([82, 73, 70, 70])
+    setHttpTransport(async (_url, init) => {
+      expect(new Headers(init?.headers).get('Accept')).toBe('audio/wav')
+      expect(init?.method).toBe('POST')
+      return new Response(wav, { headers: { 'Content-Type': 'audio/wav' } })
+    })
+
+    const result = await apiRequest<Blob>('/api/customer/order-conversations/session/speech', {
+      method: 'POST',
+      body: { text: 'Xin chào' },
+      responseType: 'blob',
+    })
+
+    expect(result.type).toBe('audio/wav')
+    expect([...new Uint8Array(await result.arrayBuffer())]).toEqual([...wav])
+  })
+
   it('throws ApiError with the backend code when success is false', async () => {
     setHttpTransport(async () =>
       jsonResponse({

@@ -390,6 +390,46 @@
   padding-inline: 10px;
 }
 
+/* Keep the embedded checklist focused on the choices themselves. */
+.order-agent-widget-content .co-content-sidegroup,
+.order-agent-widget-content .co-content-overview-card,
+.order-agent-widget-content .checklist-pricing-notice {
+  display: none;
+}
+
+.order-agent-widget-content .co-content-layout {
+  display: block;
+}
+
+.order-agent-widget-content .checklist-card .ant-card-body {
+  padding: 10px 12px;
+}
+
+.order-agent-widget-content .checklist-row {
+  margin-block: 4px;
+}
+
+.order-agent-widget-content .co-content-editor {
+  position: static;
+  min-height: 0;
+}
+
+.order-agent-widget-content .co-content-editor > [role='region'] {
+  position: static;
+  display: block;
+  min-height: 0;
+}
+
+.co-page .order-agent-widget-content .checklist-card.is-compact,
+.co-page .order-agent-widget-content .checklist-card.is-compact > .ant-card-body,
+.co-page .order-agent-widget-content .checklist-card.is-compact .checklist-fields {
+  display: block;
+  flex: none;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
 /* Follow the available content width rather than the outer screen width. */
 @container monitoring-step (max-width: 999px) {
   .co-content-layout {
@@ -459,6 +499,239 @@
     border-radius: 12px;
     box-shadow: none;
   }
+}
+
+/* Step 3 uses a progressive checklist: compact choices first, details on demand. */
+.co-page.is-content-step .co-content-editor .checklist-card .checklist-fields {
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.co-page.is-content-step .co-content-editor .checklist-row.is-compact {
+  border: 1px solid var(--ui-border);
+  border-radius: 11px;
+  background: var(--ui-surface);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.co-page.is-content-step
+  .co-content-editor
+  .checklist-row.is-compact.is-selected {
+  border-color: color-mix(in srgb, var(--ui-primary) 36%, var(--ui-border));
+  background: color-mix(in srgb, var(--ui-primary-soft) 22%, var(--ui-surface));
+}
+
+.co-page.is-content-step
+  .co-content-editor
+  .checklist-row.is-compact
+  .checklist-row-header {
+  grid-template-columns: 20px minmax(0, 1fr) 128px 100px 104px;
+  grid-template-areas: 'check summary evidence price actions';
+  column-gap: 10px;
+  min-height: 58px;
+  padding: 8px 12px;
+}
+
+.co-page.is-content-step
+  .co-content-editor
+  .checklist-row-header
+  > .checklist-summary-toggle {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ui-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+
+.co-page.is-content-step
+  .co-content-editor
+  .checklist-row-header
+  > .checklist-summary-toggle:focus-visible,
+.co-page.is-content-step
+  .co-content-editor
+  .checklist-row-actions
+  .checklist-disclosure-toggle:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 3px;
+}
+
+.co-page.is-content-step .co-content-editor .checklist-row-actions {
+  gap: 4px;
+}
+
+.co-page.is-content-step
+  .co-content-editor
+  .checklist-disclosure-toggle
+  .anticon {
+  transition: transform 160ms ease;
+}
+
+.co-page.is-content-step
+  .co-content-editor
+  .checklist-row.is-expanded
+  .checklist-disclosure-toggle
+  .anticon {
+  transform: rotate(180deg);
+}
+
+.co-page.is-content-step .checklist-expandable-details {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-inline: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows 180ms ease,
+    opacity 150ms ease,
+    visibility 180ms;
+}
+
+.co-page.is-content-step
+  .checklist-expandable-details.is-open {
+  grid-template-rows: 1fr;
+  padding-bottom: 12px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.co-page.is-content-step .checklist-expandable-details-inner {
+  min-height: 0;
+  overflow: hidden;
+  border-top: 1px solid var(--ui-border);
+}
+
+.co-page.is-content-step .checklist-expandable-details .odm-cg-static {
+  margin: 10px 0;
+}
+
+.co-page.is-content-step .checklist-expandable-details .checklist-evidence-requirements {
+  margin-top: 10px;
+}
+
+/* The dock stays in the scroll flow, so it is reachable without covering rows. */
+.co-page.is-content-step .co-action-dock {
+  position: sticky;
+  z-index: 20;
+  bottom: 10px;
+  margin-top: 12px;
+  box-shadow: 0 -2px 18px color-mix(in srgb, var(--ui-text) 9%, transparent);
+}
+
+.co-page.is-content-step .co-content-sidegroup .co-pricing-estimate-card > .ant-card-head {
+  min-height: 48px;
+  padding-inline: 14px;
+}
+
+.co-page.is-content-step .co-content-sidegroup .co-pricing-estimate-card > .ant-card-body {
+  padding: 12px 14px 14px;
+}
+
+.co-page.is-content-step .co-checklist-cost > .co-hint {
+  margin: 0 0 6px;
+  line-height: 1.45;
+}
+
+.co-page.is-content-step .co-checklist-cost > .co-money-row {
+  padding-block: 6px;
+}
+
+.co-page.is-content-step .co-checklist-cost > .co-money-total {
+  margin-top: 8px;
+  padding: 10px 12px;
+}
+
+.co-page.is-content-step .co-checklist-cost > .co-estimate-notice {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+@media (max-height: 600px) {
+  .co-page.is-content-step .co-action-dock {
+    position: static;
+  }
+}
+
+@container monitoring-editor (max-width: 759px) {
+  .co-page.is-content-step
+    .co-content-editor
+    .checklist-row.is-compact
+    .checklist-row-header {
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'check summary actions'
+      'check evidence evidence'
+      'check price price';
+    min-height: 58px;
+    padding: 9px 10px;
+  }
+
+  .co-page.is-content-step .co-content-editor .checklist-row-actions {
+    gap: 2px;
+  }
+
+  .co-page.is-content-step
+    .co-content-editor
+    .checklist-row-actions
+    .checklist-icon-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .co-page.is-content-step .checklist-expandable-details {
+    margin-inline: 10px;
+  }
+}
+
+@media (max-width: 760px) {
+  .co-page.is-content-step {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .co-page.is-content-step .co-action-dock {
+    bottom: 0;
+    padding-bottom: calc(9px + env(safe-area-inset-bottom, 0px));
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .co-page.is-content-step .co-content-editor .checklist-row.is-compact,
+  .co-page.is-content-step .checklist-expandable-details,
+  .co-page.is-content-step .checklist-disclosure-toggle .anticon {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* In the AI workspace the modal owns scrolling, including the full checklist. */
+.co-page .order-agent-widget-content .co-content-editor {
+  position: static;
+  min-height: 0;
+}
+
+.co-page .order-agent-widget-content .co-content-editor > [role='region'] {
+  position: static;
+  display: block;
+}
+
+.co-page .order-agent-widget-content .co-content-editor .checklist-card.is-compact,
+.co-page .order-agent-widget-content .co-content-editor .checklist-card.is-compact > .ant-card-body,
+.co-page .order-agent-widget-content .co-content-editor .checklist-card.is-compact .checklist-fields {
+  display: block;
+  flex: none;
+  max-height: none;
+  overflow: visible;
 }
 
 @media (max-height: 600px) {
@@ -645,6 +918,10 @@
   border-color: color-mix(in srgb, var(--ui-primary) 54%, var(--ui-border));
   background: color-mix(in srgb, var(--ui-primary-soft) 28%, var(--ui-surface));
   box-shadow: none;
+}
+
+.co-page.is-content-step .co-content-editor .checklist-row.is-compact:hover {
+  border-color: color-mix(in srgb, var(--ui-primary) 32%, var(--ui-border));
 }
 
 .co-page

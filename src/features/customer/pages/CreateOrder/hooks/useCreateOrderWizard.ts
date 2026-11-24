@@ -48,32 +48,19 @@ const formFields = new Set<keyof FormState>([
 ])
 
 /** Wires every wizard hook together; the page only renders the result. */
-export function useCreateOrderWizard() {
+export function useCreateOrderWizard(assistantStep?: number) {
   const { t } = useI18n(createOrderPageMessages)
   const stored = useMemo(readStoredDraft, [])
   const f = useCreateOrderForm(stored)
   const { form, step } = f
-  const checklistPricingReady = step >= 3
+  const checklistPricingReady = step >= 3 || (assistantStep !== undefined && assistantStep >= 3)
   const checklist = useOrderChecklist(form.serviceId, {
     areaHa: checklistPricingReady ? pricingAreaHa(form) : undefined,
     lengthKm: Number(form.estimatedLengthM || 0) / 1000,
     altitudeM: Number.isFinite(form.altitudeM) ? form.altitudeM : 0,
-    occurrences:
-      form.recurrenceType !== 'NONE' && form.recurrenceOccurrences > 1
-        ? form.recurrenceOccurrences
-        : 1,
+    occurrences: 1,
     permitStatus: form.permitStatus,
   }, form.agentChecklistItems)
-  const descriptionContext = JSON.stringify([form.serviceId, form.flightPurpose, form.address, checklist.quoteSelection?.items ?? []])
-  useEffect(() => {
-    if(checklist.status !== 'ready' || !checklist.quoteSelection) return
-    const draft = form.descriptionAssistant
-    if (draft && draft.status !== 'STALE' &&
-      (draft.contextKey !== descriptionContext || (draft.status === 'CUSTOMER_CONFIRMED' && draft.description !== form.description))) {
-      f.setForm(current => ({...current, descriptionAssistant: current.descriptionAssistant
-        ? {...current.descriptionAssistant, status:'STALE'} : undefined}))
-    }
-  }, [descriptionContext, checklist.status, form.description, form.descriptionAssistant, f.setForm])
   const meta = useCreateOrderMeta(form.serviceId, f.setForm)
   const service = meta.services.find((s) => s.id === form.serviceId)
   const quoteErrorCode = checklist.quote.error?.code
@@ -148,10 +135,6 @@ export function useCreateOrderWizard() {
         form,
         score,
       }),
-      descriptionAssistantSessionId: form.descriptionAssistant?.status === 'CUSTOMER_CONFIRMED'
-        && form.descriptionAssistant.description === form.description
-        && form.descriptionAssistant.contextKey === JSON.stringify([form.serviceId, form.flightPurpose, form.address, checklist.quoteSelection?.items ?? []])
-        ? form.descriptionAssistant.id : undefined,
       checklistItems: checklist.serialize(),
     }),
   })
@@ -198,3 +181,4 @@ export function useCreateOrderWizard() {
     ),
   }
 }
+

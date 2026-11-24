@@ -129,7 +129,7 @@ export function buildOrderPayload(input: {
     detail,
   })
   return {
-    title: "",
+    title: form.title.trim(),
     description: form.description.trim() || undefined,
     serviceId: form.serviceId,
     flightPurpose: form.flightPurpose,
@@ -167,14 +167,13 @@ export function buildOrderPayload(input: {
     preferredDateFrom: form.preferredDateFrom,
     preferredDateTo: form.preferredDateTo,
     preferredTimeId: form.preferredTimeId,
-    recurrenceType: form.recurrenceType,
-    recurrenceOccurrences:
-      form.recurrenceType === 'NONE' ? undefined : form.recurrenceOccurrences,
-    weatherFallback: form.weatherFallback,
-    resultDeadline: form.resultDeadline || undefined,
+    recurrenceType: 'NONE',
+    recurrenceOccurrences: undefined,
+    weatherFallback: 'CONTACT_CUSTOMER',
+    resultDeadline: undefined,
     resultFormats,
-    deliveryMethods: ['DOWNLOAD'],
-    dataRetentionDays: 30,
+    deliveryMethods: form.deliveryMethods,
+    dataRetentionDays: form.dataRetentionDays,
     termsAccepted: form.termsAccepted,
     deliverables: deliverableEntries,
   }

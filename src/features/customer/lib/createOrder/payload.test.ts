@@ -97,7 +97,7 @@ describe('buildOrderPayload', () => {
     })
   })
 
-  it('uses checklist media and fixed delivery defaults instead of saved options', () => {
+  it('uses checklist media while preserving selected delivery and retention options', () => {
     const payload = buildOrderPayload({
       form: {
         ...form,
@@ -111,8 +111,8 @@ describe('buildOrderPayload', () => {
 
     expect(payload).toMatchObject({
       resultFormats: ['PHOTO', 'VIDEO'],
-      deliveryMethods: ['DOWNLOAD'],
-      dataRetentionDays: 30,
+      deliveryMethods: ['EMAIL'],
+      dataRetentionDays: 365,
     })
   })
 
@@ -152,7 +152,7 @@ describe('buildOrderPayload', () => {
     })
   })
 
-  it('sends schedule preferences and drops the count when not repeating', () => {
+  it('ignores removed advanced schedule choices, including values from old drafts', () => {
     const base = { score }
     const once = buildOrderPayload({
       ...base,
@@ -166,7 +166,7 @@ describe('buildOrderPayload', () => {
     })
     expect(once).toMatchObject({
       recurrenceType: 'NONE',
-      weatherFallback: 'AUTO_RESCHEDULE',
+      weatherFallback: 'CONTACT_CUSTOMER',
     })
     expect(once.recurrenceOccurrences).toBeUndefined()
     expect(once.resultDeadline).toBeUndefined()
@@ -180,9 +180,10 @@ describe('buildOrderPayload', () => {
       },
     })
     expect(weekly).toMatchObject({
-      recurrenceType: 'WEEKLY',
-      recurrenceOccurrences: 4,
-      resultDeadline: '2026-10-20',
+      recurrenceType: 'NONE',
+      weatherFallback: 'CONTACT_CUSTOMER',
     })
+    expect(weekly.recurrenceOccurrences).toBeUndefined()
+    expect(weekly.resultDeadline).toBeUndefined()
   })
 })

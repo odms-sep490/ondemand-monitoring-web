@@ -17,7 +17,6 @@ export type CreateOrderPayload = {
   checklistItems?: ChecklistInput[] | null
   title: string
   description?: string
-  descriptionAssistantSessionId?: string
   serviceId: string
   address?: string
   longitude: number
@@ -365,3 +364,4 @@ export const customerApi = {
 
 
 }
+

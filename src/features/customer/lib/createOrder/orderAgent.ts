@@ -37,11 +37,13 @@ export type OrderAgentSession = {
   revision: number
   expiresAt: string
   state: {
+    descriptionReview?: import('../../pages/CreateOrder/components/MissionDescriptionAssistant').MissionDescriptionReview
     messages: Array<{
       role: 'user' | 'assistant'
       content: string
       requestId?: string
     }>
+    nextQuestionField?: string
     confirmedFields: AgentChanges
     pendingChanges: AgentChanges
     requestedUiAction?: '' | 'MAP' | 'SCHEDULE' | 'SITE_DETAILS' | 'REVIEW'
@@ -60,6 +62,15 @@ export function applyConfirmedAgentChanges(
   current: FormState,
   changes: AgentChanges,
 ): FormState {
+  const hiddenScheduleFields = new Set([
+    'resultDeadline',
+    'recurrenceType',
+    'recurrenceOccurrences',
+    'weatherFallback',
+  ])
+  const visibleChanges = Object.fromEntries(
+    Object.entries(changes).filter(([key]) => !hiddenScheduleFields.has(key)),
+  ) as AgentChanges
   const allowed = [
     'serviceId',
     'description',
@@ -74,15 +85,11 @@ export function applyConfirmedAgentChanges(
     'preferredDateFrom',
     'preferredDateTo',
     'preferredTimeId',
-    'resultDeadline',
-    'recurrenceType',
-    'recurrenceOccurrences',
-    'weatherFallback',
     'checklistItems',
   ]
-  if (Object.keys(changes).some((key) => !allowed.includes(key)))
+  if (Object.keys(visibleChanges).some((key) => !allowed.includes(key)))
     throw new Error('AI đề xuất trường không được phép.')
-  const { checklistItems, ...fields } = changes
+  const { checklistItems, ...fields } = visibleChanges
   const changedService = Boolean(
     fields.serviceId && fields.serviceId !== current.serviceId,
   )
@@ -92,7 +99,6 @@ export function applyConfirmedAgentChanges(
     ...(changedService
       ? {
           deliverableTypeId: '',
-          descriptionAssistant: undefined,
           agentChecklistItems: undefined,
         }
       : {}),
@@ -178,19 +184,10 @@ export function canonicalDraftToFormState(
     preferredDateFrom: draft.preferredDateFrom,
     preferredDateTo: draft.preferredDateTo,
     preferredTimeId: draft.preferredTimeId,
-    recurrenceType: member(
-      draft.recurrenceType ?? 'NONE',
-      ['NONE', 'WEEKLY', 'MONTHLY'] as const,
-      'lặp lịch',
-    ),
-    recurrenceOccurrences:
-      draft.recurrenceOccurrences ?? current.recurrenceOccurrences,
-    weatherFallback: member(
-      draft.weatherFallback ?? 'CONTACT_CUSTOMER',
-      ['AUTO_RESCHEDULE', 'CONTACT_CUSTOMER', 'CANCEL_ORDER'] as const,
-      'xử lý lịch',
-    ),
-    resultDeadline: draft.resultDeadline ?? '',
+    recurrenceType: 'NONE',
+    recurrenceOccurrences: current.recurrenceOccurrences,
+    weatherFallback: 'CONTACT_CUSTOMER',
+    resultDeadline: '',
     resultFormats: (draft.resultFormats ?? []).map((value) =>
       member(value, RESULT_FORMATS, 'sản phẩm'),
     ),
@@ -213,3 +210,5 @@ export function canonicalDraftToFormState(
     orderAgentSessionId: session.id,
   }
 }
+
+

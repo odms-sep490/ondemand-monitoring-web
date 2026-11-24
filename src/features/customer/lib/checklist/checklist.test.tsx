@@ -63,6 +63,47 @@ afterEach(() => {
 })
 
 describe('Order checklist state and editor', () => {
+  it('keeps expandable compact rows closed until opened and preserves selection and evidence edits', async () => {
+    vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue(
+      template().map((item) => ({
+        ...item,
+        description: `${item.content} description`,
+        executionSteps: [`Review ${item.content.toLowerCase()}`],
+      })),
+    )
+    function Editor() {
+      const checklist = useOrderChecklist('A')
+      return (
+        <ChecklistEditor
+          variant="compact"
+          expandableRows
+          checklist={checklist}
+        />
+      )
+    }
+
+    render(<Editor />)
+    await screen.findByText('First')
+    expect(screen.queryByRole('region', { name: 'First' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mở chi tiết: First' }))
+    const details = await screen.findByRole('region', { name: 'First' })
+    expect(within(details).getByText('First description')).toBeInTheDocument()
+    const evidenceCount = screen.getByLabelText(
+      'Số bằng chứng tối thiểu 1',
+    )
+    fireEvent.change(evidenceCount, { target: { value: '2' } })
+    expect(evidenceCount).toHaveValue(2)
+
+    fireEvent.click(screen.getByLabelText('Chọn First'))
+    expect(
+      await screen.findByText('1/2 nội dung được chọn'),
+    ).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Đóng chi tiết: First' }))
+    expect(screen.queryByRole('region', { name: 'First' })).not.toBeInTheDocument()
+  })
+
   it('blocks saving an empty edited checklist and allows a custom-only item', () => {
     const { result } = renderHook(() => useOrderChecklistEdit(undefined, true))
     expect(result.current.valid).toBe(false)

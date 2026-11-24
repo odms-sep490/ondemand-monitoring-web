@@ -186,23 +186,6 @@ export function validateStep(
       errors.preferredDateTo = msg.preferredDateOrder
     }
     if (!form.preferredTimeId) errors.preferredTimeId = msg.preferredTimeId
-    if (
-      form.resultDeadline &&
-      form.preferredDateTo &&
-      form.resultDeadline < form.preferredDateTo
-    ) {
-      errors.resultDeadline = msg.resultDeadline
-    }
-    if (
-      form.recurrenceType !== 'NONE' &&
-      !(
-        Number.isInteger(form.recurrenceOccurrences) &&
-        form.recurrenceOccurrences >= 2 &&
-        form.recurrenceOccurrences <= 52
-      )
-    ) {
-      errors.recurrenceOccurrences = msg.recurrenceOccurrences
-    }
   }
   if (targetStep >= 6) {
     if (!form.deliverableTypeId) {

@@ -1,5 +1,5 @@
 import { Button, Checkbox } from 'antd'
-import { UnorderedListOutlined } from '@ant-design/icons'
+import { DownOutlined, UnorderedListOutlined } from '@ant-design/icons'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Icon } from '../../../../shared/components/Icon'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
@@ -30,6 +30,7 @@ export function ChecklistEditor({
   onReload,
   variant = 'full',
   quote = false,
+  expandableRows = false,
 }: {
   checklist: OrderChecklistEditorState
   disabled?: boolean
@@ -38,6 +39,8 @@ export function ChecklistEditor({
   variant?: 'full' | 'compact'
   /** Show the backend-calculated price of the selection (needs an authenticated customer). */
   quote?: boolean
+  /** Show compact rows with progressive disclosure in the create-order checklist. */
+  expandableRows?: boolean
 }) {
   const { t } = useI18n(checklistMessages)
   const { status, rows } = checklist
@@ -48,9 +51,11 @@ export function ChecklistEditor({
     (row) => row.packageItem !== false || row.selected,
   )
   const compact = variant === 'compact'
+  const disclosure = compact && expandableRows
   const showAdvancedToolbar = compact && visibleRows.length > 8
   const ready = status === 'ready'
   const [editingKey, setEditingKey] = useState<string | null>(null)
+  const [expandedKey, setExpandedKey] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
   const [query, setQuery] = useState('')
   const [view, setView] = useState<'list' | 'group'>('list')
@@ -132,6 +137,9 @@ export function ChecklistEditor({
     const invalid =
       row.selected && (normalizedLength < 1 || normalizedLength > 500)
     const expanded = !compact || editingKey === row.key || invalid
+    const detailsOpen = disclosure && expandedKey === row.key
+    const toggleDetails = () =>
+      setExpandedKey((current) => (current === row.key ? null : row.key))
     if (hiddenCount && index >= COMPACT_VISIBLE && !expanded) return null
     if (searching && !expanded && !row.content.toLowerCase().includes(needle))
       return null
@@ -248,19 +256,59 @@ export function ChecklistEditor({
     if (!expanded) {
       return (
         <div
-          className={`checklist-row is-compact${row.selected ? ' is-selected' : ' is-removed'}`}
+          className={`checklist-row is-compact${row.selected ? ' is-selected' : ' is-removed'}${detailsOpen ? ' is-expanded' : ''}`}
           key={row.key}
+          onClick={
+            disclosure
+              ? (event) => {
+                  if (
+                    event.target instanceof Element &&
+                    event.target.closest(
+                      'button, input, label, .ant-checkbox-wrapper',
+                    )
+                  )
+                    return
+                  toggleDetails()
+                }
+              : undefined
+          }
         >
           <div className="checklist-row-header">
             {checkbox}
             <span className="checklist-index">
               {String(index + 1).padStart(2, '0')}
             </span>
-            <span
-              id={`checklist-summary-${row.key}`}
-              className="checklist-summary"
-              title={row.content}
-            >
+            {disclosure ? (
+              <button
+                id={`checklist-summary-${row.key}`}
+                type="button"
+                className="checklist-summary checklist-summary-toggle"
+                title={row.content}
+                aria-expanded={detailsOpen}
+                aria-controls={`checklist-details-${row.key}`}
+                onClick={toggleDetails}
+              >
+                {row.content || t.emptyContent}
+                {!row.sourceChecklistId && awaitingManagerQuote(row) && (
+                  <span className="checklist-custom-tag is-pending-quote">
+                    {t.onDemandService}
+                  </span>
+                )}
+                {row.mandatory && (
+                  <span
+                    className="checklist-custom-tag is-mandatory"
+                    title={t.mandatoryHint}
+                  >
+                    {t.mandatory}
+                  </span>
+                )}
+              </button>
+            ) : (
+              <span
+                id={`checklist-summary-${row.key}`}
+                className="checklist-summary"
+                title={row.content}
+              >
               {row.content || t.emptyContent}
               {!row.sourceChecklistId && awaitingManagerQuote(row) && (
                 <span className="checklist-custom-tag is-pending-quote">
@@ -275,7 +323,8 @@ export function ChecklistEditor({
                   {t.mandatory}
                 </span>
               )}
-            </span>
+              </span>
+            )}
             <span className="checklist-evidence-summary">
               {row.requiredEvidenceType === 'IMAGE_AND_VIDEO'
                 ? t.imageAndVideoSummary(
@@ -316,7 +365,10 @@ export function ChecklistEditor({
                 aria-label={t.editRow(row.content)}
                 title={t.edit}
                 disabled={!row.selected}
-                onClick={() => setEditingKey(row.key)}
+                onClick={() => {
+                  if (disclosure) setExpandedKey(row.key)
+                  setEditingKey(row.key)
+                }}
               >
                 <Icon name="edit" width={16} height={16} aria-hidden="true" />
               </button>
@@ -336,9 +388,44 @@ export function ChecklistEditor({
                   />
                 </button>
               )}
+              {disclosure && (
+                <button
+                  type="button"
+                  className="checklist-icon-btn checklist-disclosure-toggle"
+                  aria-label={
+                    detailsOpen
+                      ? t.hideDetails(row.content)
+                      : t.showDetails(row.content)
+                  }
+                  aria-expanded={detailsOpen}
+                  aria-controls={`checklist-details-${row.key}`}
+                  title={detailsOpen ? t.hideDetailsTitle : t.showDetailsTitle}
+                  onClick={toggleDetails}
+                >
+                  <DownOutlined aria-hidden="true" />
+                </button>
+              )}
             </div>
           </div>
-          {row.sourceChecklistId ? (
+          {disclosure ? (
+            <div
+              id={`checklist-details-${row.key}`}
+              className={`checklist-expandable-details${detailsOpen ? ' is-open' : ''}`}
+              role="region"
+              aria-label={row.content || t.emptyContent}
+              aria-hidden={!detailsOpen}
+              inert={!detailsOpen}
+            >
+              <div className="checklist-expandable-details-inner">
+                {row.sourceChecklistId ? (
+                  <ChecklistGuidance guidance={row} collapsible={false} />
+                ) : awaitingManagerQuote(row) ? (
+                  <small className="checklist-hint">{t.onDemandHint}</small>
+                ) : null}
+                {evidenceRequirements}
+              </div>
+            </div>
+          ) : row.sourceChecklistId ? (
             <div className="checklist-guidance">
               <ChecklistGuidance guidance={row} />
             </div>
@@ -416,6 +503,11 @@ export function ChecklistEditor({
               </button>
             )}
           </div>
+          {disclosure && row.sourceChecklistId ? (
+            <ChecklistGuidance guidance={row} collapsible={false} />
+          ) : disclosure && awaitingManagerQuote(row) ? (
+            <small className="checklist-hint">{t.onDemandHint}</small>
+          ) : null}
           <span
             className="checklist-content-label"
             id={`requirement-label-${row.key}`}
@@ -472,7 +564,9 @@ export function ChecklistEditor({
           </>
         }
       >
-        <p className="checklist-hint">{compact ? t.compactHint : t.hint}</p>
+        {!disclosure && (
+          <p className="checklist-hint">{compact ? t.compactHint : t.hint}</p>
+        )}
         {ready && !compact && (
           <p className="checklist-pricing-notice">{t.pricingNotice}</p>
         )}
