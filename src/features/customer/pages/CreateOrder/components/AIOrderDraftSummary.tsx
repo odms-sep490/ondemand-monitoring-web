@@ -9,6 +9,7 @@ import type { FlightPurpose, FormState, Step } from '../../../lib/createOrder/ty
 import { requestInfoPanelMessages } from './RequestInfoPanel.messages'
 
 type Props = {
+  stepValidity?: Partial<Record<Step, boolean>>
   form: FormState
   services: ServiceOption[]
   checklist: ChecklistInput[]
@@ -138,6 +139,7 @@ export function AIOrderDraftSummary({
   onReadyForReview,
   highlightedKey,
   panelRef,
+  stepValidity,
 }: Props) {
   const reduceMotion = useReducedMotion()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -147,7 +149,7 @@ export function AIOrderDraftSummary({
     checklist,
     checklistValid,
     preferredTimes,
-  )
+  ).map((row) => ({ ...row, confirmed: row.confirmed && stepValidity?.[row.step] !== false }))
   const confirmedCount = rows.filter((r) => r.confirmed).length
   const firstMissing = rows.find((r) => !r.confirmed)?.key
   const readyForReview = confirmedCount === rows.length

@@ -14,6 +14,7 @@ import { ReviewStep } from './components/ReviewStep'
 import { ScheduleStep } from './components/ScheduleStep'
 import { ServiceStep } from './components/ServiceStep'
 import { OrderConversation } from './components/OrderConversation'
+import { validateStep } from '../../lib/createOrder/validators'
 import { SiteDetailsStep } from './components/SiteDetailsStep'
 import { WizardFooter } from './components/WizardFooter'
 import { createOrderPageMessages } from './CreateOrderPage.messages'
@@ -272,6 +273,10 @@ export function CreateOrderPage() {
 
       <OrderConversation form={form} setForm={f.setForm} services={meta.services} deliverables={meta.deliverables}
         preferredTimes={meta.preferredTimes}
+        onValidateStep={(target) => wizard.validate(target) && (target < 3 || checklist.valid)}
+        stepValidity={Object.fromEntries(([1, 2, 3, 4, 5, 6] as Step[]).map((target) => [target,
+          Object.keys(validateStep(target, form, { monitoringValid: form.locationStatus === 'confirmed', blockedZoneNames: [] }, t.validation)).length === 0 && (target < 3 || checklist.valid),
+        ]))}
         serializeChecklist={checklist.serialize} checklistValid={checklist.valid} mediaTotals={checklist.mediaTotals} onApply={applyValidatedAgentDraft}
         onSubmitFinal={() => submit.submit()}
         onOpenStep={f.setStep} onManualStepChange={setAssistantStep} renderStep={renderAssistantStep} serviceSelectionStep={step === 1} />

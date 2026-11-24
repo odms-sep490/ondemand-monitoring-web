@@ -246,6 +246,8 @@ function buildServiceWelcomeSpeech(services: ServiceOption[]) {
   )
 }
 type Props = {
+  onValidateStep?: (step: Step) => boolean
+  stepValidity?: Partial<Record<Step, boolean>>
   renderStep?: (step: Step) => ReactNode
   form: FormState
   setForm: (updater: (current: FormState) => FormState) => void
@@ -1245,7 +1247,10 @@ export function OrderConversation(p: Props) {
     p.checklistValid,
     checklistReviewed,
   )
-  const nextStep = guidedStage ?? requiredStep
+  const firstInvalidStep = ([1, 2, 3, 4, 5, 6] as Step[]).find(
+    (step) => p.stepValidity?.[step] === false,
+  )
+  const nextStep = Math.min(guidedStage ?? requiredStep, firstInvalidStep ?? 6) as Step
   const purposeBeforeMap = editingPurpose || nextStep === 1 && Boolean(p.form.serviceId) &&
     (!p.form.flightPurpose || p.form.flightPurpose === 'OTHER')
   const descriptionBeforeMap = !purposeBeforeMap && (editingDescription || nextStep === 1 && Boolean(p.form.serviceId) &&
@@ -1546,6 +1551,7 @@ export function OrderConversation(p: Props) {
           checklistValid={p.checklistValid}
           preferredTimes={p.preferredTimes}
           activeStep={nextStep}
+          stepValidity={p.stepValidity}
           highlightedKey={highlightedDraftKey}
           panelRef={(node) => registerTarget('draft', node)}
           onEditStep={(step) => openStep(step)}
@@ -1589,6 +1595,7 @@ export function OrderConversation(p: Props) {
     <Modal title={manualStep?labels[manualStep]:''} open={open&&manualStep!==undefined} onCancel={()=>setManualStep(undefined)} width={800} className="order-chat-form" destroyOnHidden footer={<Space><Button onClick={()=>setManualStep(undefined)}>Quay lại trò chuyện</Button><Button type="primary" disabled={busy || (manualStep === 3 && !p.checklistValid)} onClick={() => {
           const completedStep = manualStep
           if (!completedStep || (completedStep === 3 && !p.checklistValid)) return
+          if (p.onValidateStep && !p.onValidateStep(completedStep)) return
           if (completedStep === 3) setReviewedChecklistKey(checklistReviewKey)
           const stepDraftKey: Partial<Record<Step, string>> = {
             2: 'location',
