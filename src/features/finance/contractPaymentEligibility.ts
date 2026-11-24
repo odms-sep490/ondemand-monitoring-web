@@ -5,7 +5,7 @@ export function isContractDepositReady(
   invoice:
     | Pick<
         Invoice,
-        'contractRequired' | 'contractSubmittedAt' | 'contractConfirmedAt'
+        'contractRequired' | 'contractConfirmedAt'
       >
     | null
     | undefined,

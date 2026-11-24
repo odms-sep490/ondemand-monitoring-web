@@ -1,15 +1,21 @@
-import { VideoPoster } from '../../../shared/components/media/VideoThumbnail'
 import { useEffect, useId, useState } from 'react'
 import { Alert, Button, Checkbox, Empty, Tag } from 'antd'
-import { CheckOutlined, PictureOutlined, SendOutlined } from '@ant-design/icons'
+import { CheckOutlined, SendOutlined } from '@ant-design/icons'
 import { useLanguage } from '../../../shared/i18n'
 import { ApiError } from '../../../shared/api/httpClient'
 import { InspectorEvidencePreview } from './InspectorEvidencePreview'
+import { ImageContentAssessment } from './ImageContentAssessment'
+import { EvidenceThumbnail } from './EvidenceThumbnail'
 import { checklistEvidenceApi } from '../api/checklistEvidenceApi'
 import { getUploadMediaStatusLabel } from '../../drone-operator/pages/UploadMedia/uploadMediaHelpers'
 import { customerSelectionProgress } from '../lib/customerEvidenceSelection'
+import {
+  deliverySuggestionMessages,
+  suggestionReason,
+} from './CustomerEvidenceSelection.messages'
 import './CustomerEvidenceSelection.css'
 import type {
+  DeliverySuggestion,
   MissionChecklistEvidence,
   MissionChecklistExecution,
 } from '../types/checklistExecution'
@@ -41,6 +47,13 @@ export function CustomerEvidenceSelection({
   const [error, setError] = useState(false)
   const [conflict, setConflict] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [suggestion, setSuggestion] = useState<{
+    context: string
+    result: DeliverySuggestion
+  } | null>(null)
+  const [suggestionBusy, setSuggestionBusy] = useState(false)
+  const [suggestionAttempt, setSuggestionAttempt] = useState(0)
+  const [suggestionError, setSuggestionError] = useState(false)
   const [preview, setPreview] = useState<MissionChecklistEvidence | null>(null)
   const persistedIds = (item.evidence ?? [])
     .filter((link) => link.selectedForCustomer)
@@ -83,6 +96,8 @@ export function CustomerEvidenceSelection({
         confirmSurplus: progress.surplus,
       })
       setSaved(true)
+      setSuggestion(null)
+      setSuggestionError(false)
       refresh()
     } catch (cause) {
       setConflict(cause instanceof ApiError && cause.status === 409)
@@ -103,6 +118,118 @@ export function CustomerEvidenceSelection({
     (link) => link.mediaType === 'VIDEO',
   ).length
   const locked = readOnly || busy || mutationBusy || conflict || saved
+  const suggestionText = deliverySuggestionMessages[lang]
+  const needsImageSuggestions =
+    item.evidencePolicyVersion === 3
+      ? (item.minimumImageCount ?? 0) > 0
+      : item.requiredEvidenceType !== 'VIDEO'
+  const showSuggestions =
+    !readOnly &&
+    needsImageSuggestions &&
+    (links.some((link) => link.mediaType === 'IMAGE') || suggestion !== null)
+  const suggestionContext = JSON.stringify([
+    missionId,
+    item.id,
+    item.version,
+    item.evidencePolicyVersion,
+    item.requiredEvidenceType,
+    item.minimumEvidenceCount,
+    item.minimumImageCount,
+    item.minimumVideoCount,
+    links
+      .map((link) =>
+        JSON.stringify([
+          link.evidenceId,
+          link.mediaId,
+          link.version,
+          link.mediaType,
+          link.mediaStatus,
+          link.eligibleForFinalApproval,
+          Boolean(link.selectedForCustomer),
+        ]),
+      )
+      .sort(),
+  ])
+  const staleSuggestion =
+    suggestion !== null &&
+    (suggestion.context !== suggestionContext ||
+      suggestion.result.executionVersion !== item.version ||
+      suggestion.result.candidates.some(
+        ({ evidenceId }) =>
+          !links.some(
+            (link) =>
+              link.evidenceId === evidenceId && link.mediaType === 'IMAGE',
+          ),
+      ) ||
+      suggestion.result.suggestedImageEvidenceIds.some(
+        (id) =>
+          !links.some(
+            (link) =>
+              link.evidenceId === id &&
+              link.mediaType === 'IMAGE' &&
+              link.eligibleForFinalApproval,
+          ),
+      ))
+  const activeSuggestion =
+    showSuggestions && !staleSuggestion ? suggestion?.result : undefined
+  const suggestionById = new Map(
+    activeSuggestion?.candidates.map((candidate) => [
+      candidate.evidenceId,
+      candidate,
+    ]),
+  )
+  const suggestedIds = activeSuggestion?.suggestedImageEvidenceIds
+  const canApplySuggestion =
+    !locked && !suggestionBusy && Boolean(suggestedIds?.length)
+
+  async function requestSuggestion() {
+    if (!showSuggestions || locked || suggestionBusy) return
+    setSuggestionBusy(true)
+    setSuggestionAttempt((attempt) => attempt + 1)
+    setSuggestion(null)
+    setSuggestionError(false)
+    try {
+      const result = await checklistEvidenceApi.getDeliverySuggestion(
+        missionId,
+        item.id,
+      )
+      if (
+        !result ||
+        !Array.isArray(result.suggestedImageEvidenceIds) ||
+        !Array.isArray(result.candidates) ||
+        !Array.isArray(result.warnings) ||
+        !result.candidates.every(
+          (candidate) => candidate && Array.isArray(candidate.reasonCodes),
+        ) ||
+        result.suggestedImageCount !==
+          result.suggestedImageEvidenceIds.length ||
+        new Set(result.suggestedImageEvidenceIds).size !==
+          result.suggestedImageCount
+      ) {
+        setSuggestionError(true)
+        return
+      }
+      setSuggestion({ context: suggestionContext, result })
+    } catch {
+      setSuggestionError(true)
+    } finally {
+      setSuggestionBusy(false)
+    }
+  }
+
+  function applySuggestion() {
+    if (!canApplySuggestion || !suggestedIds) return
+    const videoIds = new Set(
+      links
+        .filter((link) => link.mediaType === 'VIDEO')
+        .map((link) => link.evidenceId),
+    )
+    setIds((current) => [
+      ...suggestedIds,
+      ...current.filter((id) => videoIds.has(id)),
+    ])
+  }
+
   const typeLabel = (video: boolean) => (video ? 'Video' : vi ? 'Ảnh' : 'Image')
   const minimum =
     item.evidencePolicyVersion === 3
@@ -227,8 +354,85 @@ export function CustomerEvidenceSelection({
               : `Eligible evidence: ${item.eligibleEvidenceCount ?? 0}/${item.minimumEvidenceCount ?? 0}`}
         </div>
       </details>
+      {showSuggestions && (
+        <div className="customer-evidence-selection__suggestion">
+          <div className="customer-evidence-selection__actions">
+            <Button
+              size="small"
+              disabled={locked || suggestionBusy}
+              loading={suggestionBusy}
+              aria-label={suggestionText.request}
+              aria-busy={suggestionBusy}
+              onClick={() => void requestSuggestion()}
+            >
+              {suggestionText.request}
+            </Button>
+            {Boolean(suggestedIds?.length) && (
+              <Button
+                size="small"
+                disabled={!canApplySuggestion}
+                onClick={applySuggestion}
+              >
+                {suggestionText.apply}
+              </Button>
+            )}
+          </div>
+          {Boolean(suggestedIds?.length) && (
+            <div className="customer-evidence-selection__metric-label">
+              {suggestionText.applyHint}
+            </div>
+          )}
+          {suggestionError && (
+            <Alert type="warning" showIcon message={suggestionText.error} />
+          )}
+          {staleSuggestion && (
+            <Alert type="warning" showIcon message={suggestionText.stale} />
+          )}
+          {activeSuggestion && (
+            <Alert
+              showIcon
+              type={
+                activeSuggestion.suggestedImageCount <
+                  activeSuggestion.requiredImageCount ||
+                activeSuggestion.warnings.length > 0
+                  ? 'warning'
+                  : 'info'
+              }
+              message={suggestionText.count(
+                activeSuggestion.suggestedImageCount,
+                activeSuggestion.requiredImageCount,
+              )}
+              description={
+                <>
+                  {activeSuggestion.warnings.map((code) => (
+                    <div key={code}>{suggestionReason(lang, code)}</div>
+                  ))}
+                  {(activeSuggestion.suggestedImageCount === 0 ||
+                    activeSuggestion.suggestedImageCount <
+                      activeSuggestion.requiredImageCount) && (
+                    <div>{suggestionText.qualityHint}</div>
+                  )}
+                </>
+              }
+            />
+          )}
+          <ImageContentAssessment
+            missionId={missionId}
+            executionId={item.id}
+            context={JSON.stringify([suggestionContext, suggestionAttempt, lang])}
+            suggestion={activeSuggestion}
+            links={links}
+            lang={lang}
+            disabled={locked || suggestionBusy}
+          />
+        </div>
+      )}
       <ul className="customer-evidence-selection__list">
         {links.map((link) => {
+          const recommendation =
+            link.mediaType === 'IMAGE'
+              ? suggestionById.get(link.evidenceId)
+              : undefined
           const checked = !readOnly && ids.includes(link.evidenceId)
           const disabled =
             locked || (!link.eligibleForFinalApproval && !checked)
@@ -320,6 +524,32 @@ export function CustomerEvidenceSelection({
                     lang,
                   )}
                 </span>
+                {recommendation && (
+                  <div className="customer-evidence-selection__recommendation">
+                    <Tag
+                      color={
+                        {
+                          SUGGESTED: 'blue',
+                          REVIEW: 'orange',
+                          RESERVE: undefined,
+                        }[recommendation.recommendation]
+                      }
+                    >
+                      {
+                        suggestionText.recommendations[
+                          recommendation.recommendation
+                        ]
+                      }
+                    </Tag>
+                    {recommendation.reasonCodes.length > 0 && (
+                      <small>
+                        {recommendation.reasonCodes
+                          .map((code) => suggestionReason(lang, code))
+                          .join(' · ')}
+                      </small>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="customer-evidence-selection__state">
                 {!readOnly && (
@@ -433,16 +663,4 @@ export function CustomerEvidenceSelection({
       )}
     </section>
   )
-}
-
-function EvidenceThumbnail({ link }: { link: MissionChecklistEvidence }) {
-  const [failedUrl, setFailedUrl] = useState<string | null>(null)
-  if (link.mediaType === 'VIDEO')
-    return <VideoPoster poster={link.thumbnailUrl} />
-  const src = link.thumbnailUrl ?? link.previewUrl
-  if (src && src !== failedUrl)
-    return (
-      <img src={src} alt="" loading="lazy" onError={() => setFailedUrl(src)} />
-    )
-  return <PictureOutlined aria-hidden="true" />
 }

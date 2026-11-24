@@ -96,11 +96,7 @@ export function InvoiceSection({
     null,
   )
   const deadlineKey = `${invoice.id}:${invoice.depositExpiresAt ?? ''}`
-  const depositIssuedAt = Date.parse(
-    invoice.contractSubmittedAt ??
-      invoice.contractConfirmedAt ??
-      invoice.issuedAt,
-  )
+  const depositStartAt = invoice.contractConfirmedAt ?? invoice.issuedAt
   const depositExpiresAt = invoice.depositExpiresAt
     ? Date.parse(invoice.depositExpiresAt)
     : Number.NaN
@@ -118,7 +114,7 @@ export function InvoiceSection({
     invoice.orderCancellationReason?.startsWith('CONTRACT_')
   )
     return null
-  if (!isContractDepositReady(invoice)) return null
+ if (!isContractDepositReady(invoice)) return null
   if (invoice.status === 'PAID') {
     return (
       <div className="customer-invoice customer-invoice-actions">
@@ -138,7 +134,7 @@ export function InvoiceSection({
     0,
     invoice.totalAmount - invoice.depositAmount,
   )
-  return (
+ return (
     <div className="customer-invoice customer-invoice-actions">
       {invoice.paidAmount < invoice.depositAmount && !depositExpired ? (
         <section
@@ -176,13 +172,7 @@ export function InvoiceSection({
             expired={depositExpired}
             label={depositExpired ? t.depositExpired : t.depositCountdownLabel}
             deadline={invoice.depositExpiresAt}
-            startAt={
-              Number.isFinite(depositIssuedAt)
-                ? (invoice.contractSubmittedAt ??
-                  invoice.contractConfirmedAt ??
-                  invoice.issuedAt)
-                : null
-            }
+            startAt={Number.isFinite(Date.parse(depositStartAt)) ? depositStartAt : null}
             deadlineLabel={t.depositDeadlineAt(
               new Date(invoice.depositExpiresAt).toLocaleString(locale, {
                 dateStyle: 'short',
@@ -210,14 +200,7 @@ export function InvoiceSection({
           <b>{t.orderCancelledPaymentTimeout}</b>
         </div>
       ) : null}
-      {invoice.contractRequired &&
-      !invoice.contractConfirmedAt &&
-      invoice.paidAmount >= invoice.depositAmount ? (
-        <div className="customer-deposit-notice">
-          <b>{t.contractVerificationPending}</b>
-          <span>{t.contractVerificationPendingBody}</span>
-        </div>
-      ) : invoice.paidAmount < invoice.depositAmount ? (
+      {invoice.paidAmount < invoice.depositAmount ? (
         <div className="customer-deposit-notice">
           <b>{t.awaitingDeposit}</b>
           <span>

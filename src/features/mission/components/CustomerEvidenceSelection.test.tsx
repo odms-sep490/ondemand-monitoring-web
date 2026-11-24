@@ -1,11 +1,20 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import { ApiError } from '../../../shared/api/httpClient'
 import { setLanguage } from '../../../shared/i18n'
 import { checklistEvidenceApi } from '../api/checklistEvidenceApi'
 import { ChecklistEvidencePanel } from './ChecklistEvidencePanel'
 import { CustomerEvidenceSelection } from './CustomerEvidenceSelection'
 import type {
+  ContentAssessment,
+  DeliverySuggestion,
   MissionChecklistEvidence,
   MissionChecklistExecution,
 } from '../types/checklistExecution'
@@ -57,6 +66,444 @@ const item: MissionChecklistExecution = {
 afterEach(() => {
   vi.restoreAllMocks()
   setLanguage('vi')
+})
+
+describe('inspector delivery suggestions', () => {
+  const result: DeliverySuggestion = {
+    executionVersion: item.version,
+    policyVersion: 'test-policy',
+    requiredImageCount: 2,
+    suggestedImageCount: 1,
+    suggestedImageEvidenceIds: ['two'],
+    warnings: ['INSUFFICIENT_RECOMMENDABLE_IMAGES'],
+    candidates: [
+      {
+        evidenceId: 'two',
+        recommendation: 'SUGGESTED',
+        reasonCodes: ['HUMAN_QUALITY_PASS'],
+      },
+      {
+        evidenceId: 'one',
+        recommendation: 'RESERVE',
+        reasonCodes: ['SIMILAR_TO_SUGGESTED_IMAGE'],
+      },
+      {
+        evidenceId: 'pending',
+        recommendation: 'REVIEW',
+        reasonCodes: ['QUALITY_NOT_CHECKED'],
+      },
+    ],
+  }
+  const requestName = 'Get AI image suggestions'
+  const applyName = 'Apply suggested images to draft'
+  const assessment: ContentAssessment = {
+    executionVersion: item.version,
+    evidenceId: 'pending',
+    verdict: 'UNCERTAIN',
+    criteria: [
+      {
+        code: 'ANGLE',
+        label: 'Viewing angle',
+        verdict: 'MISMATCH',
+        observation: '<strong>Roof detail</strong>',
+      },
+    ],
+  }
+
+  function pendingAssessment() {
+    let resolve!: (value: ContentAssessment) => void
+    const promise = new Promise<ContentAssessment>((complete) => {
+      resolve = complete
+    })
+    return { promise, resolve }
+  }
+
+  it.each([undefined, false])(
+    'hides assessment when availability is %s',
+    async (available) => {
+      setLanguage('en')
+      vi.spyOn(checklistEvidenceApi, 'getDeliverySuggestion').mockResolvedValue(
+        {
+          ...result,
+          contentAssessmentAvailable: available,
+        },
+      )
+      render(
+        <CustomerEvidenceSelection
+          missionId="m"
+          item={item}
+          refresh={vi.fn()}
+        />,
+      )
+      fireEvent.click(screen.getByRole('button', { name: requestName }))
+      await screen.findByRole('button', { name: applyName })
+      expect(
+        screen.queryByRole('button', { name: 'Assess image content' }),
+      ).toBeNull()
+    },
+  )
+
+  it('discloses preview sharing and assesses only the chosen candidate without changing the draft', async () => {
+    setLanguage('en')
+    vi.spyOn(checklistEvidenceApi, 'getDeliverySuggestion').mockResolvedValue({
+      ...result,
+      contentAssessmentAvailable: true,
+    })
+    const assess = vi.spyOn(checklistEvidenceApi, 'assessImageContent')
+    const pending = pendingAssessment()
+    assess.mockReturnValue(pending.promise)
+    const save = vi.spyOn(checklistEvidenceApi, 'selectForCustomer')
+    const refresh = vi.fn()
+    render(
+      <CustomerEvidenceSelection
+        missionId="m"
+        item={{
+          ...item,
+          evidence: [
+            evidence('one'),
+            { ...evidence('two'), previewUrl: '/two-preview.jpg' },
+            { ...evidence('pending', false), thumbnailUrl: '/pending-thumb.jpg' },
+            evidence('unlisted'),
+            { ...evidence('clip'), mediaType: 'VIDEO', fileName: 'clip.mp4' },
+          ],
+        }}
+        refresh={refresh}
+      />,
+    )
+    const assessName = 'Assess image content'
+    expect(screen.queryByRole('button', { name: assessName })).toBeNull()
+    const image = screen.getByRole('checkbox', { name: /one.jpg/ })
+    const video = screen.getByRole('checkbox', { name: /clip.mp4/ })
+    fireEvent.click(image)
+    fireEvent.click(video)
+    fireEvent.click(screen.getByRole('button', { name: requestName }))
+    const select = await screen.findByRole('combobox', {
+      name: 'Image to assess',
+    })
+    const button = screen.getByRole('button', { name: assessName })
+    expect(button).toHaveAccessibleDescription(
+      /sent to the configured AI provider.*advisory/,
+    )
+    expect(button).toBeDisabled()
+    expect(
+      within(select)
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual(['Choose an image', 'one.jpg', 'two.jpg', 'pending.jpg'])
+    expect(assess).not.toHaveBeenCalled()
+    fireEvent.change(select, { target: { value: 'pending' } })
+    expect(
+      screen.getByRole('img', { name: 'Selected image preview for pending.jpg' }),
+    ).toHaveAttribute('src', '/pending-thumb.jpg')
+    fireEvent.click(button)
+    fireEvent.click(button)
+    expect(select).toBeDisabled()
+    expect(button).toBeDisabled()
+    expect(assess).toHaveBeenCalledExactlyOnceWith(
+      'm',
+      'e',
+      'pending',
+      { expectedVersion: 7, language: 'en' },
+      expect.any(AbortSignal),
+    )
+    pending.resolve(assessment)
+    expect(
+      await screen.findByText('Content assessment · Uncertain'),
+    ).toBeVisible()
+    expect(screen.getByText('Viewing angle · Mismatch')).toBeVisible()
+    expect(
+      screen.getByText(assessment.criteria[0].observation).querySelector('strong'),
+    ).toBeNull()
+    expect(image).toBeChecked()
+    expect(video).toBeChecked()
+    expect(save).not.toHaveBeenCalled()
+    expect(refresh).not.toHaveBeenCalled()
+    fireEvent.change(select, { target: { value: 'two' } })
+    expect(
+      screen.getByRole('img', { name: 'Selected image preview for two.jpg' }),
+    ).toHaveAttribute('src', '/two-preview.jpg')
+    expect(screen.queryByText('Content assessment · Uncertain')).toBeNull()
+  })
+
+  it.each([
+    [
+      'MEDIA_DERIVATIVE_UNAVAILABLE',
+      409,
+      /Bản xem trước của ảnh này chưa sẵn sàng/,
+      false,
+    ],
+    ['CONCURRENT_UPDATE', 409, /Hãy lấy gợi ý ảnh mới/, true],
+    ['OTHER_CONFLICT', 409, /Bạn vẫn có thể tự chọn bằng chứng/, false],
+    ['RATE_LIMITED', 429, /Có quá nhiều yêu cầu đánh giá. Hãy thử lại sau/, false],
+  ] as const)(
+    'handles a Vietnamese assessment error with code %s',
+    async (code, status, message, stale) => {
+      setLanguage('vi')
+      vi.spyOn(checklistEvidenceApi, 'getDeliverySuggestion').mockResolvedValue(
+        {
+          ...result,
+          contentAssessmentAvailable: true,
+        },
+      )
+      const assess = vi
+        .spyOn(checklistEvidenceApi, 'assessImageContent')
+        .mockRejectedValue(
+          new ApiError('Internal details', {
+            status,
+            code,
+            method: 'POST',
+            path: 'content-assessment',
+          }),
+        )
+      render(
+        <CustomerEvidenceSelection
+          missionId="m"
+          item={item}
+          refresh={vi.fn()}
+        />,
+      )
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Lấy gợi ý ảnh từ AI' }),
+      )
+      const select = await screen.findByRole('combobox', {
+        name: 'Ảnh cần đánh giá',
+      })
+      const button = screen.getByRole('button', {
+        name: 'Đánh giá nội dung ảnh',
+      })
+      expect(button).toHaveAccessibleDescription(
+        /gửi đến nhà cung cấp AI.*chỉ để tham khảo/,
+      )
+      fireEvent.change(select, { target: { value: 'pending' } })
+      fireEvent.click(button)
+      expect(await screen.findByText(message)).toBeVisible()
+      expect(screen.queryByText('Internal details')).toBeNull()
+      expect(assess).toHaveBeenCalledWith(
+        'm',
+        'e',
+        'pending',
+        { expectedVersion: 7, language: 'vi' },
+        expect.any(AbortSignal),
+      )
+      if (stale) expect(button).toBeDisabled()
+      else expect(button).toBeEnabled()
+      expect(screen.getByRole('checkbox', { name: /one.jpg/ })).toBeEnabled()
+    },
+  )
+
+  it('discards a late assessment after getting new suggestions and waits before allowing another POST', async () => {
+    setLanguage('en')
+    vi.spyOn(checklistEvidenceApi, 'getDeliverySuggestion').mockResolvedValue({
+      ...result,
+      contentAssessmentAvailable: true,
+    })
+    const pending = pendingAssessment()
+    const assess = vi
+      .spyOn(checklistEvidenceApi, 'assessImageContent')
+      .mockReturnValueOnce(pending.promise)
+      .mockResolvedValueOnce({ ...assessment, evidenceId: 'wrong' })
+    render(
+      <CustomerEvidenceSelection missionId="m" item={item} refresh={vi.fn()} />,
+    )
+    const suggest = screen.getByRole('button', { name: requestName })
+    const selectName = 'Image to assess'
+    const assessName = 'Assess image content'
+    fireEvent.click(suggest)
+    fireEvent.change(
+      await screen.findByRole('combobox', { name: selectName }),
+      { target: { value: 'pending' } },
+    )
+    fireEvent.click(screen.getByRole('button', { name: assessName }))
+    fireEvent.click(suggest)
+    const newSelect = await screen.findByRole('combobox', { name: selectName })
+    const newButton = screen.getByRole('button', { name: assessName })
+    expect(newSelect).toHaveValue('')
+    expect(newSelect).toBeDisabled()
+    expect(newButton).toBeDisabled()
+    expect(assess).toHaveBeenCalledOnce()
+    await act(async () => pending.resolve(assessment))
+    expect(screen.queryByText(/Viewing angle/)).toBeNull()
+    fireEvent.change(newSelect, { target: { value: 'pending' } })
+    fireEvent.click(newButton)
+    expect(
+      await screen.findByText(/assessment no longer matches/),
+    ).toBeVisible()
+    expect(screen.queryByText(/Viewing angle/)).toBeNull()
+  })
+
+  it('shows partial results and only updates the image draft after explicit apply', async () => {
+    setLanguage('en')
+    const request = vi
+      .spyOn(checklistEvidenceApi, 'getDeliverySuggestion')
+      .mockResolvedValue(result)
+    const save = vi
+      .spyOn(checklistEvidenceApi, 'selectForCustomer')
+      .mockResolvedValue([])
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const refresh = vi.fn()
+    render(
+      <CustomerEvidenceSelection
+        missionId="m"
+        item={{
+          ...item,
+          minimumImageCount: 2,
+          evidence: [
+            { ...evidence('one'), selectedForCustomer: true },
+            evidence('two'),
+            evidence('pending', false),
+            { ...evidence('clip'), mediaType: 'VIDEO', fileName: 'clip.mp4' },
+          ],
+        }}
+        refresh={refresh}
+      />,
+    )
+    const firstImage = screen.getByRole('checkbox', { name: /one.jpg/ })
+    const secondImage = screen.getByRole('checkbox', { name: /two.jpg/ })
+    const video = screen.getByRole('checkbox', { name: /clip.mp4/ })
+    expect(request).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: requestName }))
+    const apply = await screen.findByRole('button', { name: applyName })
+    expect(request).toHaveBeenCalledWith('m', 'e')
+    expect(screen.getByText('1 of 2 required images suggested')).toBeVisible()
+    expect(
+      screen.getByText(
+        /replaces the images in your draft and keeps the selected videos/,
+      ),
+    ).toBeVisible()
+    expect(
+      screen.getByText('Too few images qualify for a suggestion.'),
+    ).toBeVisible()
+    expect(
+      screen.getByText(/image quality check in Mission Media/),
+    ).toBeVisible()
+    expect(screen.getByText('Passed human quality review')).toBeVisible()
+    expect(screen.getByText('Similar to a suggested image')).toBeVisible()
+    expect(screen.getByText('Quality not checked')).toBeVisible()
+    expect(firstImage).toBeChecked()
+    expect(secondImage).not.toBeChecked()
+    fireEvent.click(video)
+    fireEvent.click(apply)
+    expect(firstImage).not.toBeChecked()
+    expect(secondImage).toBeChecked()
+    expect(video).toBeChecked()
+    expect(save).not.toHaveBeenCalled()
+    expect(refresh).not.toHaveBeenCalled()
+
+    const saveButton = screen.getByRole('button', {
+      name: 'Save customer selection',
+    })
+    expect(saveButton).toBeDisabled()
+    fireEvent.click(firstImage)
+    fireEvent.click(saveButton)
+    await waitFor(() => expect(refresh).toHaveBeenCalledOnce())
+    expect(confirm).toHaveBeenCalledOnce()
+    expect(save).toHaveBeenCalledWith('m', 'e', {
+      expectedVersion: item.version,
+      evidenceIds: ['two', 'clip', 'one'],
+      confirmSurplus: true,
+    })
+    expect(screen.getByRole('button', { name: requestName })).toBeDisabled()
+  })
+
+  it.each(['response version', 'refreshed evidence'])(
+    'rejects a suggestion after a change to the %s',
+    async (changed) => {
+      setLanguage('en')
+      vi.spyOn(checklistEvidenceApi, 'getDeliverySuggestion').mockResolvedValue(
+        {
+          ...result,
+          executionVersion:
+            changed === 'response version' ? item.version + 1 : item.version,
+        },
+      )
+      const refresh = vi.fn()
+      const { rerender } = render(
+        <CustomerEvidenceSelection
+          missionId="m"
+          item={item}
+          refresh={refresh}
+        />,
+      )
+      fireEvent.click(screen.getByRole('button', { name: requestName }))
+      if (changed === 'refreshed evidence') {
+        await screen.findByRole('button', { name: applyName })
+        rerender(
+          <CustomerEvidenceSelection
+            missionId="m"
+            item={{
+              ...item,
+              evidence: [evidence('one'), evidence('two'), evidence('pending')],
+            }}
+            refresh={refresh}
+          />,
+        )
+      }
+      expect(
+        await screen.findByText(/suggestion no longer matches/),
+      ).toBeVisible()
+      expect(screen.queryByRole('button', { name: applyName })).toBeNull()
+      expect(
+        screen.getByRole('checkbox', { name: /two.jpg/ }),
+      ).not.toBeChecked()
+    },
+  )
+
+  it.each([
+    { evidencePolicyVersion: 2, requiredEvidenceType: 'VIDEO' },
+    { evidencePolicyVersion: 3, minimumImageCount: 0 },
+  ] satisfies Partial<MissionChecklistExecution>[])(
+    'hides suggestions when the checklist requires no images (%j)',
+    (policy) => {
+      setLanguage('en')
+      render(
+        <CustomerEvidenceSelection
+          missionId="m"
+          item={{ ...item, ...policy }}
+          refresh={vi.fn()}
+        />,
+      )
+      expect(screen.queryByRole('button', { name: requestName })).toBeNull()
+    },
+  )
+
+  it('leaves manual selection available after the GET fails', async () => {
+    setLanguage('en')
+    const request = vi
+      .spyOn(checklistEvidenceApi, 'getDeliverySuggestion')
+      .mockRejectedValue(new Error('offline'))
+    const refresh = vi.fn()
+    const { rerender } = render(
+      <CustomerEvidenceSelection
+        missionId="m"
+        item={item}
+        refresh={refresh}
+        readOnly
+      />,
+    )
+    expect(screen.queryByRole('button', { name: requestName })).toBeNull()
+    rerender(
+      <CustomerEvidenceSelection
+        missionId="m"
+        item={item}
+        refresh={refresh}
+        mutationBusy
+      />,
+    )
+    expect(screen.getByRole('button', { name: requestName })).toBeDisabled()
+    expect(request).not.toHaveBeenCalled()
+    rerender(
+      <CustomerEvidenceSelection missionId="m" item={item} refresh={refresh} />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: requestName }))
+    expect(
+      await screen.findByText(/Could not load image suggestions/),
+    ).toBeVisible()
+    fireEvent.click(screen.getByRole('checkbox', { name: /one.jpg/ }))
+    expect(
+      screen.getByRole('button', { name: 'Save customer selection' }),
+    ).toBeEnabled()
+    expect(refresh).not.toHaveBeenCalled()
+  })
 })
 
 describe('inspector customer selection', () => {

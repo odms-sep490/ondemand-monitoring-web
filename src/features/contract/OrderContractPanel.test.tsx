@@ -160,7 +160,9 @@ it('a change request needs a reason and targets the exact current submission', a
     .mockResolvedValue({ ...base, status: 'CHANGES_REQUESTED' })
   render(<OrderContractPanel orderId="order" mode="manager" />)
   const button = await screen.findByRole('button', { name: 'Yêu cầu bổ sung' })
+  fireEvent.click(button)
   expect(button).toBeDisabled()
+  expect(changes).not.toHaveBeenCalled()
   fireEvent.change(screen.getByLabelText('Lý do cần bổ sung'), {
     target: { value: ' Thiếu chữ ký ' },
   })
@@ -323,7 +325,7 @@ it('refreshes invoice eligibility after a signed submission without pretending i
   await waitFor(() => expect(updated).toHaveBeenCalledTimes(1))
   expect(confirmed).not.toHaveBeenCalled()
   expect(
-    await screen.findByText(/Bạn vẫn có thể thanh toán cọc trong khi chờ/),
+    await screen.findByText(/Bạn có thể đặt cọc sau khi quản lý xác nhận/),
   ).toBeInTheDocument()
 })
 

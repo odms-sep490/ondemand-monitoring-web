@@ -142,6 +142,42 @@ export type EvidenceCandidatePage = {
 export type EvidenceCandidateLoadResult = EvidenceCandidate[] | EvidenceCandidatePage
 export type EvidenceCandidateLoader = (page: number, signal?: AbortSignal) => Promise<EvidenceCandidateLoadResult>
 
+export type DeliverySuggestion = {
+  executionVersion: number
+  /** The server has a configured provider and a supported rubric for this execution. */
+  contentAssessmentAvailable?: boolean
+  policyVersion: string
+  requiredImageCount: number
+  suggestedImageCount: number
+  suggestedImageEvidenceIds: string[]
+  warnings: string[]
+  candidates: {
+    evidenceId: string
+    recommendation: 'SUGGESTED' | 'RESERVE' | 'REVIEW'
+    reasonCodes: string[]
+    qualityCheckId?: string | null
+  }[]
+}
+
+export type ContentAssessmentRequest = {
+  expectedVersion: number
+  language: 'vi' | 'en'
+}
+
+export type ContentAssessmentVerdict = 'MATCH' | 'MISMATCH' | 'UNCERTAIN'
+
+export type ContentAssessment = {
+  executionVersion: number
+  evidenceId: string
+  verdict: ContentAssessmentVerdict
+  criteria: {
+    code: string
+    label: string
+    verdict: ContentAssessmentVerdict
+    observation: string
+  }[]
+}
+
 export type CustomerEvidenceSelectionRequest = {
   expectedVersion: number
   evidenceIds: string[]
