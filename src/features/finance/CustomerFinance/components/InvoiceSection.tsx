@@ -119,9 +119,56 @@ export function InvoiceSection({
   )
     return null
   if (!isContractDepositReady(invoice)) return null
-  if (invoice.status === 'PAID') return null
+  if (invoice.status === 'PAID') {
+    return (
+      <div className="customer-invoice customer-invoice-actions">
+        <div className="customer-deposit-notice is-ready">
+          <b>{t.paymentCompleted}</b>
+          <span>{t.paymentCompletedBody(formatVnd(invoice.paidAmount))}</span>
+        </div>
+      </div>
+    )
+  }
+  const depositDue = Math.max(0, invoice.depositAmount - invoice.paidAmount)
+  const depositPercent =
+    invoice.totalAmount > 0
+      ? Math.round((invoice.depositAmount / invoice.totalAmount) * 100)
+      : 30
+  const remainingAfterDeposit = Math.max(
+    0,
+    invoice.totalAmount - invoice.depositAmount,
+  )
   return (
     <div className="customer-invoice customer-invoice-actions">
+      {invoice.paidAmount < invoice.depositAmount && !depositExpired ? (
+        <section
+          className="customer-deposit-checkout-box"
+          aria-label={t.currentPaymentDueEyebrow}
+        >
+          <span className="customer-deposit-checkout-eyebrow">
+            {t.currentPaymentDueEyebrow}
+          </span>
+          <div className="customer-deposit-checkout-head">
+            <strong>{t.depositItemTitle(depositPercent)}</strong>
+            <span className="customer-deposit-checkout-amount">
+              {formatVnd(depositDue)}
+            </span>
+          </div>
+          <dl className="customer-deposit-checkout-breakdown">
+            <div>
+              <dt>{t.depositItemOrderTotal}</dt>
+              <dd>{formatVnd(invoice.totalAmount)}</dd>
+            </div>
+            <div>
+              <dt>{t.depositItemRemainingAfter}</dt>
+              <dd>{formatVnd(remainingAfterDeposit)}</dd>
+            </div>
+          </dl>
+          <p className="customer-deposit-checkout-note">
+            {t.depositItemMilestoneNote}
+          </p>
+        </section>
+      ) : null}
       {invoice.depositExpiresAt &&
       invoice.paidAmount < invoice.depositAmount ? (
         hasValidDepositDeadline ? (

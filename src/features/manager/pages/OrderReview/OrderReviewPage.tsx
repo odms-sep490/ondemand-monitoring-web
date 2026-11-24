@@ -1,7 +1,7 @@
 import { CancelledOrderContractPanel } from '../../../contract/CancelledOrderContractPanel'
 import { useEffect, useRef, useState } from 'react'
 
-import { ApiError } from '../../../../shared/api/httpClient'
+import { ApiError, apiRequest } from '../../../../shared/api/httpClient'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { ordersApi } from '../../api/ordersApi'
@@ -36,6 +36,19 @@ import { OrderIcon } from '../../components/common/OrderIcon'
 import '../../components/layout/mgrLayout.css'
 
 const REVIEW_STEP_STORAGE_PREFIX = 'odm.manager.order-review-step.'
+
+function readRequestedReviewStep(): ReviewStep | null {
+  try {
+    const query = window.location.hash.split('?', 2)[1] ?? ''
+    const step = new URLSearchParams(query).get('step')
+    if (step === '1' || step === '2' || step === '3' || step === '4') {
+      return Number(step) as ReviewStep
+    }
+  } catch {
+    // Ignore malformed hash query parameters.
+  }
+  return null
+}
 
 function readSavedReviewStep(orderId: string): ReviewStep {
   try {
@@ -86,13 +99,26 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
 
   const [navigateHome, setNavigateHome] = useState(false)
   const [assignStep, setAssignStep] = useState<6 | 7 | 8 | 9>(6)
-  const [reviewStep, setReviewStepState] = useState<ReviewStep>(() =>
-    readSavedReviewStep(orderId),
+  const [reviewStep, setReviewStepState] = useState<ReviewStep>(
+    () => readRequestedReviewStep() ?? readSavedReviewStep(orderId),
   )
   const updateReviewStep = (step: ReviewStep) => {
     setReviewStepState(step)
     saveReviewStep(orderId, step)
   }
+  useEffect(() => {
+    const applyHashStep = () => {
+      const requested = readRequestedReviewStep()
+      if (requested != null) {
+        setReviewStepState(requested)
+        saveReviewStep(orderId, requested)
+        setViewStage(null)
+      }
+    }
+    applyHashStep()
+    window.addEventListener('hashchange', applyHashStep)
+    return () => window.removeEventListener('hashchange', applyHashStep)
+  }, [orderId])
   const [startingReview, setStartingReview] = useState(false)
   const [startReviewError, setStartReviewError] = useState<string | null>(null)
   const [reviewStartedLocally, setReviewStartedLocally] = useState(false)
@@ -234,6 +260,13 @@ export function OrderReviewPage({ orderId }: { orderId: string }) {
         viewStage={viewStage}
         openStage={openStage}
         goToStep={goToStep}
+        onCancelOrder={async (reason) => {
+          await apiRequest(`/api/orders/${encodeURIComponent(order.id)}/cancel`, {
+            method: 'POST',
+            body: { reason },
+          })
+          orderQuery.reload()
+        }}
       />
       {order.status === 'CANCELLED' && (
         <CancelledOrderContractPanel

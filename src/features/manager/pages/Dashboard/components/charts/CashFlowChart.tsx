@@ -1,4 +1,17 @@
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
+
 import { formatVnd } from '../../../../../../shared/lib/formatVnd'
+import { AXIS_TICK, ChartTooltip, GRID_STROKE } from './ChartTooltip'
 
 type Props = {
   points: { date: string; received: number; refunded: number }[]
@@ -9,7 +22,7 @@ type Props = {
   labels: { received: string; refunded: string; cumulative: string }
 }
 
-/** Fixed SVG coordinates keep the financial chart visible in flex and grid panels. */
+/** Interactive Recharts combo chart: cash inflows, refunds, and cumulative net receipt line. */
 export function CashFlowChart({
   points,
   locale,
@@ -46,6 +59,7 @@ export function CashFlowChart({
       refunded: safeNumber(point?.refunded),
     }
   })
+
   const grouped = new Map<
     string,
     { date: string; received: number; refunded: number }
@@ -61,133 +75,104 @@ export function CashFlowChart({
     current.refunded += point.refunded
     grouped.set(key, current)
   }
-  let balance = 0
-  const rows = [...grouped.values()].map((point) => ({
-    ...point,
-    balance: (balance += point.received - point.refunded),
-  }))
-  const low = Math.min(0, ...rows.map((p) => Math.min(p.refunded, p.received)))
-  const high = Math.max(1, ...rows.map((p) => Math.max(p.received, p.refunded)))
-  const y = (value: number) => 24 + ((high - value) / (high - low)) * 210
-  const step = 620 / Math.max(rows.length, 1)
-  const x = (index: number) => 70 + step * (index + 0.5)
-  const money = new Intl.NumberFormat(locale, {
+
+  const dateFmt = new Intl.DateTimeFormat(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone: 'UTC',
+  })
+  const compactMoney = new Intl.NumberFormat(locale, {
     notation: 'compact',
     maximumFractionDigits: 1,
   })
-  const date = (value: string) =>
-    new Intl.DateTimeFormat(locale, {
-      day: '2-digit',
-      month: '2-digit',
-      timeZone: 'UTC',
-    }).format(new Date(value))
+
+  let balance = 0
+  const rows = [...grouped.values()].map((point) => {
+    balance += point.received - point.refunded
+    return {
+      ...point,
+      label: dateFmt.format(new Date(point.date)),
+      balance,
+    }
+  })
+
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
   return (
-    <div className="mgr-cash-combo">
-      <p className="mgr-cash-combo-key">
-        <span>{labels.received}</span>
-        <span>{labels.refunded}</span>
-      </p>
-      <svg
-        viewBox="0 0 720 280"
-        role="img"
-        aria-label={`${labels.cumulative}: ${formatVnd(balance)}`}
-        style={{
-          display: 'block',
-          width: '100%',
-          height: 360,
-          minHeight: 300,
-        }}
-      >
-        {[0, 1, 2, 3, 4].map((index) => {
-          const value = low + ((high - low) * index) / 4
-          return (
-            <g key={index}>
-              <line
-                x1="70"
-                x2="690"
-                y1={y(value)}
-                y2={y(value)}
-                stroke="var(--mgr-border, #e6ecf5)"
-                strokeDasharray="4 5"
-              />
-              <text
-                x="60"
-                y={y(value) + 4}
-                textAnchor="end"
-                fill="var(--mgr-muted, #64748b)"
-                fontSize="11"
-              >
-                {money.format(value)}
-              </text>
-            </g>
-          )
-        })}
-        <line
-          x1="70"
-          x2="690"
-          y1={y(0)}
-          y2={y(0)}
-          stroke="var(--mgr-muted, #64748b)"
-        />
-        {rows.map((row, index) =>
-          index % Math.max(1, Math.ceil(rows.length / 7)) === 0 ||
-          index === rows.length - 1 ? (
-            <text
-              key={row.date}
-              x={x(index)}
-              y="263"
-              textAnchor="middle"
-              fill="var(--mgr-muted, #64748b)"
-              fontSize="11"
-            >
-              {date(row.date)}
-            </text>
-          ) : null,
-        )}
-        {rows.map((row, index) => {
-          const barWidth = Math.min(42, step * 0.38)
-          return (
-            <g key={`bars-${row.date}`}>
-              {(
-                [
-                  { key: 'received', label: labels.received, color: '#1565e8' },
-                  { key: 'refunded', label: labels.refunded, color: '#d97706' },
-                ] as const
-              ).map((series, seriesIndex) => {
-                const value = row[series.key]
-                return (
-                  <rect
-                    key={series.key}
-                    x={x(index) + (seriesIndex - 1) * barWidth}
-                    y={y(Math.max(0, value))}
-                    width={Math.max(1, barWidth - 1)}
-                    height={Math.abs(y(value) - y(0))}
-                    rx="2"
-                    fill={series.color}
-                    style={{ animation: 'none' }}
-                  >
-                    <title>
-                      {date(row.date)} · {series.label}: {formatVnd(value)}
-                    </title>
-                  </rect>
-                )
-              })}
-            </g>
-          )
-        })}
-        {rows.length === 1 && (
-          <text
-            x={x(0)}
-            y="14"
-            textAnchor="middle"
-            fill="var(--mgr-text)"
-            fontSize="11"
-          >
-            {labels.received}: {formatVnd(rows[0].received)} · {labels.refunded}
-            : {formatVnd(rows[0].refunded)}
-          </text>
-        )}
-      </svg>
+    <div
+      className="mgr-cash-combo"
+      role="img"
+      aria-label={`${labels.cumulative}: ${formatVnd(balance)}`}
+    >
+      <ResponsiveContainer width="100%" height={280}>
+        <ComposedChart
+          data={rows}
+          margin={{ top: 10, right: 12, left: 0, bottom: 4 }}
+        >
+          <CartesianGrid
+            stroke={GRID_STROKE}
+            strokeDasharray="3 5"
+            vertical={false}
+          />
+          <XAxis
+            dataKey="label"
+            tick={AXIS_TICK}
+            axisLine={false}
+            tickLine={false}
+            minTickGap={16}
+          />
+          <YAxis
+            tick={AXIS_TICK}
+            axisLine={false}
+            tickLine={false}
+            width={56}
+            tickFormatter={(v) => compactMoney.format(Number(v))}
+          />
+          <Tooltip
+            content={
+              <ChartTooltip valueFormatter={(v) => formatVnd(Number(v ?? 0))} />
+            }
+            cursor={{ fill: 'rgba(21, 101, 232, 0.05)' }}
+          />
+          <Legend
+            iconType="circle"
+            iconSize={8}
+            wrapperStyle={{ paddingTop: 10, fontSize: 12 }}
+          />
+          <Bar
+            dataKey="received"
+            name={labels.received}
+            fill="#1565E8"
+            radius={[5, 5, 0, 0]}
+            maxBarSize={28}
+            isAnimationActive={!reducedMotion}
+            animationDuration={650}
+          />
+          <Bar
+            dataKey="refunded"
+            name={labels.refunded}
+            fill="#F59E0B"
+            radius={[5, 5, 0, 0]}
+            maxBarSize={28}
+            isAnimationActive={!reducedMotion}
+            animationDuration={650}
+          />
+          <Line
+            type="monotone"
+            dataKey="balance"
+            name={labels.cumulative}
+            stroke="#10B981"
+            strokeWidth={2.5}
+            dot={{ r: 3, fill: '#10B981', strokeWidth: 0 }}
+            activeDot={{ r: 5, fill: '#10B981', stroke: '#fff', strokeWidth: 2 }}
+            isAnimationActive={!reducedMotion}
+            animationDuration={750}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
     </div>
   )
 }

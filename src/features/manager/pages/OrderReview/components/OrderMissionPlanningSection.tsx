@@ -35,7 +35,6 @@ import { deliveryApi } from '../../../../delivery/api'
 import { reworkPlanningWorkspace } from '../../../lib/reworkPlanningWorkspace'
 import { TicketResultReviewCard } from '../../../../support/components/TicketResultReviewCard'
 import { missionCreatePageMessages } from '../../MissionCreate/MissionCreatePage.messages'
-import { MissionPaymentAllocationPanel } from './MissionPaymentAllocationPanel'
 
 export type PlanningWorkflowInfo = {
   depositPaid: boolean
@@ -793,27 +792,6 @@ function OrderPlanningWorkspace({
 
                   {/* Right 70%: Missions Workspace */}
                   <div className="odm-missions-workspace-panel">
-                    {!reworkCaseId &&
-                      !inspectionContext &&
-                      isFinalized &&
-                      effective.length > 0 && (
-                        <div className="odm-or-order-page-actions">
-                          {effective.map((mission) => (
-                            <a
-                              key={mission.id}
-                              className="odm-btn odm-btn-p"
-                              href={
-                                managerHref({
-                                  screen: 'missionDetail',
-                                  missionId: mission.id,
-                                }) + '?tab=plan'
-                              }
-                            >
-                              {ts.openMissionPermit} · {mission.missionCode}
-                            </a>
-                          ))}
-                        </div>
-                      )}
                   <PlanningWorkspaceBar
                     sidebarCollapsed={sidebarCollapsed}
                     onOpenSidebar={() => setSidebarCollapsed(false)}
@@ -836,6 +814,27 @@ function OrderPlanningWorkspace({
                     }
                     onReload={query.reload}
                     onFinalize={() => void handleFinalizePlan()}
+                    extraActions={
+                      !reworkCaseId &&
+                      !inspectionContext &&
+                      isFinalized &&
+                      effective.length > 0
+                        ? effective.map((mission) => (
+                            <a
+                              key={mission.id}
+                              className="odm-btn odm-btn-p"
+                              href={
+                                managerHref({
+                                  screen: 'missionDetail',
+                                  missionId: mission.id,
+                                }) + '?tab=plan'
+                              }
+                            >
+                              {ts.openMissionPermit} · {mission.missionCode}
+                            </a>
+                          ))
+                        : null
+                    }
                   />
 
                   {originalWorkspace && workspaceMissions.length > 0 && (
@@ -944,17 +943,6 @@ function OrderPlanningWorkspace({
               </div>
             </section>
           )}
-          {!reworkCaseId &&
-            !inspectionContext &&
-            activeTab === 'planning' &&
-            data.invoice &&
-            data.plan.planStatus === 'FINALIZED' ? (
-            <MissionPaymentAllocationPanel
-              orderId={orderId}
-              invoice={data.invoice}
-              allocation={data.paymentAllocation}
-            />
-          ) : null}
         </>
       )}
     </>

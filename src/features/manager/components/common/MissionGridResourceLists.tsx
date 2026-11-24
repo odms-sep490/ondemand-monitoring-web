@@ -6,6 +6,7 @@ import type {
 import { STAFF_ROLE_LABELS } from './missionDetailHelpers'
 import { missionGridCardMessages } from './MissionGridCard.messages'
 import { MissionGridDroneSprite } from './MissionGridDroneSprite'
+import { OrderIcon } from './OrderIcon'
 
 type Messages = (typeof missionGridCardMessages)['vi']
 
@@ -32,7 +33,10 @@ export function MissionGridStaffList({
   return (
     <div className="odm-mcard-res-list">
       {staffGroups.length === 0 ? (
-        <p className="odm-mission-meta odm-mcard-note">{t.staffEmpty}</p>
+        <div className="odm-mcard-empty-slot">
+          <OrderIcon name="users" size={16} />
+          <span>{t.staffEmpty}</span>
+        </div>
       ) : (
         staffGroups.map((group) => (
           <div
@@ -87,7 +91,10 @@ export function MissionGridDeviceList({
   return (
     <div className="odm-mcard-res-list mg-assigned-drone-list">
       {devices.length === 0 ? (
-        <p className="odm-mission-meta odm-mcard-note">{t.deviceEmpty}</p>
+        <div className="odm-mcard-empty-slot">
+          <OrderIcon name="drone" size={16} />
+          <span>{t.deviceEmpty}</span>
+        </div>
       ) : (
         devices.map((dev, idx) => (
           <div

@@ -5,6 +5,9 @@ import { LanguageToggle } from '../../../shared/components/LanguageToggle'
 import { useI18n } from '../../../shared/i18n'
 import { authSession } from '../../auth/api/authApi'
 import { ChatbotWidget } from '../components/ChatbotWidget'
+import { CinematicDroneHero } from '../components/CinematicDroneHero'
+import { InteractiveServiceShowcase } from '../components/InteractiveServiceShowcase'
+import { LandingAIConsultantSection } from '../components/LandingAIConsultantSection'
 import { resolveCreateRequestTarget } from '../resolveCreateRequestTarget'
 import { landingPageMessages } from './LandingPage.messages'
 import '../landing.css'
@@ -97,6 +100,19 @@ export function LandingPage() {
       document.head.appendChild(meta)
     }
     meta.content = t.pageDescription
+    for (const [prop, content] of [
+      ['og:title', t.pageTitle],
+      ['og:description', t.pageDescription],
+      ['og:type', 'website'],
+    ] as const) {
+      let og = document.querySelector<HTMLMetaElement>(`meta[property="${prop}"]`)
+      if (!og) {
+        og = document.createElement('meta')
+        og.setAttribute('property', prop)
+        document.head.appendChild(og)
+      }
+      og.content = content
+    }
   }, [lang, t.pageDescription, t.pageTitle])
 
   return (
@@ -130,32 +146,26 @@ export function LandingPage() {
       </header>
 
       <main id="main-content">
-        <section className="lpx-hero" aria-labelledby="lpx-hero-heading">
-          <img
-            className="lpx-hero-media"
-            src="/images/landing/landing-apron.webp"
-            alt={t.heroImageAlt}
-            width={1600}
-            height={900}
-          />
-          <div className="lpx-hero-scrim" aria-hidden="true" />
+        <CinematicDroneHero
+          titleLine1={t.heroTitleLine1}
+          titleLine2={t.heroTitleLine2}
+          subtitle={t.heroSubtitle}
+          imageAlt={t.heroImageAlt}
+          createRequestHref={createRequestTarget}
+          createRequestLabel={t.createRequestCta}
+          seeHowItWorksLabel={t.seeHowItWorks}
+          badgeLabel={t.heroBadge}
+          scrollHintLabel={t.scrollHint}
+        />
 
-          <div className="lpx-container lpx-hero-inner">
-            <div className="lpx-hero-content">
-              <h1 id="lpx-hero-heading" className="lpx-hero-title">
-                <span>{t.heroTitleLine1}</span>{' '}
-                <span>{t.heroTitleLine2}</span>
-              </h1>
-              <p className="lpx-hero-subtitle">{t.heroSubtitle}</p>
-              <div className="lpx-hero-actions">
-                <PrimaryCta href={createRequestTarget} label={t.createRequestCta} />
-                <a className="lpx-text-link" href="#how-it-works">
-                  {t.seeHowItWorks}
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
+        <InteractiveServiceShowcase
+          eyebrow={t.catalogEyebrow}
+          heading={t.catalogHeading}
+          subtitle={t.catalogSubtitle}
+          items={t.catalogItems}
+          ctaLabel={t.catalogCta}
+          ctaHref={createRequestTarget}
+        />
 
         <section
           id="services"
@@ -265,6 +275,43 @@ export function LandingPage() {
                   <PrimaryCta href={createRequestTarget} label={t.createRequestCta} />
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <LandingAIConsultantSection
+          eyebrow={t.aiEyebrow}
+          heading={t.aiHeading}
+          body={t.aiBody}
+          bullets={t.aiBullets}
+          ctaHref={createRequestTarget}
+          ctaLabel={t.aiCta}
+          statusBadge={t.aiStatusBadge}
+        />
+
+        <section className="lp2-final-cta" aria-labelledby="lp2-final-heading">
+          <img
+            className="lp2-final-bg"
+            src="/assets/landing/backgrounds/final-cta-drone.jpg"
+            alt=""
+            width={1600}
+            height={900}
+            loading="lazy"
+            aria-hidden="true"
+          />
+          <div className="lp2-final-scrim" aria-hidden="true" />
+          <div className="lpx-container lp2-final-inner">
+            <div>
+              <h2 id="lp2-final-heading" className="lp2-final-heading">
+                {t.finalHeading}
+              </h2>
+              <p className="lp2-final-sub">{t.finalSub}</p>
+            </div>
+            <div className="lp2-final-actions">
+              <PrimaryCta href={createRequestTarget} label={t.createRequestCta} />
+              <a className="lp2-final-signin" href="#auth/login">
+                {t.signIn}
+              </a>
             </div>
           </div>
         </section>

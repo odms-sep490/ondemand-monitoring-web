@@ -2,9 +2,13 @@ import { ImagePreview } from '../../../../../shared/components/media/ImagePrevie
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Alert, Button, Empty, Input, Skeleton } from 'antd'
 import {
+  AimOutlined,
+  InfoCircleOutlined,
   ReloadOutlined,
+  ScheduleOutlined,
   SearchOutlined,
   SendOutlined,
+  UnorderedListOutlined,
 } from '@ant-design/icons'
 
 import type { AvailableDrone } from '../../../../staff/api/droneApi'
@@ -21,10 +25,50 @@ const DroneRoomScene = lazy(() =>
   })),
 )
 
+type InspectorTab = 'info' | 'assign' | 'list'
+type StatusFilter = 'ALL' | 'AVAILABLE' | 'IN_MISSION' | 'MAINTENANCE' | 'OTHER'
+
 function droneLabel(drone: DeviceResponse, fallbackName: string) {
   const name = drone.serialNumber || drone.name || fallbackName
   const model = drone.deviceModel?.code || drone.deviceModel?.modelName
   return model ? `${name} · ${model}` : name
+}
+
+function statusToneClass(status?: string | null): string {
+  const normalized = status?.trim().toUpperCase() ?? ''
+  if (normalized === 'AVAILABLE' || normalized === 'READY') return 'is-available'
+  if (normalized === 'MAINTENANCE' || normalized === 'CHARGING' || normalized === 'PREFLIGHT')
+    return 'is-maintenance'
+  if (
+    normalized === 'OUT_OF_SERVICE' ||
+    normalized === 'RETIRED' ||
+    normalized === 'OFFLINE' ||
+    normalized === 'FAULT'
+  )
+    return 'is-offline'
+  return 'is-mission'
+}
+
+function matchesStatusFilter(status: string | null | undefined, filter: StatusFilter): boolean {
+  if (filter === 'ALL') return true
+  const normalized = (status ?? '').trim().toUpperCase()
+  if (filter === 'AVAILABLE') return normalized === 'AVAILABLE' || normalized === 'CHARGING'
+  if (filter === 'IN_MISSION') {
+    return (
+      normalized === 'ASSIGNED' ||
+      normalized === 'RESERVED' ||
+      normalized === 'PREFLIGHT' ||
+      normalized === 'IN_FLIGHT' ||
+      normalized === 'IN_MISSION'
+    )
+  }
+  if (filter === 'MAINTENANCE') return normalized === 'MAINTENANCE'
+  return (
+    normalized === 'OUT_OF_SERVICE' ||
+    normalized === 'RETIRED' ||
+    normalized === 'OFFLINE' ||
+    normalized === 'FAULT'
+  )
 }
 
 type DroneDetailRow = {
@@ -166,27 +210,43 @@ export function DroneFleetRoom({
   const { t, lang } = useI18n(dronesPageMessages)
   const copy = t.workspace
   const locale = lang === 'en' ? 'en-US' : 'vi-VN'
+  const isEnglish = lang === 'en'
   const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
   const [selectedDroneId, setSelectedDroneId] = useState<string | null>(
     initialDroneId ?? null,
   )
+  const [activeTab, setActiveTab] = useState<InspectorTab>(
+    assignmentMissionId ? 'assign' : 'info',
+  )
+  const [focusRequestId, setFocusRequestId] = useState(0)
 
   const filteredDrones = useMemo(() => {
     const query = search.trim().toLocaleLowerCase(locale)
-    if (!query) return drones
-    return drones.filter((drone) =>
-      droneLabel(drone, copy.unnamedDrone).toLocaleLowerCase(locale).includes(query),
-    )
-  }, [copy.unnamedDrone, drones, locale, search])
-  const selectedDrone = filteredDrones.find((drone) => drone.id === selectedDroneId) ?? null
+    return drones.filter((drone) => {
+      if (!matchesStatusFilter(drone.status, statusFilter)) return false
+      if (!query) return true
+      const haystack = `${drone.name ?? ''} ${drone.serialNumber ?? ''} ${drone.deviceModel?.code ?? ''} ${drone.deviceModel?.modelName ?? ''}`
+        .toLocaleLowerCase(locale)
+      return haystack.includes(query)
+    })
+  }, [drones, locale, search, statusFilter])
+
+  const selectedDrone =
+    drones.find((drone) => drone.id === selectedDroneId) ??
+    filteredDrones[0] ??
+    null
+
   const sceneDrones: AvailableDrone[] = useMemo(
-    () => filteredDrones.map((drone) => ({
-      id: drone.id,
-      label: droneLabel(drone, copy.unnamedDrone),
-      status: drone.status,
-    })),
+    () =>
+      filteredDrones.map((drone) => ({
+        id: drone.id,
+        label: droneLabel(drone, copy.unnamedDrone),
+        status: drone.status,
+      })),
     [copy.unnamedDrone, filteredDrones],
   )
+
   const detailModel = selectedDrone?.deviceModel
   const modelCategory = detailModel?.specsMetadata?.category
   const specificationMetadata = detailModel?.specsMetadata
@@ -202,24 +262,48 @@ export function DroneFleetRoom({
   )
 
   useEffect(() => {
-    if (selectedDroneId && filteredDrones.some((drone) => drone.id === selectedDroneId)) return
-    setSelectedDroneId(filteredDrones[0]?.id ?? null)
-  }, [filteredDrones, selectedDroneId])
+    if (selectedDroneId && drones.some((drone) => drone.id === selectedDroneId)) return
+    setSelectedDroneId(filteredDrones[0]?.id ?? drones[0]?.id ?? null)
+  }, [drones, filteredDrones, selectedDroneId])
 
   useEffect(() => {
     if (initialDroneId) setSelectedDroneId(initialDroneId)
   }, [initialDroneId])
 
+  useEffect(() => {
+    if (assignmentMissionId) setActiveTab('assign')
+  }, [assignmentMissionId])
+
+  function handleSelectFromList(droneId: string) {
+    setSelectedDroneId(droneId)
+    setFocusRequestId((prev) => prev + 1)
+  }
+
+  function handleFocusCurrent() {
+    if (!selectedDrone) return
+    setFocusRequestId((prev) => prev + 1)
+  }
+
+  const tabLabels = {
+    info: isEnglish ? 'Details' : 'Thông tin',
+    assign: isEnglish ? 'Assign' : 'Gán nhiệm vụ',
+    list: isEnglish ? 'Fleet' : 'Danh sách',
+    focusBtn: isEnglish ? 'Focus in 3D' : 'Tập trung 3D',
+    quickAssign: isEnglish ? 'Assign mission' : 'Gán nhiệm vụ',
+    systemMeta: isEnglish ? 'System & Model Info' : 'Thông tin hệ thống & model',
+  }
+
+  const filterOptions: Array<{ key: StatusFilter; label: string }> = [
+    { key: 'ALL', label: t.filterAll },
+    { key: 'AVAILABLE', label: t.stats.available },
+    { key: 'IN_MISSION', label: t.stats.inMission },
+    { key: 'MAINTENANCE', label: t.stats.maintenance },
+    { key: 'OTHER', label: t.stats.outOfService },
+  ]
+
   return (
     <section className="mgr-drone-room-layout" aria-label={copy.roomView}>
       <div className="mgr-drone-room-stage">
-        <div className="mgr-drone-room-stage-heading">
-          <div>
-            <h2>{copy.roomView}</h2>
-            <p>{copy.roomCount(filteredDrones.length, drones.length)}</p>
-          </div>
-          <span className="mgr-drone-room-bay-count">{copy.bays(Math.max(6, filteredDrones.length))}</span>
-        </div>
         <Suspense
           fallback={
             <div className="mgr-office-drone-scene-loading" role="status">
@@ -229,24 +313,25 @@ export function DroneFleetRoom({
         >
           <DroneRoomScene
             drones={sceneDrones}
-            selectedDroneId={selectedDroneId}
-            onSelect={setSelectedDroneId}
+            selectedDroneId={selectedDrone?.id ?? null}
+            onSelect={(id) => {
+              setSelectedDroneId(id)
+            }}
             label={copy.roomView}
             fallbackMessage={copy.roomFallback}
             loadingMessage={copy.roomLoading}
+            lang={lang}
+            focusRequestId={focusRequestId}
+            fleetSummaryLabel={copy.roomCount(filteredDrones.length, drones.length)}
+            bayCountLabel={copy.bays(Math.max(6, filteredDrones.length))}
           />
         </Suspense>
-        <p className="mgr-drone-room-footnote">{copy.roomDescription}</p>
       </div>
 
       <aside className="mgr-drone-room-sidebar" aria-label={copy.deviceList}>
-        <div className="mgr-drone-room-sidebar-heading">
-          <h2>{copy.deviceList}</h2>
-          <span>{drones.length}</span>
-        </div>
         {loading ? (
           <div className="mgr-drone-room-load-state" role="status" aria-busy="true">
-            <Skeleton active title={false} paragraph={{ rows: 4 }} />
+            <Skeleton active title={false} paragraph={{ rows: 5 }} />
           </div>
         ) : error ? (
           <Alert
@@ -261,196 +346,336 @@ export function DroneFleetRoom({
             }
           />
         ) : drones.length === 0 ? (
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={<><strong>{copy.emptyRoom}</strong><br />{copy.emptyRoomDescription}</>}
-          />
-        ) : (
-          <details className="mgr-drone-room-device-picker">
-            <summary>
-              {copy.chooseDroneFromList}
-              <span>{drones.length}</span>
-            </summary>
-            <div className="mgr-drone-room-device-picker-content">
-              <Input
-                allowClear
-                prefix={<SearchOutlined aria-hidden="true" />}
-                value={search}
-                placeholder={copy.deviceSearch}
-                aria-label={copy.deviceSearchAria}
-                onChange={(event) => {
-                  setSearch(event.target.value)
-                }}
-              />
-
-              {filteredDrones.length === 0 ? (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={copy.noSearch} />
-              ) : (
-                <div className="mgr-drone-room-device-list" role="list" aria-label={copy.deviceList}>
-                  {filteredDrones.map((drone) => (
-                    <div role="listitem" key={drone.id}>
-                      <button
-                        type="button"
-                        className={`mgr-drone-room-device${selectedDroneId === drone.id ? ' is-selected' : ''}`}
-                        aria-pressed={selectedDroneId === drone.id}
-                        onClick={() => setSelectedDroneId(drone.id)}
-                      >
-                        <span className="mgr-drone-room-device-mark"><SendOutlined aria-hidden="true" /></span>
-                        <span className="mgr-drone-room-device-copy">
-                          <strong>{drone.name || drone.serialNumber || copy.unnamedDrone}</strong>
-                          <small>{drone.deviceModel?.code || drone.deviceModel?.modelName || drone.serialNumber}</small>
-                        </span>
-                        <span className="mgr-drone-room-device-status">{getDroneStatusLabel(drone.status, lang)}</span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </details>
-        )}
-
-        {selectedDrone && (
-          <section
-            className="mgr-drone-room-details"
-            aria-labelledby="mgr-drone-room-details-title"
-          >
-            <h3 id="mgr-drone-room-details-title">{copy.details}</h3>
-            <div className="mgr-drone-room-selected-device">
-              {selectedDrone.imageUrl ? (
-                <ImagePreview className="mgr-drone-room-selected-image"
-                  src={selectedDrone.imageUrl} fileName={copy.deviceImageAlt} />
-              ) : (
-                <span className="mgr-drone-room-selected-mark" aria-hidden="true">
-                  <SendOutlined />
-                </span>
-              )}
-              <span className="mgr-drone-room-selected-copy">
-                <strong>{droneLabel(selectedDrone, copy.unnamedDrone)}</strong>
-                <small>
-                  {detailModel?.modelName || detailModel?.code || copy.modelUnknown}
-                </small>
-              </span>
-              <span className="mgr-drone-room-device-status">
-                {getDroneStatusLabel(selectedDrone.status, lang)}
-              </span>
-            </div>
-
-            <DroneRoomAssignmentControl
-              drone={selectedDrone}
-              lang={lang}
-              assignmentMissionId={assignmentMissionId}
-              returnMissionId={returnMissionId}
-              onMissionChange={onMissionChange}
-              onAssignmentChanged={onAssignmentChanged}
+          <div className="mgr-drone-room-empty-panel">
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <>
+                  <strong>{copy.emptyRoom}</strong>
+                  <br />
+                  {copy.emptyRoomDescription}
+                </>
+              }
             />
-
-            <details className="mgr-drone-room-full-details">
-              <summary>{copy.fullDetails}</summary>
-              <div className="mgr-drone-room-full-details-content">
-                <div className="mgr-drone-room-detail-group">
-              <h4>{copy.deviceInformation}</h4>
-              <dl>
-                {[
-                  [copy.deviceName, selectedDrone.name || copy.notAvailable],
-                  [copy.serialNumber, selectedDrone.serialNumber || copy.notAvailable],
-                  [t.columns.status, getDroneStatusLabel(selectedDrone.status, lang)],
-                  [copy.created, formatDate(selectedDrone.createdAt, locale, copy.notAvailable)],
-                  [copy.updated, formatDate(selectedDrone.updatedAt, locale, copy.notAvailable)],
-                  [copy.version, String(selectedDrone.version)],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <dt>{label}</dt>
-                    <dd>{value}</dd>
+          </div>
+        ) : (
+          <>
+            {/* Compact Selected Drone Header (always visible across tabs) */}
+            {selectedDrone && (
+              <div className="mgr-drone-inspector-hero">
+                {selectedDrone.imageUrl ? (
+                  <ImagePreview
+                    className="mgr-drone-room-selected-image"
+                    src={selectedDrone.imageUrl}
+                    fileName={copy.deviceImageAlt}
+                  />
+                ) : (
+                  <span className="mgr-drone-room-selected-mark" aria-hidden="true">
+                    <SendOutlined />
+                  </span>
+                )}
+                <div className="mgr-drone-room-selected-copy">
+                  <strong title={droneLabel(selectedDrone, copy.unnamedDrone)}>
+                    {selectedDrone.name || selectedDrone.serialNumber || copy.unnamedDrone}
+                  </strong>
+                  <small>
+                    {selectedDrone.serialNumber || copy.notAvailable}
+                    {detailModel?.modelName ? ` · ${detailModel.modelName}` : ''}
+                  </small>
+                  <div className="mgr-drone-inspector-hero-meta">
+                    <span
+                      className={`mgr-drone-room-device-status ${statusToneClass(selectedDrone.status)}`}
+                    >
+                      {getDroneStatusLabel(selectedDrone.status, lang)}
+                    </span>
+                    <button
+                      type="button"
+                      className="mgr-drone-focus-chip"
+                      onClick={handleFocusCurrent}
+                    >
+                      <AimOutlined aria-hidden="true" />
+                      <span>{tabLabels.focusBtn}</span>
+                    </button>
                   </div>
-                ))}
-              </dl>
-                </div>
-
-                <div className="mgr-drone-room-detail-group">
-              <h4>{copy.modelInformation}</h4>
-              <dl>
-                {[
-                  [t.columns.model, detailModel?.modelName || copy.modelUnknown],
-                  [copy.modelCode, detailModel?.code || copy.notAvailable],
-                  [copy.manufacturer, detailModel?.manufacturer || copy.notAvailable],
-                  [copy.created, formatDate(detailModel?.createdAt, locale, copy.notAvailable)],
-                  [copy.updated, formatDate(detailModel?.updatedAt, locale, copy.notAvailable)],
-                  [
-                    copy.version,
-                    detailModel?.version == null
-                      ? copy.notAvailable
-                      : String(detailModel.version),
-                  ],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <dt>{label}</dt>
-                    <dd>{value}</dd>
-                  </div>
-                ))}
-              </dl>
-                </div>
-
-                <div className="mgr-drone-room-detail-group">
-              <h4>{copy.typeInformation}</h4>
-              {(detailModel?.deviceTypes ?? []).length > 0 ? (
-                (detailModel?.deviceTypes ?? []).map((deviceType) => (
-                  <div className="mgr-drone-room-detail-type" key={deviceType.id}>
-                    <strong>{deviceType.name || deviceType.code}</strong>
-                    <dl>
-                      {[
-                        [copy.deviceTypeCode, deviceType.code || copy.notAvailable],
-                        [copy.description, deviceType.description || copy.notAvailable],
-                        [copy.created, formatDate(deviceType.createdAt, locale, copy.notAvailable)],
-                        [copy.updated, formatDate(deviceType.updatedAt, locale, copy.notAvailable)],
-                        [
-                          copy.version,
-                          deviceType.version == null
-                            ? copy.notAvailable
-                            : String(deviceType.version),
-                        ],
-                      ].map(([label, value]) => (
-                        <div key={label}>
-                          <dt>{label}</dt>
-                          <dd>{value}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </div>
-                ))
-              ) : modelCategory ? (
-                <dl>
-                  <div>
-                    <dt>{copy.deviceCategory}</dt>
-                    <dd>{formatMetadataValue(modelCategory, 'category', copy.yes, copy.no)}</dd>
-                  </div>
-                </dl>
-              ) : (
-                <p className="mgr-drone-room-detail-empty">{copy.notAvailable}</p>
-              )}
-                </div>
-
-                <div className="mgr-drone-room-detail-group">
-              <h4>{copy.specifications}</h4>
-              {specificationRows.length > 0 ? (
-                <dl>
-                  {specificationRows.map(({ label, value }) => (
-                    <div key={label}>
-                      <dt>{label}</dt>
-                      <dd>{value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              ) : (
-                <p className="mgr-drone-room-detail-empty">{copy.noSpecifications}</p>
-              )}
                 </div>
               </div>
-              <Button block onClick={() => onChangeStatus(selectedDrone)}>
-                {t.changeStatus}
-              </Button>
-            </details>
-          </section>
+            )}
+
+            {/* Compact 3-Tab Inspector Navigation */}
+            <div
+              className="mgr-drone-inspector-tabs"
+              role="tablist"
+              aria-label={copy.deviceList}
+            >
+              <button
+                type="button"
+                role="tab"
+                id="drone-tab-info"
+                aria-selected={activeTab === 'info'}
+                aria-controls="drone-panel-info"
+                className={`mgr-drone-inspector-tab${activeTab === 'info' ? ' is-active' : ''}`}
+                onClick={() => setActiveTab('info')}
+              >
+                <InfoCircleOutlined aria-hidden="true" />
+                <span>{tabLabels.info}</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="drone-tab-assign"
+                aria-selected={activeTab === 'assign'}
+                aria-controls="drone-panel-assign"
+                className={`mgr-drone-inspector-tab${activeTab === 'assign' ? ' is-active' : ''}`}
+                onClick={() => setActiveTab('assign')}
+              >
+                <ScheduleOutlined aria-hidden="true" />
+                <span>{tabLabels.assign}</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="drone-tab-list"
+                aria-selected={activeTab === 'list'}
+                aria-controls="drone-panel-list"
+                className={`mgr-drone-inspector-tab${activeTab === 'list' ? ' is-active' : ''}`}
+                onClick={() => setActiveTab('list')}
+              >
+                <UnorderedListOutlined aria-hidden="true" />
+                <span>{tabLabels.list}</span>
+                <em className="mgr-drone-tab-count">{drones.length}</em>
+              </button>
+            </div>
+
+            {/* Scrollable Inspector Body (contained inside fixed viewport height) */}
+            <div className="mgr-drone-inspector-body">
+              {/* TAB 1: THÔNG TIN */}
+              <div
+                id="drone-panel-info"
+                role="tabpanel"
+                aria-labelledby="drone-tab-info"
+                hidden={activeTab !== 'info'}
+                className="mgr-drone-tab-panel"
+              >
+                {selectedDrone && (
+                  <div className="mgr-drone-info-stack">
+                    <div className="mgr-drone-quick-grid">
+                      <div>
+                        <span>{copy.serialNumber}</span>
+                        <strong>{selectedDrone.serialNumber || copy.notAvailable}</strong>
+                      </div>
+                      <div>
+                        <span>{t.columns.model}</span>
+                        <strong>{detailModel?.modelName || detailModel?.code || copy.modelUnknown}</strong>
+                      </div>
+                      <div>
+                        <span>{copy.manufacturer}</span>
+                        <strong>{detailModel?.manufacturer || copy.notAvailable}</strong>
+                      </div>
+                      <div>
+                        <span>{copy.updated}</span>
+                        <strong>{formatDate(selectedDrone.updatedAt, locale, copy.notAvailable)}</strong>
+                      </div>
+                    </div>
+
+                    <div className="mgr-drone-primary-actions">
+                      <Button
+                        type="primary"
+                        block
+                        icon={<ScheduleOutlined />}
+                        onClick={() => setActiveTab('assign')}
+                      >
+                        {tabLabels.quickAssign}
+                      </Button>
+                      <Button block onClick={() => onChangeStatus(selectedDrone)}>
+                        {t.changeStatus}
+                      </Button>
+                    </div>
+
+                    {/* Collapsible Technical Specifications */}
+                    <details className="mgr-drone-room-full-details">
+                      <summary>
+                        <span>{copy.specifications}</span>
+                        {specificationRows.length > 0 && (
+                          <span className="mgr-drone-accordion-badge">{specificationRows.length}</span>
+                        )}
+                      </summary>
+                      <div className="mgr-drone-room-full-details-content">
+                        {specificationRows.length > 0 ? (
+                          <dl className="mgr-drone-spec-dl">
+                            {specificationRows.map(({ label, value }) => (
+                              <div key={label}>
+                                <dt>{label}</dt>
+                                <dd>{value}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        ) : (
+                          <p className="mgr-drone-room-detail-empty">{copy.noSpecifications}</p>
+                        )}
+                      </div>
+                    </details>
+
+                    {/* Collapsible System, Model & Device Types */}
+                    <details className="mgr-drone-room-full-details">
+                      <summary>
+                        <span>{tabLabels.systemMeta}</span>
+                      </summary>
+                      <div className="mgr-drone-room-full-details-content">
+                        <div className="mgr-drone-room-detail-group">
+                          <h4>{copy.deviceInformation}</h4>
+                          <dl className="mgr-drone-spec-dl">
+                            {[
+                              [copy.deviceName, selectedDrone.name || copy.notAvailable],
+                              [copy.serialNumber, selectedDrone.serialNumber || copy.notAvailable],
+                              [t.columns.status, getDroneStatusLabel(selectedDrone.status, lang)],
+                              [copy.created, formatDate(selectedDrone.createdAt, locale, copy.notAvailable)],
+                              [copy.version, String(selectedDrone.version)],
+                            ].map(([label, value]) => (
+                              <div key={label}>
+                                <dt>{label}</dt>
+                                <dd>{value}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </div>
+
+                        <div className="mgr-drone-room-detail-group">
+                          <h4>{copy.typeInformation}</h4>
+                          {(detailModel?.deviceTypes ?? []).length > 0 ? (
+                            (detailModel?.deviceTypes ?? []).map((deviceType) => (
+                              <div className="mgr-drone-room-detail-type" key={deviceType.id}>
+                                <strong>{deviceType.name || deviceType.code}</strong>
+                                <dl className="mgr-drone-spec-dl">
+                                  {[
+                                    [copy.deviceTypeCode, deviceType.code || copy.notAvailable],
+                                    [copy.description, deviceType.description || copy.notAvailable],
+                                  ].map(([label, value]) => (
+                                    <div key={label}>
+                                      <dt>{label}</dt>
+                                      <dd>{value}</dd>
+                                    </div>
+                                  ))}
+                                </dl>
+                              </div>
+                            ))
+                          ) : modelCategory ? (
+                            <dl className="mgr-drone-spec-dl">
+                              <div>
+                                <dt>{copy.deviceCategory}</dt>
+                                <dd>{formatMetadataValue(modelCategory, 'category', copy.yes, copy.no)}</dd>
+                              </div>
+                            </dl>
+                          ) : (
+                            <p className="mgr-drone-room-detail-empty">{copy.notAvailable}</p>
+                          )}
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+                )}
+              </div>
+
+              {/* TAB 2: GÁN NHIỆM VỤ */}
+              <div
+                id="drone-panel-assign"
+                role="tabpanel"
+                aria-labelledby="drone-tab-assign"
+                hidden={activeTab !== 'assign'}
+                className="mgr-drone-tab-panel"
+              >
+                {selectedDrone && (
+                  <DroneRoomAssignmentControl
+                    drone={selectedDrone}
+                    lang={lang}
+                    assignmentMissionId={assignmentMissionId}
+                    returnMissionId={returnMissionId}
+                    onMissionChange={onMissionChange}
+                    onAssignmentChanged={onAssignmentChanged}
+                  />
+                )}
+              </div>
+
+              {/* TAB 3: DANH SÁCH DRONE */}
+              <div
+                id="drone-panel-list"
+                role="tabpanel"
+                aria-labelledby="drone-tab-list"
+                hidden={activeTab !== 'list'}
+                className="mgr-drone-tab-panel"
+              >
+                <div className="mgr-drone-explorer">
+                  <Input
+                    allowClear
+                    size="middle"
+                    prefix={<SearchOutlined aria-hidden="true" />}
+                    value={search}
+                    placeholder={copy.deviceSearch}
+                    aria-label={copy.deviceSearchAria}
+                    onChange={(event) => setSearch(event.target.value)}
+                  />
+
+                  <div
+                    className="mgr-drone-filter-chips"
+                    role="group"
+                    aria-label={t.filterAria}
+                  >
+                    {filterOptions.map((opt) => (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        className={`mgr-drone-filter-chip${statusFilter === opt.key ? ' is-active' : ''}`}
+                        aria-pressed={statusFilter === opt.key}
+                        onClick={() => setStatusFilter(opt.key)}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {filteredDrones.length === 0 ? (
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={copy.noSearch} />
+                  ) : (
+                    <div
+                      className="mgr-drone-room-device-list"
+                      role="list"
+                      aria-label={copy.deviceList}
+                    >
+                      {filteredDrones.map((drone) => {
+                        const isSelected = selectedDrone?.id === drone.id
+                        return (
+                          <div role="listitem" key={drone.id}>
+                            <button
+                              type="button"
+                              className={`mgr-drone-room-device${isSelected ? ' is-selected' : ''}`}
+                              aria-pressed={isSelected}
+                              onClick={() => handleSelectFromList(drone.id)}
+                            >
+                              <span
+                                className={`mgr-drone-room-device-dot ${statusToneClass(drone.status)}`}
+                                aria-hidden="true"
+                              />
+                              <span className="mgr-drone-room-device-copy">
+                                <strong>{drone.name || drone.serialNumber || copy.unnamedDrone}</strong>
+                                <small>
+                                  {drone.serialNumber}
+                                  {drone.deviceModel?.code ? ` · ${drone.deviceModel.code}` : ''}
+                                </small>
+                              </span>
+                              <span
+                                className={`mgr-drone-room-device-status ${statusToneClass(drone.status)}`}
+                              >
+                                {getDroneStatusLabel(drone.status, lang)}
+                              </span>
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </aside>
     </section>

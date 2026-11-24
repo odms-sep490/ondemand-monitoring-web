@@ -136,29 +136,41 @@ describe('OrderDetailPage', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('separates quote review from contract and deposit payment', async () => {
+  it('unifies quote review and payment in one tab while keeping contract separate', async () => {
     vi.spyOn(financeApi, 'getQuote').mockResolvedValue(payableQuote)
     vi.spyOn(financeApi, 'getInvoice').mockResolvedValue(payableInvoice)
     render(<OrderDetailPage orderId="cus-ord-003" />)
-    fireEvent.click(await screen.findByRole('tab', { name: 'Duyệt & báo giá' }))
-    await waitFor(() =>
-      expect(
-        document.querySelector('.customer-quote-body'),
-      ).toBeVisible(),
+    expect(screen.queryByRole('tab', { name: 'Thanh toán' })).toBeNull()
+    fireEvent.click(
+      await screen.findByRole('tab', { name: 'Báo giá & thanh toán' }),
     )
-    expect(document.querySelector('.customer-quote-payment-content')).toBeNull()
+    await waitFor(() =>
+      expect(document.querySelector('.customer-quote-body')).toBeVisible(),
+    )
+    expect(
+      document.querySelector('.customer-quote-payment-content'),
+    ).toBeVisible()
+    expect(screen.getByRole('region', { name: 'Hóa đơn INV-LIVE' })).toBeVisible()
     fireEvent.click(screen.getByRole('tab', { name: 'Hợp đồng' }))
-    expect(await screen.findByText('Đơn hàng này không yêu cầu hợp đồng.')).toBeVisible()
+    expect(
+      await screen.findByText('Đơn hàng này không yêu cầu hợp đồng.'),
+    ).toBeVisible()
     expect(document.querySelector('.customer-invoice-summary')).toBeNull()
     expect(document.querySelector('.customer-quote-body')).toBeNull()
-    fireEvent.click(screen.getByRole('tab', { name: 'Thanh toán' }))
+  })
+
+  it('routes legacy ?tab=payment deep links to the unified quote and payment tab', async () => {
+    window.location.hash = '#/customer/orders/cus-ord-003?tab=payment'
+    vi.spyOn(financeApi, 'getQuote').mockResolvedValue(payableQuote)
+    vi.spyOn(financeApi, 'getInvoice').mockResolvedValue(payableInvoice)
+    render(<OrderDetailPage orderId="cus-ord-003" />)
+    const financeTab = await screen.findByRole('tab', {
+      name: 'Báo giá & thanh toán',
+    })
     await waitFor(() =>
-      expect(
-        document.querySelector('.customer-invoice-standalone'),
-      ).toBeVisible(),
+      expect(financeTab).toHaveAttribute('aria-selected', 'true'),
     )
-    expect(document.querySelector('.customer-quote-body')).toBeNull()
-    expect(screen.getByRole('region', { name: 'Hóa đơn INV-LIVE' })).toBeVisible()
+    window.location.hash = ''
   })
 
   it('shows a red finance-tab dot until the customer opens the newly approved quote', async () => {
@@ -172,7 +184,7 @@ describe('OrderDetailPage', () => {
     render(<OrderDetailPage orderId="cus-ord-003" />)
 
     const financeTab = await screen.findByRole('tab', {
-      name: 'Duyệt & báo giá',
+      name: 'Báo giá & thanh toán',
     })
     await waitFor(() =>
       expect(financeTab.querySelector('.ant-badge-dot')).toBeInTheDocument(),
