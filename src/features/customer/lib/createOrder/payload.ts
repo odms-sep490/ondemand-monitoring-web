@@ -129,7 +129,7 @@ export function buildOrderPayload(input: {
     detail,
   })
   return {
-    title: "",
+    title: form.title.trim(),
     description: form.description.trim() || undefined,
     serviceId: form.serviceId,
     flightPurpose: form.flightPurpose,
@@ -141,6 +141,10 @@ export function buildOrderPayload(input: {
     siteContactName: form.siteContactName.trim() || undefined,
     siteContactPhone: form.siteContactPhone.trim() || undefined,
     accessNotes: buildAccessNotes(form),
+    permitStatus: form.permitStatus,
+    permitNumber: form.permitStatus === 'HAVE_PERMIT' ? form.permitNumber : undefined,
+    permitExpiresOn: form.permitStatus === 'HAVE_PERMIT' ? form.permitExpiresOn : undefined,
+    permitDocuments: form.permitStatus === 'HAVE_PERMIT' ? form.permitDocuments : undefined,
     monitoringRelationship: form.monitoringRelationship || undefined,
     monitoringAuthorizationConfirmed: form.monitoringAuthorizationConfirmed,
     monitoringAuthorizationDocuments:
@@ -163,14 +167,13 @@ export function buildOrderPayload(input: {
     preferredDateFrom: form.preferredDateFrom,
     preferredDateTo: form.preferredDateTo,
     preferredTimeId: form.preferredTimeId,
-    recurrenceType: form.recurrenceType,
-    recurrenceOccurrences:
-      form.recurrenceType === 'NONE' ? undefined : form.recurrenceOccurrences,
-    weatherFallback: form.weatherFallback,
-    resultDeadline: form.resultDeadline || undefined,
+    recurrenceType: 'NONE',
+    recurrenceOccurrences: undefined,
+    weatherFallback: 'CONTACT_CUSTOMER',
+    resultDeadline: undefined,
     resultFormats,
-    deliveryMethods: ['DOWNLOAD'],
-    dataRetentionDays: 30,
+    deliveryMethods: form.deliveryMethods,
+    dataRetentionDays: form.dataRetentionDays,
     termsAccepted: form.termsAccepted,
     deliverables: deliverableEntries,
   }

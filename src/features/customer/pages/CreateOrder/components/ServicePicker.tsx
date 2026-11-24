@@ -13,7 +13,7 @@ import { formatMoney } from '../../../lib/createOrder/format'
 /** Services shown before "show more" in the request form. */
 const SERVICE_LIMIT = 6
 
-function serviceFallbackImage(service: ServiceOption, localizedName: string) {
+export function serviceFallbackImage(service: ServiceOption, localizedName: string) {
   const details = `${localizedName} ${service.name} ${service.description ?? ''}`.toLowerCase()
 
   if (/warehouse|factory|industrial|construction|building|nhà xưởng|nhà máy|công trình|xưởng/.test(details)) {
@@ -29,14 +29,16 @@ function serviceFallbackImage(service: ServiceOption, localizedName: string) {
   return undefined
 }
 
-function ServiceImage({
+export function ServiceImage({
   imageUrl,
   fallbackImageUrl,
   noImage,
+  alt = '',
 }: {
   imageUrl?: string | null
   fallbackImageUrl?: string | null
   noImage: string
+  alt?: string
 }) {
   const [failedUrls, setFailedUrls] = useState<string[]>([])
   const source = [imageUrl, fallbackImageUrl].find(
@@ -47,7 +49,7 @@ function ServiceImage({
     <img
       className="co-service-image"
       src={source}
-      alt=""
+      alt={alt}
       loading="lazy"
       onError={() => setFailedUrls((current) => [...current, source])}
     />

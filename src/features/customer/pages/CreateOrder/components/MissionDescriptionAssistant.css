@@ -1,0 +1,143 @@
+.mission-description-assistant {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #cbdcfb;
+  border-radius: 10px;
+  background: #fff;
+  max-height: 46dvh;
+  overflow: auto;
+}
+
+.mission-description-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.mission-description-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mission-description-step {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.mission-description-step.is-active {
+  background: #eff6ff;
+  color: #1565e8;
+  border-color: #93c5fd;
+}
+
+.mission-description-step.is-done {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.mission-description-inline-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.mission-description-inline-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  flex-shrink: 0;
+}
+
+.mission-description-facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.mission-description-fact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid #dbeafe;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.mission-description-fact-icon {
+  color: #10b981;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.mission-description-question {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #f8fbff;
+  border: 1px solid #bfdbfe;
+}
+
+.mission-description-preview {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+}
+
+.mission-description-question label,
+.mission-description-preview label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.mission-description-meta-disclosures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.mission-description-meta-disclosures details {
+  max-width: 100%;
+}
+
+.mission-description-meta-disclosures summary {
+  cursor: pointer;
+  user-select: none;
+}
+
+.mission-description-assistant p {
+  margin: 4px 0;
+  overflow-wrap: anywhere;
+}
+
+.mission-description-assistant small {
+  color: #64748b;
+}

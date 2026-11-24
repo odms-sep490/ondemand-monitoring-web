@@ -39,11 +39,34 @@ const SERVICES: Array<{ ids: string[]; names: Names }> = [
   { ids: ['svc-forest'], names: { vi: 'Giám sát rừng', en: 'Forest monitoring' } },
 ]
 
+const SERVICE_DESCRIPTIONS: Array<Names> = [
+  {
+    vi: 'Ghi nhận hiện trạng và tiến độ thi công bằng hình ảnh, video từ drone.',
+    en: 'Capture site conditions and construction progress with drone imagery and video.',
+  },
+  {
+    vi: 'Kiểm tra mái, kết cấu bên ngoài và các vị trí khó tiếp cận bằng drone.',
+    en: 'Inspect roofs, exterior structures, and hard-to-reach areas with drones.',
+  },
+  {
+    vi: 'Quan sát tổng thể, ghi nhận hiện trạng và các vị trí cần theo dõi trong khu vực.',
+    en: 'Survey the overall area, document current conditions, and monitor selected locations.',
+  },
+  {
+    vi: 'Quan sát hiện trạng rừng, theo dõi thảm thực vật và ghi nhận khu vực bất thường.',
+    en: 'Survey forest conditions, monitor vegetation, and document unusual areas.',
+  },
+]
+
 const BY_ID = new Map<string, Names>()
 const BY_NAME = new Map<string, Names>()
+const BY_DESCRIPTION = new Map<string, string>()
 for (const entry of SERVICES) {
   entry.ids.forEach((id) => BY_ID.set(id, entry.names))
   BY_NAME.set(normalizeKey(entry.names.vi), entry.names)
+}
+for (const entry of SERVICE_DESCRIPTIONS) {
+  BY_DESCRIPTION.set(normalizeKey(entry.vi), entry.en)
 }
 
 /**
@@ -71,4 +94,14 @@ export function localizeServiceName(
 /** Every Vietnamese service name that has an English translation. */
 export function translatedServiceNames(): string[] {
   return SERVICES.map((entry) => entry.names.vi)
+}
+
+/** Localizes the built-in service descriptions while preserving custom catalog text. */
+export function localizeServiceDescription(
+  description: string | null | undefined,
+  lang: Language,
+): string {
+  const input = description?.trim() ?? ''
+  if (!input || lang !== 'en') return input
+  return BY_DESCRIPTION.get(normalizeKey(input)) ?? input
 }

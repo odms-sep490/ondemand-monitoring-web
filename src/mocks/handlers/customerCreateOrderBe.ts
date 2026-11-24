@@ -122,7 +122,6 @@ const nextId = (prefix: string) => `${prefix}-${++seq}`
 
 
 const REQUIRED = [
-  'title',
   'serviceId',
   'latitude',
   'longitude',

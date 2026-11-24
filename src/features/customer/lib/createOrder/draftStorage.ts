@@ -1,7 +1,11 @@
 import { todayPlus } from './format'
 import { DEFAULT_ORDER_RADIUS_M } from '../../../../shared/lib/orderAreaDefaults'
 import {
+  DELIVERY_METHODS,
+  RETENTION_DAYS,
   RESULT_FORMATS,
+  type DeliveryMethod,
+  type RetentionDays,
   type FormState,
   type ResultFormat,
   type Step,
@@ -119,8 +123,16 @@ export function readStoredDraft(): StoredCreateOrderDraft | null {
         resultFormats: draft.form.resultFormats.filter((value) =>
           RESULT_FORMATS.includes(value as ResultFormat),
         ) as ResultFormat[],
-        deliveryMethods: ['DOWNLOAD'],
-        dataRetentionDays: 30,
+        deliveryMethods: Array.isArray(draft.form.deliveryMethods)
+          ? draft.form.deliveryMethods.filter((value) =>
+              DELIVERY_METHODS.includes(value as DeliveryMethod),
+            )
+          : ['DOWNLOAD'],
+        dataRetentionDays: RETENTION_DAYS.includes(
+          draft.form.dataRetentionDays as RetentionDays,
+        )
+          ? draft.form.dataRetentionDays
+          : 30,
       },
     }
   } catch {

@@ -2257,7 +2257,13 @@
 :root .mgr-layout .mgr-dash .mgr-finance-recent .mgr-dash-transactions strong.mgr-money-out { color: var(--ant-color-warning-text, #b45309) !important; }
 
 :root .mgr-layout .mgr-dash {
- .mgr-cashflow-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+ .mgr-cashflow-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px 16px;
+ }
  .mgr-cashflow-toolbar > div { display: flex; gap: 8px; }
  .mgr-cashflow-toolbar .ant-select { min-width: 115px; }
  .mgr-dashboard-group .mgr-dash-finance-grid { grid-template-columns: minmax(0,1.8fr) minmax(260px,1fr); }
@@ -2285,4 +2291,763 @@
 }
 @container manager-dashboard (max-width: 650px) {
  :root .mgr-layout .mgr-dash .mgr-dashboard-overview-charts .ant-card-body { min-height: 0; }
+}
+
+
+/* ==========================================================================
+   OPERATIONS COMMAND CENTER REDESIGN LAYER
+   Compact grids, content-driven heights, animated KPI accents, interactive
+   Recharts donut/timeline, and restrained drone-themed empty states.
+   ========================================================================== */
+
+:root .mgr-layout .mgr-dash {
+  /* Prevent unrelated sibling cards from stretching to huge blank heights */
+  .mgr-group-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.25fr);
+    align-items: start;
+    gap: 18px;
+  }
+
+  .mgr-group-grid > .ant-card {
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    border-radius: 14px;
+    border-color: var(--mgr-border);
+    box-shadow: 0 1px 3px rgb(15 23 42 / 4%);
+    transition: box-shadow 180ms ease, border-color 180ms ease;
+  }
+
+  .mgr-group-grid > .ant-card:hover {
+    border-color: color-mix(in srgb, var(--dash-accent) 28%, var(--mgr-border));
+    box-shadow: 0 6px 18px rgb(15 23 42 / 6%);
+  }
+
+  /* Animated KPI cards with semantic top accent & icon badge */
+  .mgr-dash-kpi {
+    overflow: hidden;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--mgr-border);
+    box-shadow: 0 1px 3px rgb(15 23 42 / 4%);
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: var(--kpi-accent, var(--dash-accent));
+      opacity: 0.78;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgb(15 23 42 / 8%);
+      border-color: color-mix(in srgb, var(--kpi-accent, var(--dash-accent)) 45%, var(--mgr-border));
+    }
+
+    &.is-accent-amber { --kpi-accent: #f59e0b; }
+    &.is-accent-indigo { --kpi-accent: #6366f1; }
+    &.is-accent-orange { --kpi-accent: #ea580c; }
+    &.is-accent-blue { --kpi-accent: #1565e8; }
+    &.is-accent-emerald { --kpi-accent: #10b981; }
+  }
+
+  .mgr-kpi-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: transform 180ms ease;
+
+    &.is-amber { background: #fef3c7; color: #d97706; }
+    &.is-indigo { background: #e0e7ff; color: #4f46e5; }
+    &.is-orange { background: #ffedd5; color: #ea580c; }
+    &.is-blue { background: #dbeafe; color: #1565e8; }
+    &.is-emerald { background: #d1fae5; color: #059669; }
+  }
+
+  .mgr-dash-kpi:hover .mgr-kpi-icon {
+    transform: scale(1.06);
+  }
+
+  .mgr-kpi-value {
+    font-size: 24px;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+  }
+
+  /* Compact Recent Mission Panel */
+  .mgr-mission-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .mgr-mission-compact-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .mgr-mission-compact-id {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .mgr-mission-badge-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #1565e8;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+
+  .mgr-mission-code-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .mgr-mission-code {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mgr-text);
+  }
+
+  .mgr-mission-subnote {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-mission-facts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0;
+  }
+
+  .mgr-mission-fact-tile {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--mgr-border) 28%, var(--mgr-card));
+    border: 1px solid var(--mgr-border);
+
+    dt {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      color: var(--mgr-muted);
+      margin-bottom: 4px;
+    }
+
+    dd {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--mgr-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  /* Compact, content-driven Action / Todo List */
+  .mgr-action-card .ant-card-body {
+    padding: 14px 16px;
+  }
+
+  .mgr-task-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    border: 1px solid var(--mgr-border);
+    background: var(--mgr-card);
+    transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &:hover {
+      border-color: color-mix(in srgb, var(--dash-accent) 38%, var(--mgr-border));
+      background: color-mix(in srgb, var(--dash-accent) 3%, var(--mgr-card));
+      transform: translateX(2px);
+    }
+  }
+
+  .mgr-task-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .mgr-task-code {
+    display: inline-block;
+    padding: 1px 7px;
+    margin-right: 6px;
+    border-radius: 5px;
+    background: color-mix(in srgb, var(--mgr-border) 55%, transparent);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--mgr-text);
+  }
+
+  /* Upgraded Interactive Recharts Donut Chart */
+  .mgr-donut-layout {
+    display: grid;
+    grid-template-columns: 204px minmax(0, 1fr);
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+  }
+
+  .mgr-donut-stage {
+    position: relative;
+    width: 204px;
+    height: 196px;
+    margin: 0 auto;
+  }
+
+  .mgr-donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    text-align: center;
+  }
+
+  .mgr-donut-center-value {
+    font-size: 28px;
+    font-weight: 750;
+    line-height: 1.1;
+    color: var(--mgr-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mgr-donut-center-sub {
+    margin-top: 2px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .mgr-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: background 150ms ease, border-color 150ms ease;
+
+    &.is-clickable {
+      cursor: pointer;
+    }
+
+    &.is-highlighted,
+    &:hover {
+      background: color-mix(in srgb, var(--dash-accent) 6%, var(--mgr-card));
+      border-color: color-mix(in srgb, var(--dash-accent) 22%, var(--mgr-border));
+    }
+  }
+
+  .mgr-legend-label {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    color: var(--mgr-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mgr-legend-metric {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mgr-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mgr-legend-pct {
+    font-weight: 500;
+    color: var(--mgr-muted);
+  }
+
+  /* Compact Reusable Empty States */
+  .mgr-cmd-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+    padding: 20px 16px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--mgr-border) 22%, var(--mgr-card));
+    border: 1px dashed var(--mgr-border);
+
+    &.is-compact {
+      padding: 18px 14px;
+    }
+  }
+
+  .mgr-cmd-empty-visual {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mgr-empty-drone-svg {
+    animation: mgr-drone-float 3.2s ease-in-out infinite;
+  }
+
+  .mgr-empty-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    font-size: 19px;
+
+    &.is-success { background: #d1fae5; color: #059669; }
+    &.is-info { background: #eff6ff; color: #1565e8; }
+    &.is-danger { background: #fee2e2; color: #dc2626; }
+    &.is-neutral { background: #f1f5f9; color: #64748b; }
+  }
+
+  .mgr-cmd-empty-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--mgr-text);
+  }
+
+  .mgr-cmd-empty-desc {
+    margin: 4px 0 0;
+    max-width: 380px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-cmd-empty-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .mgr-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+@keyframes mgr-drone-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mgr-empty-drone-svg {
+    animation: none !important;
+  }
+  :root .mgr-layout .mgr-dash .mgr-dash-kpi,
+  :root .mgr-layout .mgr-dash .mgr-task-row {
+    transition: none !important;
+  }
+}
+
+/* Responsive layout across 1440 / 1024 / 390 */
+@container manager-dashboard (max-width: 1050px) {
+  :root .mgr-layout .mgr-dash {
+    .mgr-kpi-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .mgr-group-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+@container manager-dashboard (max-width: 680px) {
+  :root .mgr-layout .mgr-dash {
+    .mgr-kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .mgr-mission-facts-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .mgr-donut-layout {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+    }
+    .mgr-legend {
+      width: 100%;
+    }
+  }
+}
+
+
+/* ==========================================================================
+   TABS 2, 3, 4 — FINANCE, ORDERS & ACTIVITY TIMELINE COMMAND CENTER STYLES
+   ========================================================================== */
+
+:root .mgr-layout .mgr-dash {
+  /* Premium Tab Navigation */
+  .mgr-dashboard-groups > .ant-tabs-nav {
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--mgr-border);
+
+    .ant-tabs-tab {
+      padding: 10px 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mgr-muted);
+      transition: color 160ms ease;
+
+      &:hover {
+        color: var(--mgr-text);
+      }
+    }
+
+    .ant-tabs-tab-active .ant-tabs-tab-btn {
+      color: var(--dash-accent);
+      font-weight: 700;
+    }
+
+    .ant-tabs-ink-bar {
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: var(--dash-accent);
+    }
+  }
+
+  /* TAB 2: Finance KPI Strip & Transactions */
+  .mgr-finance-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .mgr-finance-kpi {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    border: 1px solid var(--mgr-border);
+    background: var(--mgr-card);
+    box-shadow: 0 1px 3px rgb(15 23 42 / 4%);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgb(15 23 42 / 7%);
+    }
+  }
+
+  .mgr-finance-kpi-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-finance-kpi-value {
+    display: block;
+    margin-top: 2px;
+    font-size: 22px;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--mgr-text);
+  }
+
+  .mgr-finance-kpi-note {
+    margin-top: 2px;
+    font-size: 11.5px;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-cashflow-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .mgr-dash-finance-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr);
+    align-items: start;
+    gap: 18px;
+  }
+
+  .mgr-tx-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .mgr-tx-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 11px;
+    border-radius: 10px;
+    border: 1px solid var(--mgr-border);
+    background: var(--mgr-card);
+    transition: border-color 150ms ease, background 150ms ease;
+
+    &:hover {
+      border-color: color-mix(in srgb, var(--dash-accent) 32%, var(--mgr-border));
+      background: color-mix(in srgb, var(--dash-accent) 3%, var(--mgr-card));
+    }
+  }
+
+  .mgr-tx-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    font-size: 14px;
+    flex-shrink: 0;
+
+    &.is-in { background: #d1fae5; color: #059669; }
+    &.is-out { background: #fef3c7; color: #d97706; }
+  }
+
+  .mgr-tx-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mgr-tx-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--mgr-text);
+  }
+
+  .mgr-tx-code-tag {
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+  }
+
+  .mgr-tx-time {
+    display: block;
+    margin-top: 2px;
+    font-size: 11.5px;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-tx-amount {
+    font-size: 13.5px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+
+    &.is-in { color: #059669; }
+    &.is-out { color: #d97706; }
+  }
+
+  /* TAB 3: Orders Search & Status Toolbar + Categorical Bar Chart */
+  .mgr-orders-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--mgr-border);
+    background: color-mix(in srgb, var(--mgr-border) 18%, var(--mgr-card));
+  }
+
+  .mgr-orders-search {
+    max-width: 280px;
+    width: 100%;
+  }
+
+  .mgr-orders-status-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .mgr-service-bar-row {
+    margin-bottom: 10px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .mgr-service-bar-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mgr-service-bar-track > span {
+    transition: width 550ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* TAB 4: Vertical Activity Timeline */
+  .mgr-timeline-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 12px 0 0;
+    padding: 0 0 0 8px;
+    list-style: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 24px;
+      top: 14px;
+      bottom: 14px;
+      width: 2px;
+      background: var(--mgr-border);
+    }
+  }
+
+  .mgr-timeline-item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .mgr-timeline-node {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 15px;
+    flex-shrink: 0;
+    border: 2px solid var(--mgr-card);
+    box-shadow: 0 1px 4px rgb(15 23 42 / 8%);
+
+    &.is-emerald { background: #d1fae5; color: #059669; }
+    &.is-blue { background: #dbeafe; color: #1565e8; }
+    &.is-amber { background: #fef3c7; color: #d97706; }
+    &.is-neutral { background: #f1f5f9; color: #64748b; }
+  }
+
+  .mgr-timeline-card {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--mgr-border);
+    background: var(--mgr-card);
+    transition: border-color 150ms ease, background 150ms ease;
+
+    &:hover {
+      border-color: color-mix(in srgb, var(--dash-accent) 32%, var(--mgr-border));
+      background: color-mix(in srgb, var(--dash-accent) 2.5%, var(--mgr-card));
+    }
+  }
+
+  .mgr-timeline-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .mgr-timeline-cat {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--dash-accent);
+  }
+
+  .mgr-timeline-text {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--mgr-text);
+  }
+
+  .mgr-timeline-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+}
+
+@container manager-dashboard (max-width: 900px) {
+  :root .mgr-layout .mgr-dash {
+    .mgr-finance-kpi-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .mgr-dash-finance-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
 }

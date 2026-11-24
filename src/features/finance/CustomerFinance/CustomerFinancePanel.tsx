@@ -291,12 +291,16 @@ export function CustomerFinancePanel({
   const invoiceContent = invoice ? (
     <>
       {!isContractDepositReady(invoice) && onOpenContract ? (
-        <Alert
-          type="info"
-          showIcon
-          message={t.contractRequiredForPayment}
-          action={<Button onClick={onOpenContract}>{t.openContract}</Button>}
-        />
+        <div className="customer-contract-gate-box">
+          <Alert
+            type="info"
+            showIcon
+            message={t.contractRequiredForPayment}
+          />
+          <Button block onClick={onOpenContract}>
+            {t.openContract}
+          </Button>
+        </div>
       ) : null}
       <InvoiceSection
         invoice={invoice}
@@ -439,7 +443,7 @@ export function CustomerFinancePanel({
             {section === 'payment' ? t.paymentDescription : t.description}
           </p>
         )}
-        {section === 'payment' && invoice && invoice.paidAmount > 0 ? (
+        {section === 'payment' && invoice ? (
           <InvoiceSummary invoice={invoice} />
         ) : null}
         {section === 'payment' && !invoice ? (

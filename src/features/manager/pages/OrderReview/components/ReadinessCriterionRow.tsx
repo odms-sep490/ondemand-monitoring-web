@@ -56,40 +56,42 @@ export function ReadinessCriterionRow({
           </span>
         ) : null}
         {needsNote || (c.note && !draft) || draft ? (
-          <input
-            className="odm-or-readiness-note"
-            value={note}
-            disabled={!editable}
-            placeholder={
-              needsNote
-                ? (failNotePlaceholders[c.code] ?? t.failReasonPlaceholder)
-                : t.notePlaceholder
-            }
-            aria-label={`${t.noteLabel}: ${criterionTitleOverrides[c.code] ?? c.title}`}
-            onChange={(event) =>
-              setDrafts((state) => ({
-                ...state,
-                [c.code]: {
-                  result: (state[c.code]?.result ??
-                    (c.result === 'PENDING' ? 'PASS' : c.result)) as Answer,
-                  note: event.target.value,
-                },
-              }))
-            }
-          />
-        ) : null}
-        {draft ? (
-          <Button
-            type="button"
-            size="sm"
-            disabled={
-              savingCode === c.code ||
-              (draft.result === 'FAIL' && !draft.note.trim())
-            }
-            onClick={() => void save(c.code, draft.result, draft.note)}
-          >
-            {t.save}
-          </Button>
+          <div className="odm-or-readiness-note-row">
+            <input
+              className="odm-or-readiness-note"
+              value={note}
+              disabled={!editable}
+              placeholder={
+                needsNote
+                  ? (failNotePlaceholders[c.code] ?? t.failReasonPlaceholder)
+                  : t.notePlaceholder
+              }
+              aria-label={`${t.noteLabel}: ${criterionTitleOverrides[c.code] ?? c.title}`}
+              onChange={(event) =>
+                setDrafts((state) => ({
+                  ...state,
+                  [c.code]: {
+                    result: (state[c.code]?.result ??
+                      (c.result === 'PENDING' ? 'PASS' : c.result)) as Answer,
+                    note: event.target.value,
+                  },
+                }))
+              }
+            />
+            {draft ? (
+              <Button
+                type="button"
+                size="sm"
+                disabled={
+                  savingCode === c.code ||
+                  (draft.result === 'FAIL' && !draft.note.trim())
+                }
+                onClick={() => void save(c.code, draft.result, draft.note)}
+              >
+                {t.save}
+              </Button>
+            ) : null}
+          </div>
         ) : null}
       </div>
       <div

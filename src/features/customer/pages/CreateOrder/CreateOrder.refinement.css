@@ -124,86 +124,6 @@
   }
 }
 
-.co-schedule-options {
-  overflow: hidden;
-  border: 1px solid var(--ui-border);
-  border-radius: 12px;
-  background: var(--ui-surface);
-}
-
-.co-schedule-options-toggle {
-  display: flex;
-  width: 100%;
-  min-height: 64px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 12px 18px;
-  border: 0;
-  background: transparent;
-  color: var(--ui-text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.co-schedule-options-toggle:hover {
-  background: var(--ui-surface-2);
-}
-
-.co-schedule-options-toggle > span:first-child {
-  display: grid;
-  gap: 3px;
-}
-
-.co-schedule-options-toggle strong {
-  font-size: 14px;
-}
-
-.co-schedule-options-toggle small {
-  color: var(--ui-text-3);
-  font-size: 12px;
-  line-height: 1.4;
-}
-
-.co-schedule-options-chevron {
-  display: grid;
-  width: 30px;
-  height: 30px;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 1px solid var(--ui-border);
-  border-radius: 50%;
-  color: var(--ui-primary-text);
-  font-size: 19px;
-  line-height: 1;
-}
-
-.co-schedule-options-panel[hidden] {
-  display: none;
-}
-
-.co-schedule-options-panel {
-  padding: 0 12px 12px;
-  border-top: 1px solid var(--ui-border);
-}
-
-.co-schedule-options-panel > .ant-card {
-  height: auto;
-  min-height: 0;
-  max-height: none;
-  border: 0;
-  box-shadow: none; /* taste-skill-ignore: remove nested card elevation */
-}
-
-.co-schedule-options-panel > .ant-card .ant-card-body {
-  height: auto;
-  min-height: 0;
-  max-height: none;
-  overflow: visible;
-}
-
 .co-review-groups {
   display: grid;
   gap: 4px;
@@ -314,16 +234,10 @@
     display: none;
   }
 
-  .co-schedule-options-toggle {
-    min-height: 60px;
-    padding-inline: 14px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .co-action-dock,
-  .co-schedule-options-toggle,
-  .co-schedule-options-chevron {
+  .co-action-dock {
     scroll-behavior: auto;
     transition-duration: 0.01ms !important;
   }

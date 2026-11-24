@@ -1,7 +1,7 @@
 /* Step 4: keep the operational details and authorization visible together. */
 .co-site-details-step {
   display: grid;
-  grid-template-columns: minmax(0, 1.03fr) minmax(0, 0.97fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
   gap: 16px;
   min-width: 0;
@@ -17,6 +17,10 @@
   display: flex;
   min-height: 0;
   flex-direction: column;
+}
+
+.co-site-details-step > .mgr-card {
+  container-type: inline-size;
 }
 
 .co-site-details-step > .co-site-authorization-card > .ant-card-body {
@@ -76,6 +80,35 @@
   box-sizing: border-box;
   padding: 9px 10px;
   line-height: 1.35;
+  width: 100%;
+  margin-inline-end: 0;
+  align-items: center;
+}
+
+.co-site-details-step .co-authz-relationships .ant-radio {
+  flex: 0 0 auto;
+}
+
+.co-site-details-step .co-authz-relationships .ant-radio-wrapper > span:last-child {
+  min-width: 0;
+  padding-inline: 4px 0;
+  overflow-wrap: break-word;
+}
+
+/* Adapt to the card width inside the assistant, not the browser width. */
+@container (max-width: 410px) {
+  .co-site-details-step .co-authz-relationships {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .co-site-details-step .co-authz-docs-head {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .co-site-details-step .co-two {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .co-site-details-step .co-authz-docs-head {

@@ -378,7 +378,7 @@ describe('validateStep', () => {
     )
   })
 
-  it('step 5 checks the result deadline and recurrence count', () => {
+  it('step 5 ignores removed advanced schedule choices', () => {
     const base = {
       ...withService,
       address: 'A',
@@ -388,30 +388,15 @@ describe('validateStep', () => {
     }
     expect(validateStep(5, base, okLocation, msg)).toEqual({})
     expect(
-      validateStep(
-        5,
-        { ...base, resultDeadline: todayPlus(8) },
-        okLocation,
-        msg,
-      ).resultDeadline,
-    ).toBe('deadline')
-    expect(
-      validateStep(
-        5,
-        { ...base, resultDeadline: todayPlus(9) },
-        okLocation,
-        msg,
-      ).resultDeadline,
-    ).toBeUndefined()
+      validateStep(5, { ...base, resultDeadline: todayPlus(8) }, okLocation, msg),
+    ).toEqual({})
     const weekly = { ...base, recurrenceType: 'WEEKLY' as const }
     expect(
       validateStep(5, { ...weekly, recurrenceOccurrences: 1 }, okLocation, msg)
-        .recurrenceOccurrences,
-    ).toBe('occurrences')
+    ).toEqual({})
     expect(
       validateStep(5, { ...weekly, recurrenceOccurrences: 53 }, okLocation, msg)
-        .recurrenceOccurrences,
-    ).toBe('occurrences')
+    ).toEqual({})
     expect(
       validateStep(5, { ...weekly, recurrenceOccurrences: 4 }, okLocation, msg)
         .recurrenceOccurrences,

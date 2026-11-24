@@ -39,8 +39,7 @@ export const orderMissionPlanningSectionMessages = defineMessages({
     closeFormLabel: 'Đóng form',
     createDialogAria: 'Tạo nhiệm vụ trong đơn hàng',
     createHeading: 'Tạo nhiệm vụ mới',
-    createSubtitle:
-      'Đặt tên dễ nhận biết, sau đó kiểm tra thời tiết và chọn lịch bay.',
+    createSubtitle: 'Nhập tên, chọn lịch bay và danh sách công việc.',
     closeCreateAria: 'Đóng form tạo nhiệm vụ',
     replaceCloseTitle: 'Đóng form tạo nhiệm vụ thay thế?',
     replaceDialogAria: (code: string) => `Tạo nhiệm vụ thay thế cho ${code}`,
@@ -97,8 +96,7 @@ export const orderMissionPlanningSectionMessages = defineMessages({
     closeFormLabel: 'Close form',
     createDialogAria: 'Create a mission for this order',
     createHeading: 'Create new mission',
-    createSubtitle:
-      'Give it a recognizable name, then check the weather and pick a flight schedule.',
+    createSubtitle: 'Set the name, flight schedule, and tasks.',
     closeCreateAria: 'Close mission creation form',
     replaceCloseTitle: 'Close the replacement mission form?',
     replaceDialogAria: (code: string) =>

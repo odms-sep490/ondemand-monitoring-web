@@ -79,6 +79,8 @@ export type OrderDetail = {
   id: string
   code: string
   status: OrderStatus
+  cancellationReason?: string | null
+  cancellationNote?: string | null
   customer: OrderCustomerContact
   serviceName: string
   /** Optional: only present if the order API supplies the service description. */

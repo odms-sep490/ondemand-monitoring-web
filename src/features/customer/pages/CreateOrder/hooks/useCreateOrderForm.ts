@@ -29,7 +29,9 @@ export function useCreateOrderForm(stored: StoredCreateOrderDraft | null) {
 
   const update = useCallback(
     <K extends keyof FormState>(key: K, value: FormState[K]) => {
-      setForm((current) => ({ ...current, [key]: value }))
+      setForm((current) => {
+        return { ...current, [key]: value }
+      })
       setErrors((current) => ({ ...current, [key]: undefined }))
       setSubmitError(null)
     },
@@ -50,3 +52,4 @@ export function useCreateOrderForm(stored: StoredCreateOrderDraft | null) {
     update,
   }
 }
+

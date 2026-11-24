@@ -1486,3 +1486,115 @@
   padding: 5px 10px;
   font-size: 12px;
 }
+
+
+/* ── Balanced alignment for Pricing Review table, progress bar, and side-by-side panels ── */
+:root .mgr-layout .mgr-or .finance-workspace {
+  align-items: stretch;
+}
+
+:root .mgr-layout .mgr-or .finance-workspace .finance-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+:root .mgr-layout .mgr-or .finance-workspace .finance-review-progress {
+  flex: 0 1 auto;
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+:root .mgr-layout .mgr-or .finance-workspace .finance-progress-track {
+  flex: 0 0 120px;
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  height: 6px;
+}
+
+:root .mgr-layout .mgr-or .finance-workspace .finance-review-progress.is-complete .finance-progress-track span {
+  background: #10b981;
+}
+
+@container (min-width: 761px) {
+  :root .mgr-layout .mgr-or .finance-workspace .finance-table-head,
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) {
+    grid-template-columns: 44px minmax(0, 1fr) 116px 176px 96px 60px;
+    gap: 8px 12px;
+    padding-inline: 14px;
+    align-items: center;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-table-head > span:first-child {
+    text-align: center;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-table-head > span:nth-child(4) {
+    text-align: right;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-table-head > span:nth-child(5),
+  :root .mgr-layout .mgr-or .finance-workspace .finance-table-head > span:nth-child(6) {
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-index {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    margin-top: 0;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-requirement-main {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-zero {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: start;
+    padding: 4px 10px;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-item-price {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
+    padding-top: 0;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-chevron {
+    grid-column: 6;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  :root .mgr-layout .mgr-or .finance-workspace .finance-requirement:has(> .finance-zero) > .finance-requirement-guidance {
+    grid-column: 2 / -1;
+    grid-row: 2;
+    margin-top: 6px;
+  }
+}
+
+:root .mgr-layout .mgr-or .odm-or-review-top .mgr-title-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+:root .mgr-layout .mgr-or .odm-or-order-page-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}

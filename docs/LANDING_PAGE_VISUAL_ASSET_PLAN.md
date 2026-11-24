@@ -1,0 +1,13 @@
+# OnDemand Monitor — Visual Asset Plan
+
+| ASSET_ID | SECTION | BUSINESS_PURPOSE | SUBJECT | ASPECT_RATIO | ANIMATION_PLAN | SOURCE / GENERATION METHOD | VERIFICATION_STATUS |
+|---|---|---|---|---|---|---|---|
+| `HERO_VIDEO_DESKTOP` | Hero (Desktop) | Communicate enterprise drone operations immediately | Industrial drone mission flight | 16:9 | Scroll-linked parallax + offscreen auto-pause | Existing project video (`/assets/cinematic-drone/living-mission-industrial-v5.mp4` + poster) | VERIFIED EXISTING |
+| `HERO_VIDEO_MOBILE` | Hero (Mobile) | Fast mobile hero with dedicated framing | Mobile-cropped industrial drone flight | 9:16 / mobile | Poster fallback under reduced motion | Existing project video (`/assets/cinematic-drone/living-mission-mobile-industrial-v5.mp4`) | VERIFIED EXISTING |
+| `SVC_FACTORY` | Service Explorer 01 | Show Kiểm tra nhà xưởng context | Quadcopter inspecting modern factory roof & rooftop solar | 16:9 | Cross-fade + subtle depth push-in | Generated via `image-generator` → `/assets/landing/services/factory-inspection.jpg` | VERIFIED GENERATED |
+| `SVC_AREA` | Service Explorer 02 | Show Giám sát khu vực context | Wide infrastructure overview | 16:9 | Cross-fade + subtle depth push-in | Reused verified project asset (`/images/landing/bridge-inspection.webp`) — image model quota reached | VERIFIED REUSED |
+| `SVC_FOREST` | Service Explorer 03 | Show Giám sát rừng context | Survey drone over lush Vietnamese highland forest canopy | 16:9 | Cross-fade + subtle depth push-in | Generated via `image-generator` → `/assets/landing/services/forest-monitoring.jpg` | VERIFIED GENERATED |
+| `SVC_CONSTRUCTION` | Service Explorer 04 | Show Giám sát công trình context | Active construction site aerial view | 16:9 | Cross-fade + subtle depth push-in | Reused verified project asset (`/images/landing/construction-1280.webp`) — image model quota reached | VERIFIED REUSED |
+| `WORKFLOW_VISUAL` | Workflow (`#about`) | Illustrate checklist-linked aerial verification | Wind farm aerial inspection with reticle framing | 16:9 | Reticle framing + viewport reveal | Existing project asset (`/images/landing/wind-farm.webp`) | VERIFIED EXISTING |
+| `AI_MASCOT` | AI Consultant | Introduce real AI request assistant | Approved white-and-blue glossy robot mascot | 1:1 | `AIAnimatedMascot` idle/welcome hover reaction | Existing project asset (`/assets/ai/ondemand-ai-mascot.webp`) | VERIFIED EXISTING |
+| `FINAL_CTA_BG` | Final CTA | Visual callback to Hero drone at twilight | Dusk quadcopter in right third with deep-navy negative space left | 16:9 | Full-bleed twilight backdrop + directional scrim | Generated via `image-generator` → `/assets/landing/backgrounds/final-cta-drone.jpg` | VERIFIED GENERATED |

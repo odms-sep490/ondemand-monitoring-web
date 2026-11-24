@@ -1,3 +1,4 @@
+import type { CustomerQuoteSelection } from '../../../../../shared/api/checklistPricingApi'
 import { FormOutlined } from '@ant-design/icons'
 import { InnerCollapse } from '../../../components/common/InnerCollapse'
 import { Card, FormField } from '../../../components/common/ui'
@@ -21,6 +22,7 @@ const FLIGHT_PURPOSE_OPTIONS = [
   'OTHER',
 ] as const satisfies readonly FlightPurpose[]
 type Props = {
+  selection?: CustomerQuoteSelection | null
   form: FormState
   errors: FormErrors
   update: UpdateField
@@ -110,3 +112,5 @@ export function RequestInfoPanel({ form, errors, update }: Props) {
     </Card>
   )
 }
+
+

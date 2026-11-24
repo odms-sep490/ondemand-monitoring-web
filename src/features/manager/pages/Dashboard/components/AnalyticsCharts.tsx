@@ -4,9 +4,11 @@ import { useState } from 'react'
 
 import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
+import { managerHref } from '../../../routes'
 import type { ManagerDashboardData } from '../../../types/dashboard'
 import { dashboardPageMessages } from '../DashboardPage.messages'
 import { statusLabel } from '../dashboardHelpers'
+import { DashboardEmptyState } from './DashboardEmptyState'
 import { BarChartCard } from './charts/BarChartCard'
 import { DonutChart } from './charts/DonutChart'
 import { RadarStatusChart } from './charts/RadarStatusChart'
@@ -17,6 +19,7 @@ function getOrderStatusPoints(
   labels: (typeof dashboardPageMessages)['vi']['analytics'],
 ) {
   return data.orderStatusDistribution.map((point) => ({
+    key: point.key,
     label: labels.statusLabels[point.key] ?? statusLabel(point.key),
     value: point.count,
   }))
@@ -29,9 +32,10 @@ export function OrderStatusCard({
   data: ManagerDashboardData
   available: boolean
 }) {
-  const { t } = useI18n(dashboardPageMessages)
+  const { t, locale } = useI18n(dashboardPageMessages)
   const analytics = t.analytics
   const points = getOrderStatusPoints(data, analytics)
+  const vi = locale.startsWith('vi')
 
   return (
     <CardComponent
@@ -39,14 +43,20 @@ export function OrderStatusCard({
       title={analytics.orderStatusTitle}
     >
       {!available ? (
-        <p className="mgr-chart-empty" role="status">
-          {analytics.unavailable}
-        </p>
+        <DashboardEmptyState
+          variant="NO_DATA"
+          title={analytics.unavailable}
+          className="mgr-chart-empty"
+        />
       ) : (
         <DonutChart
           points={points}
+          centerCaption={vi ? 'đơn hàng' : 'orders'}
           empty={analytics.orderStatusEmpty}
           ariaLabel={analytics.totalAria}
+          onSelect={() => {
+            window.location.hash = managerHref({ screen: 'orderQueue' })
+          }}
         />
       )}
     </CardComponent>
@@ -100,13 +110,32 @@ export function MissionTrendCard({
       }
     >
       {!available ? (
-        <p className="mgr-chart-empty" role="status">
-          {analytics.unavailable}
-        </p>
+        <DashboardEmptyState
+          variant="NO_DATA"
+          title={analytics.unavailable}
+          className="mgr-chart-empty"
+        />
       ) : points.length === 0 ? (
-        <p className="mgr-chart-empty" role="status">
-          {analytics.trendEmpty}
-        </p>
+        <DashboardEmptyState
+          variant={dateRange ? 'NO_DATA_FOR_FILTER' : 'NO_DATA'}
+          title={
+            dateRange
+              ? vi
+                ? 'Không có nhiệm vụ trong khoảng ngày đã chọn.'
+                : 'No missions in the selected date range.'
+              : analytics.trendEmpty
+          }
+          description={
+            vi
+              ? 'Thay đổi bộ lọc thời gian phía trên (7 / 30 / 90 ngày) để xem các kỳ có dữ liệu.'
+              : 'Adjust the period filter above (7 / 30 / 90 days) to inspect periods with recorded missions.'
+          }
+          actionLabel={
+            dateRange ? (vi ? 'Xóa lọc ngày' : 'Clear date filter') : undefined
+          }
+          onAction={dateRange ? () => setDateRange(null) : undefined}
+          className="mgr-chart-empty"
+        />
       ) : (
         <StackedBarChart
           data={points}
@@ -114,12 +143,12 @@ export function MissionTrendCard({
             {
               key: 'completed',
               label: analytics.trendCompleted,
-              color: '#1565e8',
+              color: '#10B981',
             },
             {
               key: 'failed',
               label: analytics.trendFailed,
-              color: '#94a3b8',
+              color: '#EF4444',
             },
           ]}
           empty={analytics.trendEmpty}
@@ -147,11 +176,13 @@ export function AnalyticsCharts({
   const orderStatusPoints = getOrderStatusPoints(data, c)
   const additionalServicePoints = data.additionalServiceDistribution.map(
     (p) => ({
+      key: p.key,
       label: c.statusLabels[p.key] ?? statusLabel(p.key),
       value: p.count,
     }),
   )
   const missionStatusPoints = data.missionStatusDistribution.map((p) => ({
+    key: p.key,
     label: c.statusLabels[p.key] ?? statusLabel(p.key),
     value: p.count,
   }))

@@ -37,7 +37,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npm run dev -- --port ${PORT} --strictPort`,
+    // Invoke Vite directly: `npm run dev -- --port …` is parsed by npm on
+    // Windows as a positional Vite root, so Playwright serves the wrong path.
+    command: `node ./node_modules/vite/bin/vite.js --port ${PORT} --strictPort`,
     url: ORIGIN,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

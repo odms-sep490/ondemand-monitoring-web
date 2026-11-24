@@ -12,7 +12,6 @@ import type {
 } from '../../../lib/createOrder/types'
 import { localizeTimeslot } from '../../../lib/i18n/timeslots'
 import { ScheduleCard } from './ScheduleCard'
-import { ScheduleOptionsCard } from './ScheduleOptionsCard'
 import { scheduleStepMessages } from './ScheduleStep.messages'
 import './ScheduleStep.css'
 
@@ -23,6 +22,7 @@ type Props = {
   preferredTimes: PreferredTimeOption[]
   service?: ServiceOption
   time?: PreferredTimeOption
+  assistantMode?: boolean
 }
 
 /** `2026-10-07` → `07/10/2026` for Vietnamese; other values pass through. */
@@ -42,7 +42,7 @@ function inclusiveDays(from: string, to: string) {
   return Math.round((end - start) / 86_400_000) + 1
 }
 
-/** Step 5: preferred dates and time window, with a compact schedule context on the side. */
+/** Step 5: preferred dates and time window; assistant mode shows only the editable schedule card. */
 export function ScheduleStep(p: Props) {
   const { t, lang } = useI18n(scheduleStepMessages)
   const { form } = p
@@ -55,6 +55,19 @@ export function ScheduleStep(p: Props) {
       : from
   const days = inclusiveDays(form.preferredDateFrom, form.preferredDateTo)
 
+  if (p.assistantMode) {
+    return (
+      <div className="co-schedule-form">
+        <ScheduleCard
+          form={form}
+          errors={p.errors}
+          update={p.update}
+          preferredTimes={p.preferredTimes}
+        />
+      </div>
+    )
+  }
+
   return (
     <>
       <div className="co-schedule-layout">
@@ -64,10 +77,6 @@ export function ScheduleStep(p: Props) {
             errors={p.errors}
             update={p.update}
             preferredTimes={p.preferredTimes}
-          />
-          <ScheduleOptionsCard
-            form={form}
-            update={p.update}
           />
         </div>
         <aside className="co-schedule-summary">
@@ -82,10 +91,6 @@ export function ScheduleStep(p: Props) {
             <div className={`co-schedule-time${p.time ? '' : ' is-pending'}`}>
               <ClockCircleOutlined aria-hidden="true" />
               <div><span>{t.timeWindow}</span><strong>{p.time ? localizeTimeslot(p.time, lang) : t.notSelected}</strong></div>
-            </div>
-            <div className="co-schedule-next">
-              <strong>{lang === 'vi' ? 'Lịch bay được xác nhận thế nào?' : 'How is the schedule confirmed?'}</strong>
-              <ol><li>{lang === 'vi' ? 'Bạn chọn ngày và khung giờ phù hợp.' : 'Choose your preferred dates and time.'}</li><li>{lang === 'vi' ? 'Đội vận hành kiểm tra và sắp xếp lịch.' : 'Our operations team reviews availability.'}</li><li>{lang === 'vi' ? 'Bạn nhận thông báo khi lịch được xác nhận.' : 'Receive a notification once confirmed.'}</li></ol>
             </div>
           </Card>
         </aside>

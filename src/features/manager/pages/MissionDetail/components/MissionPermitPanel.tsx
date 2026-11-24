@@ -1,3 +1,4 @@
+import { FlightPurposeDraftReview } from '../../../../contract/FlightPurposeDraftReview'
 import { FlightPermitCard } from '../../../components/common/FlightPermitCard'
 import { ordersApi } from '../../../api/ordersApi'
 import { financeApi } from '../../../../finance/api'
@@ -24,6 +25,7 @@ export function MissionPermitPanel({ mission, onUpdated }: { mission: MissionRes
   const permitReadOnly = ['PLANNING', 'COMPLETED', 'FAILED', 'CANCELLED'].includes(mission.status)
   return (
     <section className="mgr-mission-plan" aria-label={t.tabs.permit}>
+      <FlightPurposeDraftReview missionId={mission.id} />
       <FlightPermitCard
         key={mission.id}
         showResources={false}

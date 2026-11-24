@@ -17,6 +17,8 @@ export default defineConfig({
     },
   },
   test: {
+    // Keep jsdom/Ant Design workers within a local 16 GB machine's memory.
+    maxWorkers: 2,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     // antd/leaflet-heavy page tests routinely pass in ~1s alone but exceed the

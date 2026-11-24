@@ -35,6 +35,10 @@ export type CreateOrderPayload = {
   siteContactName?: string
   siteContactPhone?: string
   accessNotes?: string
+  permitStatus?: 'NONE' | 'HAVE_PERMIT' | 'NEED_SUPPORT'
+  permitNumber?: string
+  permitExpiresOn?: string
+  permitDocuments?: import('../lib/createOrder/types').CustomerOrderAttachment[]
   monitoringRelationship?: string
   monitoringAuthorizationConfirmed?: boolean
   monitoringAuthorizationDocuments?: Array<{
@@ -360,3 +364,4 @@ export const customerApi = {
 
 
 }
+

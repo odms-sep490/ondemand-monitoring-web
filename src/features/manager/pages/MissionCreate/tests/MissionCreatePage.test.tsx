@@ -518,9 +518,7 @@ describe('CreateMissionPage', () => {
       ).toBeInTheDocument(),
     )
     expect(screen.getByText('Customer requested window')).toBeTruthy()
-    expect(
-      screen.getByText('Actual flight schedule selected by staff'),
-    ).toBeTruthy()
+    expect(screen.getByText('Flight schedule')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Create mission' })).toBeTruthy()
   })
 })

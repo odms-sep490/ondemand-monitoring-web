@@ -32,10 +32,13 @@ export function notificationHref(
             : '')
       )
     if (role === 'MANAGER' || role === 'ADMIN')
-      return managerHref({
-        screen: 'orderReview',
-        orderId: notification.entityId,
-      })
+      return (
+        managerHref({
+          screen: 'orderReview',
+          orderId: notification.entityId,
+        }) +
+        (notification.type === 'ORDER_INFORMATION_SUBMITTED' ? '?step=1' : '')
+      )
     return notificationsHref(role)
   }
 

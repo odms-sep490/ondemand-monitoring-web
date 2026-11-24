@@ -29,11 +29,11 @@ export function useSubmitOrder({
   const [createdCode, setCreatedCode] = useState<string | null>(null)
   const inFlight = useRef(false)
 
-  async function submit() {
-    if (inFlight.current || createdId) return
+  async function submit(): Promise<boolean> {
+    if (inFlight.current || createdId) return false
     if (!validate()) {
       setConfirmOpen(false)
-      return
+      return false
     }
     setSubmitting(true)
     inFlight.current = true
@@ -44,16 +44,18 @@ export function useSubmitOrder({
       setConfirmOpen(false)
       setCreatedId(result.id)
       setCreatedCode(displayOrderCode(result.orderCode, result.id))
+      return true
     } catch (error: unknown) {
       if (onValidationError?.(error)) {
         setConfirmOpen(false)
-        return
+        return false
       }
       if (isStaleChecklist(error)) {
         onTemplateChanged?.()
         setConfirmOpen(false)
       }
       onError(checklistError(error))
+      return false
     } finally {
       setSubmitting(false)
       inFlight.current = false
