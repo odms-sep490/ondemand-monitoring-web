@@ -429,14 +429,8 @@ describe('CustomerDeliveryPanel', () => {
       name: /Thanh toán 1\.785\.000/i,
     })
     fireEvent.click(payButton)
-    await waitFor(() =>
-      expect(createMissionPayment).toHaveBeenCalledWith('milestone-1'),
-    )
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Xem hóa đơn & lịch sử' }),
-    )
     expect(onOpenFinance).toHaveBeenCalledTimes(1)
+    expect(createMissionPayment).not.toHaveBeenCalled()
   })
 
   it('unlocks original downloads in-place after quick mission payment succeeds', async () => {

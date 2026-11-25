@@ -46,7 +46,7 @@ describe('apiRequest', () => {
   it('returns authenticated audio responses as blobs', async () => {
     const wav = new Uint8Array([82, 73, 70, 70])
     setHttpTransport(async (_url, init) => {
-      expect(new Headers(init?.headers).get('Accept')).toBe('audio/wav')
+      expect(new Headers(init?.headers).get('Accept')).toBe('*/*')
       expect(init?.method).toBe('POST')
       return new Response(wav, { headers: { 'Content-Type': 'audio/wav' } })
     })

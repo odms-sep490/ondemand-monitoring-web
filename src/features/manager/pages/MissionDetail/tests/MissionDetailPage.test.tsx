@@ -10,6 +10,14 @@ import type {
 } from '../../../types/missions'
 import type { OrderDetail } from '../../../types/orders'
 
+vi.mock('../../../../inspection-report/ReportStudio', () => ({
+  ReportStudio: ({ missionId }: { missionId: string }) => (
+    <div data-testid="mission-report-studio">
+      Báo cáo nhiệm vụ {missionId}
+      <input aria-label="Nội dung báo cáo thử" defaultValue="Bản nháp" />
+    </div>
+  ),
+}))
 vi.mock('../../../../media/components/MissionUploadedMedia', () => ({
   MissionUploadedMedia: () => <div>Thư viện media riêng</div>,
 }))
@@ -158,6 +166,26 @@ afterEach(() => {
   window.history.replaceState(null, '', window.location.pathname)
 })
 describe('Manager Mission Detail monitoring review', () => {
+  it('opens the report tab lazily and preserves work when switching tabs', async () => {
+    render(<MissionDetailPage missionId="m" />)
+    const reports = await screen.findByRole('tab', { name: 'Báo cáo giám sát' })
+    expect(screen.queryByTestId('mission-report-studio')).not.toBeInTheDocument()
+    fireEvent.click(reports)
+    expect(reports).toHaveAttribute('aria-selected', 'true')
+    expect(window.location.hash).toContain('tab=reports')
+    expect(screen.getByTestId('mission-report-studio')).toHaveTextContent('Báo cáo nhiệm vụ m')
+    fireEvent.change(screen.getByLabelText('Nội dung báo cáo thử'), { target: { value: 'Đang sửa báo cáo' } })
+    fireEvent.click(screen.getByRole('tab', { name: 'Kết quả nhiệm vụ' }))
+    fireEvent.click(reports)
+    expect(screen.getByLabelText('Nội dung báo cáo thử')).toHaveValue('Đang sửa báo cáo')
+  })
+  it('restores the reports tab from a shared link', async () => {
+    window.history.replaceState(null, '', '#portal/manager/missions/m?tab=reports')
+    render(<MissionDetailPage missionId="m" />)
+    expect(await screen.findByTestId('mission-report-studio')).toHaveTextContent('Báo cáo nhiệm vụ m')
+    expect(screen.getByRole('tab', { name: 'Báo cáo giám sát' })).toHaveAttribute('aria-selected', 'true')
+  })
+
   it.each([undefined, false, true])(
     'routes approved inspectorConfirmed=%s to the correct publication mode',
     async (inspectorConfirmed) => {
@@ -232,7 +260,7 @@ describe('Manager Mission Detail monitoring review', () => {
     )
     render(<MissionDetailPage missionId="m" />)
     expect(
-      await screen.findByRole('tab', { name: 'Thông tin nguồn lực' }),
+      await screen.findByRole('tab', { name: 'Kế hoạch' }),
     ).toHaveAttribute('aria-selected', 'true')
     expect(missionsApi.getMissionMedia).not.toHaveBeenCalled()
 
@@ -284,7 +312,7 @@ describe('Manager Mission Detail monitoring review', () => {
     render(<MissionDetailPage missionId="m" />)
 
     fireEvent.click(
-      await screen.findByRole('tab', { name: 'Vị trí & tuyến kế hoạch' }),
+      await screen.findByRole('tab', { name: 'Vị trí' }),
     )
     expect(
       screen.getByRole('application', {
@@ -306,7 +334,7 @@ describe('Manager Mission Detail monitoring review', () => {
     })
     const { container } = render(<MissionDetailPage missionId="m" />)
     fireEvent.click(
-      await screen.findByRole('tab', { name: 'Vị trí & tuyến kế hoạch' }),
+      await screen.findByRole('tab', { name: 'Vị trí' }),
     )
 
     expect(screen.getByText('Chưa có tọa độ nhiệm vụ')).toBeInTheDocument()
