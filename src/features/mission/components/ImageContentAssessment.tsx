@@ -20,6 +20,8 @@ const messages = {
       'The selected image preview is sent to the configured AI provider. The result is advisory. Review the image and make your own assessment.',
     error:
       'Could not assess this image. You can still select evidence manually.',
+    providerUnavailable:
+      'AI image assessment is temporarily unavailable. Try again later or select evidence manually.',
     rateLimited: 'Too many assessment requests. Try again later.',
     stale:
       'The assessment no longer matches this suggestion. Get new image suggestions before trying again.',
@@ -38,6 +40,8 @@ const messages = {
     advisory:
       'Bản xem trước của ảnh đã chọn sẽ được gửi đến nhà cung cấp AI đã cấu hình. Kết quả chỉ để tham khảo. Hãy xem ảnh và tự đưa ra đánh giá.',
     error: 'Không thể đánh giá ảnh này. Bạn vẫn có thể tự chọn bằng chứng.',
+    providerUnavailable:
+      'AI đánh giá ảnh hiện không khả dụng. Hãy thử lại sau hoặc tự chọn bằng chứng.',
     rateLimited: 'Có quá nhiều yêu cầu đánh giá. Hãy thử lại sau.',
     stale:
       'Đánh giá không còn khớp với gợi ý hiện tại. Hãy lấy gợi ý ảnh mới trước khi thử lại.',
@@ -141,7 +145,12 @@ function AssessmentForm({
   const [imageId, setImageId] = useState('')
   const [result, setResult] = useState<ContentAssessment | null>(null)
   const [error, setError] = useState<
-    'error' | 'stale' | 'previewNotReady' | 'rateLimited' | null
+    | 'error'
+    | 'stale'
+    | 'previewNotReady'
+    | 'rateLimited'
+    | 'providerUnavailable'
+    | null
   >(null)
   const selectedImage = images.find(({ evidenceId }) => evidenceId === imageId)
   const locked = busy || disabled || error === 'stale'
@@ -169,6 +178,8 @@ function AssessmentForm({
       if (code === 'CONCURRENT_UPDATE') setError('stale')
       else if (code === 'MEDIA_DERIVATIVE_UNAVAILABLE')
         setError('previewNotReady')
+      else if (code === 'AI_PROVIDER_UNAVAILABLE')
+        setError('providerUnavailable')
       else if (cause instanceof ApiError && cause.status === 429)
         setError('rateLimited')
       else setError('error')
