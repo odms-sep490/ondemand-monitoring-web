@@ -62,21 +62,22 @@ export function ChecklistConfigModal({
           </button>
         </div>
       )}
-      {showHistory && checklistId ? (
+      {showHistory && checklistId && (
         <ChecklistHistoryPanel checklistId={checklistId} />
-      ) : checklist || creating ? (
-        <ChecklistConfigForm
-          key={checklist?.id ?? 'new'}
-          row={checklist}
-          service={service}
-          close={close}
-          saved={saved}
-        />
-      ) : (
-        service && (
-          <ServiceFormLoader service={service} close={close} saved={saved} />
-        )
       )}
+      <div hidden={showHistory}>
+        {checklist || creating ? (
+          <ChecklistConfigForm
+            key={checklist?.id ?? 'new'}
+            row={checklist}
+            service={service}
+            close={close}
+            saved={saved}
+          />
+        ) : service ? (
+          <ServiceFormLoader service={service} close={close} saved={saved} />
+        ) : null}
+      </div>
     </Modal>
   )
 }

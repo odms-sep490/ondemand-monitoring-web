@@ -17,6 +17,7 @@ export type ChecklistDefinition = {
   executionSteps?: string[] | null
   inputRequirements?: string[] | null
   expectedOutputs?: string[] | null
+  imageAssessmentCriteria?: string[] | null
   isActive: boolean
   /** How many services include this checklist; editing its content changes all of them. */
   usedByServiceCount?: number
@@ -36,6 +37,8 @@ export type ChecklistGuidanceInput = {
   executionSteps?: string[]
   inputRequirements?: string[]
   expectedOutputs?: string[]
+  /** Omit on update to preserve the criteria; send [] to disable assessment. */
+  imageAssessmentCriteria?: string[]
 }
 /** Evidence requirements sent with create/edit; Base Checklist prices are managed separately. */
 export type ChecklistEvidenceInput = {

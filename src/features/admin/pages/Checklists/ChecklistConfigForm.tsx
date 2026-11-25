@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { FormField } from '../../../../shared/components/ui'
@@ -51,6 +51,9 @@ type EvidenceRow = {
   step: number
 }
 
+const MAX_IMAGE_CRITERIA = 8
+const MAX_IMAGE_CRITERION_LENGTH = 300
+
 /**
  * The checklist editor manages its work description and evidence requirements. Base price settings live in the
  * Operating Config pricing tab; service templates can only vary evidence allowances and whether the item is required.
@@ -83,6 +86,10 @@ export function ChecklistConfigForm({
   const [evidence, setEvidence] = useState<ChecklistEvidenceForm>(
     evidenceToForm(row ?? {}),
   )
+  const [criteria, setCriteria] = useState(() =>
+    (row?.imageAssessmentCriteria ?? []).map((value, id) => ({ id, value })),
+  )
+  const nextCriterionId = useRef(criteria.length)
   const [overrides, setOverrides] = useState<OverrideForm>({
     images: link?.includedImageCountOverride?.toString() ?? '',
     videos: link?.includedVideoCountOverride?.toString() ?? '',
@@ -91,7 +98,9 @@ export function ChecklistConfigForm({
   // What the form looked like when it opened, to tell a shared change from a change for this service only.
   const [initialShared] = useState(() => JSON.stringify([content, evidence]))
   const [initialOverrides] = useState(() => JSON.stringify(overrides))
-  const [evidenceErrors, setEvidenceErrors] = useState<ChecklistEvidenceErrors>({})
+  const [evidenceErrors, setEvidenceErrors] = useState<ChecklistEvidenceErrors>(
+    {},
+  )
   const [acknowledged, setAcknowledged] = useState(false)
   const [page, setPage] = useState<'content' | 'evidence'>('content')
   const [busy, setBusy] = useState(false)
@@ -122,7 +131,30 @@ export function ChecklistConfigForm({
 
   const sharedBy = row?.usedByServiceCount ?? 0
   const shared = sharedBy > 1
-  const sharedDirty = JSON.stringify([content, evidence]) !== initialShared
+  const photoCapable = Number(evidence.includedImageCount) > 0
+  const lostPhotoAllowance = Boolean(
+    row && (row.includedImageCount ?? 0) > 0 && !photoCapable,
+  )
+  const becameVideoOnly = Boolean(
+    row &&
+    !photoCapable &&
+    Number(evidence.includedVideoCount) > 0 &&
+    (row.includedVideoCount ?? 0) === 0,
+  )
+  const savedCriteria = row?.imageAssessmentCriteria ?? []
+  const imageAssessmentCriteria = photoCapable
+    ? criteria.map(({ value }) => value.trim())
+    : []
+  const criteriaChanged =
+    lostPhotoAllowance ||
+    becameVideoOnly ||
+    (photoCapable &&
+      (imageAssessmentCriteria.length !== savedCriteria.length ||
+        imageAssessmentCriteria.some(
+          (value, index) => value !== savedCriteria[index],
+        )))
+  const sharedDirty =
+    JSON.stringify([content, evidence]) !== initialShared || criteriaChanged
   const overridesDirty = JSON.stringify(overrides) !== initialOverrides
   const needsAck = shared && sharedDirty && !acknowledged
 
@@ -142,6 +174,18 @@ export function ChecklistConfigForm({
       return null
     }
     setEvidenceErrors({})
+    if (
+      imageAssessmentCriteria.length > MAX_IMAGE_CRITERIA ||
+      imageAssessmentCriteria.some(
+        (value) => !value || value.length > MAX_IMAGE_CRITERION_LENGTH,
+      )
+    ) {
+      setPage('evidence')
+      setError(
+        t.imageCriteriaInvalid(MAX_IMAGE_CRITERIA, MAX_IMAGE_CRITERION_LENGTH),
+      )
+      return null
+    }
     const guidance = {
       description: content.description.trim(),
       executionSteps: toLines(content.steps),
@@ -182,8 +226,12 @@ export function ChecklistConfigForm({
       includedVideoCount: checked.value.includedVideoCount,
       ...(checked.value.standardVideoDurationSeconds == null
         ? {}
-        : { standardVideoDurationSeconds: checked.value.standardVideoDurationSeconds }),
+        : {
+            standardVideoDurationSeconds:
+              checked.value.standardVideoDurationSeconds,
+          }),
       ...guidance,
+      ...(criteriaChanged ? { imageAssessmentCriteria } : {}),
     }
     return { text, definition, override }
   }
@@ -200,16 +248,9 @@ export function ChecklistConfigForm({
     setBusy(true)
     try {
       if (!row) {
-        await checklistsApi.create(
-          data.text,
-          data.definition,
-        )
+        await checklistsApi.create(data.text, data.definition)
       } else if (!service || sharedDirty) {
-        await checklistsApi.update(
-          row.id,
-          data.text,
-          data.definition,
-        )
+        await checklistsApi.update(row.id, data.text, data.definition)
       }
       if (service && link && data.override && overridesDirty) {
         await checklistsApi.updateRequirements(service.id, link.checklistId, {
@@ -544,10 +585,86 @@ export function ChecklistConfigForm({
             inputMode="numeric"
             value={evidence.standardVideoDurationSeconds}
             onChange={(event) =>
-              setEvidence({ ...evidence, standardVideoDurationSeconds: event.target.value })
+              setEvidence({
+                ...evidence,
+                standardVideoDurationSeconds: event.target.value,
+              })
             }
           />
         </FormField>
+        <fieldset
+          className="checklist-section checklist-content-grid"
+          disabled={busy}
+        >
+          <legend>{t.imageCriteriaTitle}</legend>
+          {!photoCapable ? (
+            <p className="checklist-field-meta is-block">
+              {criteriaChanged
+                ? t.imageCriteriaCleared
+                : t.imageCriteriaDisabled}
+            </p>
+          ) : (
+            <>
+              <p className="checklist-field-meta is-block">
+                {t.imageCriteriaHint}
+              </p>
+              {criteria.map(({ id, value }, index) => (
+                <div key={id}>
+                  <FormField
+                    id={`checklist-image-criterion-${id}`}
+                    label={t.imageCriterionLabel(index + 1)}
+                  >
+                    <textarea
+                      id={`checklist-image-criterion-${id}`}
+                      className="odm-inp"
+                      rows={2}
+                      maxLength={MAX_IMAGE_CRITERION_LENGTH}
+                      value={value}
+                      onChange={(event) => {
+                        const value = event.target.value
+                        setCriteria((current) =>
+                          current.map((item) =>
+                            item.id === id ? { id, value } : item,
+                          ),
+                        )
+                      }}
+                    />
+                  </FormField>
+                  <div className="checklist-field-meta">
+                    <span>
+                      {value.length}/{MAX_IMAGE_CRITERION_LENGTH}
+                    </span>
+                    <button
+                      type="button"
+                      className="odm-btn odm-btn-gh odm-btn-sm"
+                      aria-label={t.imageCriterionRemove(index + 1)}
+                      onClick={() =>
+                        setCriteria((current) =>
+                          current.filter((item) => item.id !== id),
+                        )
+                      }
+                    >
+                      {t.imageCriteriaRemove}
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <div>
+                <button
+                  type="button"
+                  className="odm-btn odm-btn-sm"
+                  disabled={criteria.length >= MAX_IMAGE_CRITERIA}
+                  onClick={() => {
+                    const id = nextCriterionId.current++
+                    setCriteria((current) => [...current, { id, value: '' }])
+                  }}
+                >
+                  {t.imageCriteriaAdd}
+                </button>
+              </div>
+            </>
+          )}
+        </fieldset>
       </div>
 
       {error && (

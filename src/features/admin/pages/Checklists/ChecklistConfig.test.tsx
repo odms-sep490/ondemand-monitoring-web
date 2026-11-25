@@ -139,6 +139,95 @@ afterEach(() => {
   window.location.hash = ''
 })
 
+describe('AI image assessment criteria', () => {
+  async function openEditor() {
+    render(<ChecklistCatalogPage />)
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Sửa checklist' }),
+    )
+    fireEvent.click(screen.getByRole('tab', { name: 'Yêu cầu minh chứng' }))
+  }
+
+  async function saveSharedChecklist() {
+    fireEvent.click(
+      screen.getByLabelText('Tôi hiểu thay đổi này áp dụng cho 3 dịch vụ'),
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
+    await waitFor(() => expect(checklistsApi.update).toHaveBeenCalledTimes(1))
+    return vi.mocked(checklistsApi.update).mock.calls[0][2]
+  }
+
+  it('validates criteria, keeps the draft through history, and saves trimmed criteria in order', async () => {
+    await openEditor()
+    const add = screen.getByRole('button', { name: 'Thêm tiêu chí' })
+    fireEvent.click(add)
+    fireEvent.click(add)
+    fireEvent.change(screen.getByLabelText('Tiêu chí 1'), {
+      target: { value: '  Thấy toàn bộ mái  ' },
+    })
+    fireEvent.click(
+      screen.getByLabelText('Tôi hiểu thay đổi này áp dụng cho 3 dịch vụ'),
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Nhập tối đa 8 tiêu chí',
+    )
+    expect(checklistsApi.update).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Lịch sử thay đổi' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Quay lại cấu hình' }))
+    expect(screen.getByLabelText('Tiêu chí 1')).toHaveValue(
+      '  Thấy toàn bộ mái  ',
+    )
+    fireEvent.change(screen.getByLabelText('Tiêu chí 2'), {
+      target: { value: '  Mái không bị che khuất  ' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
+    await waitFor(() =>
+      expect(checklistsApi.update).toHaveBeenCalledWith(
+        'a',
+        shared.content,
+        expect.objectContaining({
+          imageAssessmentCriteria: [
+            'Thấy toàn bộ mái',
+            'Mái không bị che khuất',
+          ],
+        }),
+      ),
+    )
+  })
+
+  it('sends an empty array when switching to video only', async () => {
+    vi.mocked(checklistsApi.list).mockResolvedValue(
+      page([{ ...shared, imageAssessmentCriteria: ['Thấy toàn bộ mái'] }]),
+    )
+    await openEditor()
+    expect(screen.getByLabelText('Tiêu chí 1')).toHaveValue('Thấy toàn bộ mái')
+    fireEvent.change(screen.getByLabelText('Số ảnh đã bao gồm'), {
+      target: { value: '0' },
+    })
+    expect(
+      screen.queryByRole('button', { name: 'Thêm tiêu chí' }),
+    ).not.toBeInTheDocument()
+    expect(await saveSharedChecklist()).toMatchObject({
+      imageAssessmentCriteria: [],
+    })
+  })
+
+  it('omits saved criteria when only other checklist settings change', async () => {
+    vi.mocked(checklistsApi.list).mockResolvedValue(
+      page([{ ...shared, imageAssessmentCriteria: ['Thấy toàn bộ mái'] }]),
+    )
+    await openEditor()
+    fireEvent.change(screen.getByLabelText('Số video đã bao gồm'), {
+      target: { value: '2' },
+    })
+    expect(await saveSharedChecklist()).not.toHaveProperty(
+      'imageAssessmentCriteria',
+    )
+  })
+})
+
 describe('Library page', () => {
   it('adds and removes device types through independent endpoints', async () => {
     render(<ChecklistCatalogPage />)
@@ -287,9 +376,7 @@ describe('Service configuration page', () => {
     fireEvent.click(
       within(dialog).getByRole('tab', { name: 'Yêu cầu minh chứng' }),
     )
-    expect(
-      within(dialog).getByLabelText('Số ảnh đã bao gồm'),
-    ).toBeVisible()
+    expect(within(dialog).getByLabelText('Số ảnh đã bao gồm')).toBeVisible()
     expect(
       within(dialog).getByLabelText('Riêng cho dịch vụ này: Số ảnh đã bao gồm'),
     ).toHaveValue(null)
@@ -300,7 +387,9 @@ describe('Service configuration page', () => {
   it('takes the admin to the page that has the problem', async () => {
     render(<ServiceChecklistPage serviceId="s" />)
     fireEvent.click(await screen.findByRole('button', { name: 'Cấu hình' }))
-    fireEvent.click(await screen.findByRole('tab', { name: 'Yêu cầu minh chứng' }))
+    fireEvent.click(
+      await screen.findByRole('tab', { name: 'Yêu cầu minh chứng' }),
+    )
     fireEvent.change(
       screen.getByLabelText('Riêng cho dịch vụ này: Số ảnh đã bao gồm'),
       {
