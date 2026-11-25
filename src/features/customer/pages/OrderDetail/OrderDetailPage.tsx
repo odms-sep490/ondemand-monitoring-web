@@ -177,6 +177,9 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
     },
     [acknowledgeQuote, orderId],
   )
+  const openMissionPayment = useCallback(() => {
+    handleTabChange('finance')
+  }, [handleTabChange])
   const updateDelivery = useCallback(
     (delivery: Delivery | null) => {
       setDeliveryState({ orderId, delivery })
@@ -326,8 +329,8 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                             orderId={order.id}
                             initialDelivery={cachedDelivery?.delivery ?? null}
                             onStateChange={updateDelivery}
-                            onOpenPayment={() => handleTabChange('finance')}
-                            onOpenFinance={() => handleTabChange('finance')}
+                            onOpenPayment={openMissionPayment}
+                            onOpenFinance={openMissionPayment}
                             onPaymentCompleted={() => {
                               setFinanceRefreshVersion((version) => version + 1)
                               detail.reload()

@@ -7,14 +7,9 @@ import type {
   MissionPaymentMilestone,
   Payment,
 } from '../../types'
-import {
-  canPayMissionMilestone,
-  getHandedOverMissionMilestones,
-  hasActiveMissionCheckout,
-} from '../../missionMilestoneUtils'
+import { getHandedOverMissionMilestones } from '../../missionMilestoneUtils'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { financeApi } from '../../api'
-import { env } from '../../../../config/env'
 import { missionPaymentMilestoneMessages } from './MissionPaymentMilestonesSection.messages'
 
 const tone: Record<
@@ -31,26 +26,29 @@ const tone: Record<
 
 export function MissionPaymentMilestonesSection({
   invoiceId,
+  invoiceNumber,
+  issuedAt,
+  depositExpiresAt,
   paidAmount,
   depositAmount,
   depositPaid,
   allocation,
   loading,
   error,
-  busy,
-  onPay,
-  onTestPay,
 }: {
   invoiceId: string
+  invoiceNumber?: string
+  issuedAt?: string | null
+  depositExpiresAt?: string | null
   paidAmount: number
   depositAmount: number
   depositPaid: boolean
   allocation: MissionPaymentAllocation | null
   loading: boolean
   error: string | null
-  busy: boolean
-  onPay: (milestoneId: string) => void
-  onTestPay: (milestoneId: string) => void
+  busy?: boolean
+  onPay?: (milestoneId: string) => void
+  onTestPay?: (milestoneId: string) => void
 }) {
   const { t, locale } = useI18n(missionPaymentMilestoneMessages)
 
@@ -68,9 +66,23 @@ export function MissionPaymentMilestonesSection({
       ),
     [invoiceId, paidAmount],
   )
+  const depositPaidAtRaw = (deposit.data ?? []).find((p) => p.paidAt)?.paidAt
+  const depositPaidDate =
+    depositPaidAtRaw && Number.isFinite(Date.parse(depositPaidAtRaw))
+      ? new Date(depositPaidAtRaw).toLocaleString(locale)
+      : null
+  const depositDeadline =
+    depositExpiresAt && Number.isFinite(Date.parse(depositExpiresAt))
+      ? new Date(depositExpiresAt).toLocaleString(locale)
+      : null
+  const issuedDate =
+    issuedAt && Number.isFinite(Date.parse(issuedAt))
+      ? new Date(issuedAt).toLocaleString(locale)
+      : null
   if (!depositPaid && handedOver.length === 0) return null
   return (
     <section
+      id="mission-payment-section"
       className="mission-payment-card"
       aria-labelledby="mission-payment-title"
     >
@@ -98,6 +110,7 @@ export function MissionPaymentMilestonesSection({
             <div className="mission-payment-item__title">
               <div>
                 <strong>{t.depositTitle}</strong>
+                {invoiceNumber ? <span>{invoiceNumber}</span> : null}
               </div>
               {depositPaid && <StatusTag tone="success">{t.status.PAID}</StatusTag>}
             </div>
@@ -105,6 +118,14 @@ export function MissionPaymentMilestonesSection({
               <div>
                 <dt>{t.amount}</dt>
                 <dd className="is-money">{formatVnd(depositAmount)}</dd>
+              </div>
+              <div>
+                <dt>{t.depositPaidAt}</dt>
+                <dd>{depositPaidDate ?? '—'}</dd>
+              </div>
+              <div>
+                <dt>{depositDeadline ? t.paymentDeadline : t.invoiceIssuedAt}</dt>
+                <dd>{depositDeadline ?? issuedDate ?? '—'}</dd>
               </div>
             </dl>
           </div>
@@ -138,9 +159,6 @@ export function MissionPaymentMilestonesSection({
             key={milestone.id}
             milestone={milestone}
             locale={locale}
-            busy={busy}
-            onPay={onPay}
-            onTestPay={onTestPay}
           />
         ))}
       </div>
@@ -151,20 +169,11 @@ export function MissionPaymentMilestonesSection({
 function MissionPaymentItem({
   milestone,
   locale,
-  busy,
-  onPay,
-  onTestPay,
 }: {
   milestone: MissionPaymentMilestone
   locale: string
-  busy: boolean
-  onPay: (milestoneId: string) => void
-  onTestPay: (milestoneId: string) => void
 }) {
   const { t } = useI18n(missionPaymentMilestoneMessages)
-  const latest = milestone.payments[0]
-  const hasActiveCheckout = hasActiveMissionCheckout(milestone)
-  const canPay = canPayMissionMilestone(milestone)
   const date = milestone.handedOverAt
     ? new Date(milestone.handedOverAt).toLocaleString(locale)
     : null
@@ -214,22 +223,6 @@ function MissionPaymentItem({
           showIcon
           message={t.expiredMessage}
         />
-      ) : null}
-      {canPay ? (
-        <div className="mission-payment-item__actions">
-          <Button type="primary" disabled={busy} onClick={() => onPay(milestone.id)}>
-            {hasActiveCheckout
-              ? t.continuePayment
-              : latest?.status === 'FAILED'
-                ? t.retry
-                : t.payNow}
-          </Button>
-          {env.testPaymentsEnabled ? (
-            <Button disabled={busy} onClick={() => onTestPay(milestone.id)}>
-              {t.testPayment}
-            </Button>
-          ) : null}
-        </div>
       ) : null}
       <div className="mission-payment-item__history">
         <strong>{t.paymentHistory}</strong>

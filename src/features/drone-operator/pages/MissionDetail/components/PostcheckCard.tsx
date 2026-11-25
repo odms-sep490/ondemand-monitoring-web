@@ -50,12 +50,12 @@ export function PostcheckCard({
       <div className="odm-card-body" style={{ padding: '10px 14px' }}>
         {postflight ? (
           <>
-            {/* Telemetry metrics 2×2 */}
+            {/* Telemetry metrics */}
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: 9,
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gap: 10,
                 marginBottom: 12,
               }}
             >
@@ -64,16 +64,8 @@ export function PostcheckCard({
                 value={formatCheckedAt(postflight.checkedAt)}
               />
               <PostMetric
-                label="Độ cao"
-                value={formatNumber(postflight.landingAltitudeM, ' m')}
-              />
-              <PostMetric
                 label="Pin hạ cánh"
                 value={formatNumber(postflight.landingBatteryPercent, '%')}
-              />
-              <PostMetric
-                label="Tốc độ"
-                value={formatNumber(postflight.landingSpeedMps, ' m/s')}
               />
               {postflight.landingTelemetryOnline != null && (
                 <PostMetric

@@ -576,8 +576,10 @@
 }
 
 .mc-item,
+.mc-row,
 .mc-detail,
 .mc-detail > * {
+  box-sizing: border-box;
   min-width: 0;
   max-width: 100%;
 }
@@ -773,38 +775,78 @@
 
 /* Inspection and delivery selection are separate sections of the same checklist. */
 .mc-item-body.is-assessment-review {
-  padding: 16px;
-  margin-bottom: 4px;
-  border: 0;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 0;
+  border: 1px solid var(--bd, #e2e8f0);
   border-radius: 10px;
   background: var(--sf2, #f4f7fb);
 }
 .mc-assessment-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 12px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 8px;
 }
-.mc-assessment-heading h4 { margin: 0 0 5px; font-size: 15px; font-weight: 650; }
-.mc-assessment-heading p { margin: 0; color: var(--tx3, #64748b); font-size: 13px; line-height: 1.5; }
-.mc-assessment-state { padding: 4px 9px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #e8eef7; color: #475569; }
+.mc-assessment-heading:last-child { margin-bottom: 0; }
+.mc-assessment-heading > div { min-width: 0; }
+.mc-assessment-heading h4 { margin: 0 0 2px; font-size: 14px; font-weight: 650; }
+.mc-assessment-heading p { margin: 0; color: var(--tx3, #64748b); font-size: 12.5px; line-height: 1.45; }
+.mc-assessment-state {
+  flex: none;
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #e8eef7;
+  color: #475569;
+}
 .mc-assessment-state.is-compliant { background: #dcfce7; color: #166534; }
 .mc-assessment-state.is-non_compliant { background: #fee2e2; color: #991b1b; }
 .mc-item-body.is-assessment-review .mc-fields:empty { display: none; }
 .mc-item-body.is-assessment-review .mc-edit { margin-top: 0; min-height: 34px; }
 
-.mc-detail.is-inspection-review { padding: 16px; gap: 14px; }
+.mc-detail.is-inspection-review {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 14px 14px;
+  gap: 10px;
+}
+.mc-detail .odm-cg {
+  box-sizing: border-box;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 0;
+  border-radius: 8px;
+}
+.mc-detail .odm-cg[open] {
+  width: 100%;
+}
+.mc-detail .odm-cg > summary {
+  min-height: 32px;
+  padding: 5px 12px;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.mc-detail.is-inspection-review > .mc-updated {
+  display: none;
+}
 .mc-detail .monitoring-item.is-assessment-review { align-items: stretch; gap: 0; }
-.mc-assessment-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; width: auto; align-self: stretch; }
-.mc-assessment-heading > div { min-width: 0; }
-.mc-assessment-state { flex: none; white-space: nowrap; }
 .mc-detail .checklist-evidence.is-customer-selection { padding: 0; border: 0; background: transparent; }
 .monitoring-inspection-stack {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .monitoring-inspection-stack > .inspection-corrections {
   order: 1;
@@ -813,14 +855,17 @@
 .monitoring-inspection-stack > .monitoring-checklist {
   order: 2;
   margin: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 .monitoring-inspection-stack > .inspection-corrections.is-composing {
   order: 3;
 }
 
 @media (max-width: 600px) {
-  .mc-detail.is-inspection-review { padding: 12px; }
-  .mc-item-body.is-assessment-review { padding: 12px; }
+  .mc-detail.is-inspection-review { padding: 10px 12px 12px; }
+  .mc-item-body.is-assessment-review { padding: 10px 12px; }
   .mc-assessment-heading { grid-template-columns: minmax(0, 1fr); }
   .mc-assessment-state { justify-self: start; }
 }

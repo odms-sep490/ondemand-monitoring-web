@@ -1907,7 +1907,7 @@
   .mgr-analytics-list { align-items: stretch; }
   .mgr-analytics-list > .ant-card { min-width: 0; box-shadow: none; }
   .mgr-dash-money dd { white-space: nowrap; font-size: clamp(18px, 1.8vw, 28px); }
-  .recharts-wrapper { max-width: 100%; }
+  .recharts-wrapper, .recharts-surface { max-width: none; }
 }
 @container manager-dashboard (max-width: 900px) {
   :root .mgr-layout .mgr-dash {
@@ -2301,22 +2301,81 @@
    ========================================================================== */
 
 :root .mgr-layout .mgr-dash {
-  /* Prevent unrelated sibling cards from stretching to huge blank heights */
+  /* Balanced 2-column grid matching overview charts below */
   .mgr-group-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.25fr);
-    align-items: start;
-    gap: 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  /* Orders & Quotes tab: table needs the wider left column; pipeline stays sleek on the right */
+  .mgr-group-grid.mgr-group-orders {
+    grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr);
+    align-items: stretch;
+
+    > .ant-card {
+      align-self: stretch;
+      height: 100%;
+    }
+  }
+
+  .mgr-stage-chart {
+    gap: 12px;
+
+    li > div:first-child {
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    li:nth-child(1) .mgr-stage-track > span { background: #f59e0b; }
+    li:nth-child(2) .mgr-stage-track > span { background: #1565e8; }
+    li:nth-child(3) .mgr-stage-track > span { background: #8b5cf6; }
+    li:nth-child(4) .mgr-stage-track > span { background: #ea580c; }
+    li:nth-child(5) .mgr-stage-track > span { background: #10b981; }
+  }
+
+  .mgr-dashboard-group .mgr-analytics-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    align-items: stretch;
+
+    .mgr-donut-layout {
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    > .ant-card {
+      border-radius: 14px;
+      margin: 0;
+      height: 100%;
+      border: 1px solid var(--mgr-border);
+      box-shadow: 0 1px 3px rgb(15 23 42 / 4%);
+    }
+
+    .ant-card-body {
+      min-height: 0;
+      padding: 18px 20px;
+      justify-content: center;
+    }
   }
 
   .mgr-group-grid > .ant-card {
-    height: auto;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     min-height: 0;
     margin: 0;
     border-radius: 14px;
     border-color: var(--mgr-border);
     box-shadow: 0 1px 3px rgb(15 23 42 / 4%);
     transition: box-shadow 180ms ease, border-color 180ms ease;
+
+    > .ant-card-body {
+      flex: 1;
+    }
   }
 
   .mgr-group-grid > .ant-card:hover {
@@ -2386,18 +2445,37 @@
   }
 
   /* Compact Recent Mission Panel */
+  .mgr-mission-compact-card {
+    .ant-card-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 16px;
+    }
+  }
+
   .mgr-mission-compact {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
   }
 
   .mgr-mission-compact-head {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
+
+    .ant-btn {
+      flex-shrink: 0;
+      height: 32px;
+      padding-inline: 14px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
   }
 
   .mgr-mission-compact-id {
@@ -2474,7 +2552,14 @@
 
   /* Compact, content-driven Action / Todo List */
   .mgr-action-card .ant-card-body {
-    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 16px;
+
+    .mgr-cmd-empty {
+      flex: 1;
+    }
   }
 
   .mgr-task-row {
@@ -2710,7 +2795,9 @@
     .mgr-kpi-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    .mgr-group-grid {
+    .mgr-group-grid,
+    .mgr-group-grid.mgr-group-orders,
+    .mgr-dashboard-group .mgr-analytics-list {
       grid-template-columns: minmax(0, 1fr);
     }
   }

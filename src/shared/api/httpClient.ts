@@ -152,7 +152,7 @@ export async function apiRequest<T>(
   } = options
   const url = buildUrl(path, query)
   const headers = new Headers()
-  headers.set('Accept', responseType === 'blob' ? 'audio/wav, application/json' : 'application/json')
+  headers.set('Accept', responseType === 'blob' ? '*/*' : 'application/json')
   const multipart = body instanceof FormData
   if (body !== undefined && !multipart)
     headers.set('Content-Type', 'application/json')
@@ -188,11 +188,11 @@ export async function apiRequest<T>(
     })
   }
 
-  const isAudioResponse =
+  const isBinaryResponse =
     responseType === 'blob' &&
     response.ok &&
-    response.headers.get('Content-Type')?.toLowerCase().includes('audio/')
-  const payload = isAudioResponse
+    !response.headers.get('Content-Type')?.toLowerCase().includes('json')
+  const payload = isBinaryResponse
     ? undefined
     : ((await response.json().catch(() => undefined)) as
         | ApiEnvelope<T>

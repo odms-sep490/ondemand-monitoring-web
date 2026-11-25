@@ -1,5 +1,6 @@
 export type MissionDetailTab =
   | 'result'
+  | 'reports'
   | 'media'
   | 'checklist'
   | 'route'

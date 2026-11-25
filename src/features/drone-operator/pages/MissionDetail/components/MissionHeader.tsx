@@ -12,6 +12,8 @@ import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { hasAcknowledgedHandover } from '../../../lib/flightWorkflowStorage'
 import type { WeatherPreflightStatus } from '../types'
 import { isWeatherCheckFreshAfterPermit } from '../weatherReadiness'
+import { isAwaitingResponse } from '../missionResponse'
+import { InspectionReportEntry } from '../../../../inspection-report/ReportStudio'
 
 // ─── Mission Header ───────────────────────────────────────────────────────────
 
@@ -176,6 +178,13 @@ export function MissionHeader({
             >
               {t.postflightCheckAction}
             </a>
+          )}
+        {mission.myResponseStatus !== 'REJECTED' &&
+          !isAwaitingResponse(mission) && (
+            <InspectionReportEntry
+              missionId={mission.id}
+              buttonClassName="odm-btn"
+            />
           )}
         {canOpenAcceptanceData && (
           <a

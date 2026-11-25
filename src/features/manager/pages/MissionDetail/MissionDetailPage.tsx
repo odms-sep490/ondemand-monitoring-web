@@ -1,3 +1,4 @@
+import { ReportStudio } from '../../../inspection-report/ReportStudio'
 import { OrderContractPanel } from '../../../contract/OrderContractPanel'
 import { InspectionCorrectionPanel } from '../../../mission/inspection/InspectionCorrectionPanel'
 // MNG-08: Mission detail & result page (opened from the mission list).
@@ -54,6 +55,7 @@ export function MissionDetailPage({
 
 const missionDetailTabs: readonly MissionDetailTab[] = [
   'result',
+  'reports',
   'media',
   'checklist',
   'route',
@@ -107,10 +109,12 @@ function MissionDetail({
   const [tab, setTab] = useState<MissionDetailTab>(() =>
     readMissionDetailTab(window.location.hash),
   )
+  const [reportsVisited, setReportsVisited] = useState(() => readMissionDetailTab(window.location.hash) === 'reports')
   const mediaLibrary = useRef<HTMLElement>(null)
   const selectTab = useCallback(
     (nextTab: MissionDetailTab) => {
       setTab(nextTab)
+      if (nextTab === 'reports') setReportsVisited(true)
       const [path] = window.location.hash.split('?')
       const nextHash = `${path || managerHref({ screen: 'missionDetail', missionId })}?tab=${encodeURIComponent(nextTab)}`
       if (window.location.hash !== nextHash) window.location.hash = nextHash
@@ -119,8 +123,11 @@ function MissionDetail({
   )
 
   useEffect(() => {
-    const syncTabFromLocation = () =>
-      setTab(readMissionDetailTab(window.location.hash))
+    const syncTabFromLocation = () => {
+      const nextTab = readMissionDetailTab(window.location.hash)
+      setTab(nextTab)
+      if (nextTab === 'reports') setReportsVisited(true)
+    }
     window.addEventListener('hashchange', syncTabFromLocation)
     window.addEventListener('popstate', syncTabFromLocation)
     return () => {
@@ -229,6 +236,7 @@ function MissionDetail({
         headline={headline}
         canSetup={canSetup}
         order={detail.order}
+        onOpenReports={() => selectTab('reports')}
       />
       {needsResourceReplacement ? (
         <Alert
@@ -321,6 +329,12 @@ function MissionDetail({
                 plan={plan}
               />
             </div>
+
+            {reportsVisited && (
+              <div className="mgr-md-report-panel" hidden={activeTab !== 'reports'}>
+                <ReportStudio missionId={mission.id} reviewOnly active={activeTab === 'reports'} />
+              </div>
+            )}
 
             {activeTab === 'plan' && (
               <MissionPlanPanel mission={mission} onUpdated={refreshDetail} />

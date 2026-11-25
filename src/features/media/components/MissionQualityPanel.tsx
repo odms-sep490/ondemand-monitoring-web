@@ -82,11 +82,24 @@ function Panel({
   const [selected, setSelected] = useState<string>()
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [canReview, setCanReview] = useState<boolean | null>(null)
   const [mediaMap, setMediaMap] = useState<
     Record<string, { thumbnail?: string | null; preview?: string | null }>
   >({})
   const key = useRef<string | null>(null)
   const base = `/api/missions/${encodeURIComponent(missionId)}/media/quality-checks`
+
+  useEffect(() => {
+    let active = true
+    void missionApi.getPermissions(missionId)
+      .then(permissions => {
+        if (active) setCanReview(permissions.canReviewMissionMedia === true)
+      })
+      .catch(() => {
+        if (active) setCanReview(false)
+      })
+    return () => { active = false }
+  }, [missionId])
 
   // Ingest any thumbnails provided via props
   useEffect(() => {
@@ -194,6 +207,8 @@ function Panel({
 
   const selectedRow = rows.find(r => r.media_id === selected)
   const selectedMedia = selected ? mediaMap[selected] : undefined
+
+  if (canReview !== true) return null
 
   return (
     <Card className="mission-quality-panel" size="small" title="Hỗ trợ kiểm duyệt chất lượng ảnh" extra={

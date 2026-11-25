@@ -4,6 +4,7 @@ export const missionDetailPageMessages = defineMessages({
   vi: {
     tabs: {
       result: 'Kết quả nhiệm vụ',
+      reports: 'Báo cáo giám sát',
       media: 'Ảnh & video',
       checklist: 'Danh mục kiểm tra',
       route: 'Vị trí',
@@ -262,6 +263,7 @@ export const missionDetailPageMessages = defineMessages({
   en: {
     tabs: {
       result: 'Mission result',
+      reports: 'Inspection reports',
       media: 'Photos & videos',
       checklist: 'Checklist',
       route: 'Location',

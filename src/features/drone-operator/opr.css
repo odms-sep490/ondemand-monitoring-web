@@ -1221,9 +1221,12 @@
 }
 .mds-checklist-panel {
   min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
-.mds-checklist-panel > .monitoring-checklist {
-  max-width: 1440px;
+.mds-checklist-panel > .monitoring-checklist,
+.mds-checklist-panel > .monitoring-inspection-stack {
+  max-width: 100%;
   margin: 0;
 }
 .mds-mission-details > div {
@@ -1741,8 +1744,31 @@
 .mds-device-selector button[aria-pressed="true"] { border-color: var(--blue, #1565e8); background: #eef4ff; }
 .mds-device-selector button:focus-visible { outline: 2px solid #1565e8; outline-offset: 3px; }
 .mds-device-selector span { font-size: 13px; color: var(--tx2); }
-.mds-device-checks .mds-checks-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 16px; }
-@media(max-width: 800px) { .mds-device-checks .mds-checks-grid { grid-template-columns: 1fr; } .mds-device-selector button { min-width: 0; flex: 1 1 150px; } }
+.mds-device-checks .mds-checks-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 16px;
+}
+.mds-device-checks .mds-checks-grid > .mds-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.mds-device-checks .mds-checks-grid > .mds-col > .odm-card:last-child {
+  flex: 1 1 auto;
+}
+.mds-device-checks .mds-checks-grid .mds-weather-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+@media(max-width: 800px) {
+  .mds-device-checks .mds-checks-grid { grid-template-columns: 1fr; }
+  .mds-device-checks .mds-checks-grid > .mds-col > .odm-card:last-child { flex: none; }
+  .mds-device-selector button { min-width: 0; flex: 1 1 150px; }
+}
+@media(max-width: 480px) {
+  .mds-device-checks .mds-checks-grid .mds-weather-grid { grid-template-columns: 1fr; }
+}
 
 /* Reuse the manager order-review banner artwork for the mission header. */
 .mds-header.mds-mission-banner {

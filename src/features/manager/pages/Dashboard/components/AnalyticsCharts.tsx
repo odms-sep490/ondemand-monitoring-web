@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Button, DatePicker } from 'antd'
+import { DatePicker } from 'antd'
 import { useState } from 'react'
 
 import { CardComponent } from '../../../../../shared/components/antd'
@@ -170,7 +170,6 @@ export function AnalyticsCharts({
 }) {
   const { t } = useI18n(dashboardPageMessages)
   const c = t.analytics
-  const [open, setOpen] = useState(true)
   const adj = data.priceAdjustmentSummary
   const adjTotal = adj.approvedAtSystemPrice + adj.adjustedByManager
   const orderStatusPoints = getOrderStatusPoints(data, c)
@@ -272,31 +271,14 @@ export function AnalyticsCharts({
   }
 
   return (
-    <section
-      aria-labelledby="mgr-dashboard-analytics-title"
-      className="mgr-analytics"
-    >
-      <div className="mgr-analytics-heading">
-        <h2 className="mgr-section-title" id="mgr-dashboard-analytics-title">
-          {c.title}
-        </h2>
-        <Button
-          size="small"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? c.collapse : c.expand}
-        </Button>
-      </div>
-      {open ? (
-        charts.length > 0 ? (
-          <div className="mgr-analytics-list">{charts}</div>
-        ) : (
-          <p className="mgr-empty-line mgr-analytics-empty" role="status">
-            {available ? c.emptySummary : c.unavailable}
-          </p>
-        )
-      ) : null}
+    <section aria-label={c.title} className="mgr-analytics">
+      {charts.length > 0 ? (
+        <div className="mgr-analytics-list">{charts}</div>
+      ) : (
+        <p className="mgr-empty-line mgr-analytics-empty" role="status">
+          {available ? c.emptySummary : c.unavailable}
+        </p>
+      )}
     </section>
   )
 }

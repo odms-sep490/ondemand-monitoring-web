@@ -35,6 +35,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'deviceCheckCriteria', icon: 'ticket', route: { screen: 'deviceCheckCriteria' } },
   { key: 'auditLog', icon: 'file-text', route: { screen: 'auditLog' } },
   { key: 'refunds', icon: 'file-text', route: { screen: 'refunds' } },
+  { key: 'aiOps', icon: 'cpu', route: { screen: 'aiOps', tab: 'overview' } },
 ]
 
 // Which nav item highlights as active for each parsed screen.
@@ -52,6 +53,7 @@ const activeNavKey: Record<AdminScreen, NavItemKey | null> = {
   deviceCheckCriteria: 'deviceCheckCriteria',
   auditLog: 'auditLog',
   refunds: 'refunds',
+  aiOps: 'aiOps',
   notFound: null,
 }
 

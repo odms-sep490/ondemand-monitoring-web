@@ -15,11 +15,13 @@ export function MissionDetailHeader({
   headline,
   canSetup,
   order,
+  onOpenReports,
 }: {
   mission: MissionResponse
   headline: string | null
   canSetup: boolean
   order: OrderDetail | null
+  onOpenReports?: () => void
 }) {
   const { t } = useI18n(missionDetailPageMessages)
   return (
@@ -74,6 +76,7 @@ export function MissionDetailHeader({
           >
             {t.viewOrderPlan}
           </Button>
+          <Button onClick={onOpenReports} href={onOpenReports ? undefined : `${managerHref({ screen: 'missionDetail', missionId: mission.id })}?tab=reports`}>{t.tabs.reports}</Button>
           {canSetup ||
           (mission.inspectionCorrectionId &&
             !['COMPLETED', 'FAILED', 'CANCELLED'].includes(mission.status)) ? (

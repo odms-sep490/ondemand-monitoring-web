@@ -1,3 +1,4 @@
+import { InspectionReportEntry } from '../../../inspection-report/ReportStudio'
 import { FileDoneOutlined, ProfileOutlined, UnorderedListOutlined } from '@ant-design/icons'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
@@ -278,6 +279,7 @@ export function CustomerMissionReportContent({
               </CardComponent>
             </>
           ) : null}
+          <InspectionReportEntry missionId={missionId} customer/>
           {showMedia && (!inline || published) && (
             <CustomerMissionMediaGallery
               key={missionId}
