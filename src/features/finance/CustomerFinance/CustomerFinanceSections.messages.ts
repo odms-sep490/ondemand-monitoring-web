@@ -60,6 +60,14 @@ export const customerFinanceSectionsMessages = defineMessages({
     awaitingResourceConfirmation:
       'Đang chờ nhân sự được phân công xác nhận tài nguyên.',
     payDeposit: 'Thanh toán đặt cọc',
+    currentPaymentDueEyebrow: 'Khoản cần thanh toán hiện tại',
+    depositItemTitle: (percent: number) => `Tiền đặt cọc đơn hàng (${percent}%)`,
+    depositItemOrderTotal: 'Tổng giá trị đơn hàng',
+    depositItemRemainingAfter: 'Phần còn lại sau khi đặt cọc',
+    depositItemMilestoneNote:
+      'Phần còn lại được thanh toán theo từng nhiệm vụ sau khi bàn giao kết quả.',
+    paymentCompletedBody: (amount: string) =>
+      `Đơn hàng đã thanh toán đủ ${amount}. Không còn khoản phí cần thanh toán.`,
     contentFallback: 'Nội dung',
     perOrder: 'Theo đơn hàng',
     priceDetails: 'Chi tiết giá',
@@ -145,6 +153,14 @@ export const customerFinanceSectionsMessages = defineMessages({
     awaitingResourceConfirmation:
       'Your missions are awaiting confirmation from the assigned staff.',
     payDeposit: 'Pay deposit',
+    currentPaymentDueEyebrow: 'Current payment due',
+    depositItemTitle: (percent: number) => `Order deposit (${percent}%)`,
+    depositItemOrderTotal: 'Total order value',
+    depositItemRemainingAfter: 'Remaining balance after deposit',
+    depositItemMilestoneNote:
+      'The remaining balance is paid per mission after each handover.',
+    paymentCompletedBody: (amount: string) =>
+      `This order has been paid in full (${amount}). No further payment is due.`,
     contentFallback: 'Content',
     perOrder: 'Per order',
     priceDetails: 'Price details',

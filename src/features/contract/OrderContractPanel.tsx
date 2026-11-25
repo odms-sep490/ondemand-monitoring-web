@@ -399,17 +399,18 @@ function ContractContent({
       {canReview && (
         <div className="order-contract-panel__review">
           <div className="order-contract-panel__review-file">
-            <div>
+            <FilePdfOutlined className="order-contract-panel__review-icon" aria-hidden />
+            <div className="order-contract-panel__review-copy">
               <strong>{latest.document.fileName}</strong>
               <small>{t.submitted}: {time(latest.submittedAt)}</small>
             </div>
-          <Button
-            icon={<DownloadOutlined aria-hidden />}
-            disabled={disabled}
-            onClick={() => void download(latest.id)}
-          >
-            {t.signedDownload}
-          </Button>
+            <Button
+              icon={<DownloadOutlined aria-hidden />}
+              disabled={disabled}
+              onClick={() => void download(latest.id)}
+            >
+              {t.signedDownload}
+            </Button>
           </div>
           <Checkbox
             checked={checked}
@@ -432,6 +433,17 @@ function ContractContent({
             />
           </label>}
           <div className="order-contract-panel__actions">
+            {data.invoiceId && (
+              <ContractCancellationPanel
+                orderId={orderId}
+                contract={data}
+                manager={manager}
+                onChanged={() => {
+                  query.reload()
+                  onUpdated?.()
+                }}
+              />
+            )}
             <Button
               danger
               disabled={disabled || (reasonOpen && !reason.trim())}
@@ -481,7 +493,7 @@ function ContractContent({
         />
       )}
       {error && <Alert type="error" showIcon message={errorText(error)} />}
-      {data.invoiceId && (
+      {!canReview && data.invoiceId && (
         <ContractCancellationPanel
           orderId={orderId}
           contract={data}

@@ -3446,3 +3446,168 @@
     grid-column: 1 / -1;
   }
 }
+
+
+/* Unified Quote & Payment layout polish (Customer Order Detail) */
+:root .od-page .customer-quote-body {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+:root .od-page .customer-quote-layout {
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  width: 100%;
+  box-sizing: border-box;
+}
+:root .od-page .customer-quote-actions {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid #d8e5f7;
+  border-radius: 16px;
+  background: #fbfdff;
+  box-shadow: 0 10px 28px rgb(15 23 42 / 5%);
+}
+:root .od-page .customer-quote-payment-content {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+:root .od-page .customer-quote-payment-content .customer-invoice {
+  padding: 0;
+  border-top: 0;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+:root .od-page .customer-quote-payment-content .customer-deadline-countdown {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px 14px;
+  gap: 8px;
+}
+:root .od-page .customer-quote-payment-content .customer-deadline-clock {
+  width: 104px;
+}
+:root .od-page .customer-quote-payment-content .customer-deadline-unit {
+  padding: 5px 4px;
+}
+:root .od-page .customer-quote-payment-content .customer-deadline-unit strong {
+  font-size: 18px;
+}
+:root .od-page .customer-quote-payment-content .customer-deposit-notice {
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+:root .od-page .customer-quote-payment-content .customer-payment-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  padding: 2px 0 0;
+}
+:root .od-page .customer-quote-payment-content .customer-payment-actions .ant-btn {
+  width: 100%;
+  min-height: 42px;
+  font-weight: 700;
+  border-radius: 10px;
+}
+:root .od-page .customer-contract-gate-box {
+  display: grid;
+  gap: 10px;
+}
+:root .od-page .customer-contract-gate-box .ant-btn {
+  min-height: 40px;
+  font-weight: 600;
+  border-radius: 10px;
+}
+.customer-deposit-checkout-box {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid #c7dcff;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f3f8ff 0%, #ffffff 100%);
+}
+.customer-deposit-checkout-eyebrow {
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.customer-deposit-checkout-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+.customer-deposit-checkout-head strong {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.customer-deposit-checkout-amount {
+  color: #1158c7;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.customer-deposit-checkout-breakdown {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px dashed #cddff9;
+}
+.customer-deposit-checkout-breakdown > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  font-size: 12.5px;
+  min-width: 0;
+}
+.customer-deposit-checkout-breakdown dt {
+  margin: 0;
+  color: #475569;
+  min-width: 0;
+}
+.customer-deposit-checkout-breakdown dd {
+  margin: 0;
+  color: #0f172a;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.customer-deposit-checkout-note {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+@media (max-width: 1024px) {
+  :root .od-page .customer-quote-layout {
+    grid-template-columns: 1fr;
+  }
+  :root .od-page .customer-quote-actions {
+    order: 0;
+    position: static;
+  }
+}

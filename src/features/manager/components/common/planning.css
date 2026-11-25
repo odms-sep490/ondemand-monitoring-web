@@ -2401,3 +2401,182 @@
   .odm-mission-grid-card { grid-template-columns: minmax(0, 1fr); }
   .odm-mission-grid-card > .odm-mcard-section { grid-column: 1; }
 }
+
+
+/* Compact, scannable Create Mission modal polish */
+.odm-planning-modal-dialog {
+  max-width: 960px;
+}
+.odm-planning-create-head {
+  padding: 14px 20px;
+  gap: 12px;
+}
+.odm-planning-create-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 18px;
+}
+.odm-planning-create-head h3 {
+  margin: 0 0 2px;
+  font-size: 17px;
+  font-weight: 700;
+}
+.odm-planning-create-head p {
+  font-size: 12.5px;
+  color: var(--mgr-muted, var(--tx2));
+}
+.odm-plan-page.is-embedded .odm-plan-create-body {
+  padding: 14px 20px 10px;
+}
+.odm-plan-page.is-embedded .odm-plan-form .odm-or-field {
+  margin-bottom: 6px;
+}
+.odm-plan-page.is-embedded .odm-plan-form .odm-or-field-label {
+  font-size: 13px;
+  font-weight: 650;
+}
+.odm-plan-page.is-embedded .odm-plan-form .odm-or-input {
+  height: 40px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+/* Keep #mission-scope-help in DOM for aria-describedby while hiding redundant text visually */
+.odm-plan-page.is-embedded .odm-plan-field-help {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.odm-plan-page.is-embedded .odm-plan-geography:not(.is-summary) {
+  display: none;
+}
+.odm-plan-page.is-embedded > .odm-or-grid {
+  padding: 0 20px;
+}
+.odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+/* Single-line sleek customer preferred window strip */
+.odm-plan-page.is-embedded
+  > .odm-or-grid
+  > .odm-or-col:first-child
+  > .odm-plan-window {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--pl-blue-bg, #eff6ff);
+  border: 1px solid var(--pl-blue-bd, #bfdbfe);
+}
+.odm-plan-page.is-embedded
+  > .odm-or-grid
+  > .odm-or-col:first-child
+  > .odm-plan-window
+  > .odm-or-card-head {
+  padding: 0;
+  border-bottom: 0;
+  background: transparent;
+}
+.odm-plan-page.is-embedded
+  > .odm-or-grid
+  > .odm-or-col:first-child
+  > .odm-plan-window
+  .odm-or-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pl-blue-fg, #1d4ed8);
+}
+.odm-plan-page.is-embedded
+  > .odm-or-grid
+  > .odm-or-col:first-child
+  > .odm-plan-window
+  .odm-or-card-body {
+  padding: 0;
+}
+.odm-plan-page.is-embedded
+  > .odm-or-grid
+  > .odm-or-col:first-child
+  > .odm-plan-window
+  .odm-or-bigvalue {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--mgr-text, #0f172a);
+}
+.odm-plan-page.is-embedded
+  > .odm-or-grid
+  > .odm-or-col:first-child
+  > .odm-plan-window
+  .odm-or-muted {
+  display: none;
+}
+/* Tighter Schedule & Weather cards without redundant helper paragraphs */
+.odm-plan-page.is-embedded :is(.odm-plan-schedule, .odm-plan-weather, .odm-plan-checklists) > .odm-or-card-head {
+  padding: 12px 14px;
+}
+.odm-plan-page.is-embedded :is(.odm-plan-schedule, .odm-plan-weather, .odm-plan-checklists) > .odm-or-card-body {
+  padding: 12px 14px 14px;
+}
+.odm-plan-page.is-embedded :is(.odm-plan-schedule, .odm-plan-weather) .odm-or-hint {
+  display: none;
+}
+.odm-plan-page.is-embedded .odm-plan-weather > .odm-or-card-head > .odm-or-pill {
+  display: none;
+}
+.odm-plan-page.is-embedded .odm-plan-schedule .odm-or-quickfill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 6px 12px;
+  border: 1px solid var(--pl-blue-bd, #bfdbfe);
+  border-radius: 8px;
+  background: var(--pl-blue-bg, #eff6ff);
+  color: var(--pl-blue-fg, #1d4ed8);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.odm-plan-page.is-embedded .odm-plan-schedule .odm-or-quickfill:hover {
+  background: color-mix(in srgb, #3b82f6 16%, var(--mgr-card, #fff));
+  border-color: var(--pl-blue-fg, #1d4ed8);
+}
+.odm-plan-page.is-embedded .odm-plan-schedule .odm-or-input,
+.odm-plan-page.is-embedded .odm-plan-weather .odm-or-input {
+  height: 38px;
+  border-radius: 9px;
+  font-size: 13.5px;
+}
+.odm-plan-page.is-embedded .odm-weather-check-controls {
+  margin: 0 0 10px;
+  gap: 10px;
+}
+.odm-plan-page.is-embedded .odm-or-weather-row {
+  padding: 11px 12px;
+  border-radius: 10px;
+}
+.odm-plan-page.is-embedded .odm-or-weather-metrics {
+  gap: 8px;
+}
+.odm-plan-page.is-embedded .odm-or-weather-metric {
+  padding: 7px 8px;
+}
+.odm-plan-page.is-embedded .odm-or-actionbar {
+  margin-top: 14px;
+  padding: 12px 20px;
+}
+@media (max-width: 900px) {
+  .odm-plan-page.is-embedded > .odm-or-grid > .odm-or-col:first-child {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

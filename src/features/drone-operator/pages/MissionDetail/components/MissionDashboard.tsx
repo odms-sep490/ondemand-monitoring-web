@@ -1,3 +1,4 @@
+import { FlightPurposeDraftReview } from '../../../../contract/FlightPurposeDraftReview'
 import type { OperatorMission } from '../../../types/mission'
 import type { MissionPermissions } from '../../../../mission/types/permissions'
 import {
@@ -153,6 +154,7 @@ export function MissionDashboard({
   if (mission.myResponseStatus === 'REJECTED') {
     return (
       <div className="mds-dashboard">
+
         <MissionHeader mission={mission} />
         <section className="mds-action-bar" aria-labelledby="declined-mission-heading">
           <div className="mds-action-bar-text">
@@ -169,6 +171,7 @@ export function MissionDashboard({
   if (isAwaitingResponse(mission)) {
     return (
       <div className="mds-dashboard mds-pending">
+      <FlightPurposeDraftReview missionId={mission.id} canReview={mission.status !== "COMPLETED" && mission.status !== "IN_PROGRESS"} />
         <MissionHeader
           mission={mission}
           access={access}
@@ -263,6 +266,7 @@ export function MissionDashboard({
 
   return (
     <div className="mds-dashboard">
+      <FlightPurposeDraftReview missionId={mission.id} canReview={mission.status !== "COMPLETED" && mission.status !== "IN_PROGRESS"} />
       {/* ── Header ── */}
       <MissionHeader
         mission={mission}

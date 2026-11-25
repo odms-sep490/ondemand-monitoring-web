@@ -1,3 +1,13 @@
+import {
+  BellOutlined,
+  CheckCircleOutlined,
+  DollarOutlined,
+  FileTextOutlined,
+  RocketOutlined,
+} from '@ant-design/icons'
+import { Button, Tag } from 'antd'
+import { useState, type ReactNode } from 'react'
+
 import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
@@ -8,11 +18,16 @@ import type {
   PricingPipeline,
 } from '../../../types/dashboard'
 import { dashboardPageMessages } from '../DashboardPage.messages'
-import { dashboardActivityLabel, formatDashboardDate, statusLabel } from '../dashboardHelpers'
+import {
+  dashboardActivityLabel,
+  formatDashboardDate,
+  statusLabel,
+} from '../dashboardHelpers'
+import { DashboardEmptyState } from './DashboardEmptyState'
 import { FunnelPipelineChart } from './charts/FunnelPipelineChart'
 
 const MAX_MISSIONS = 2
-const MAX_ACTIVITIES = 8
+const MAX_ACTIVITIES = 12
 
 export function MissionStatusCard({
   overview,
@@ -56,9 +71,7 @@ export function MissionStatusCard({
           ))}
         </dl>
       ) : (
-        <p className="mgr-data-unavailable" role="status">
-          {m.overviewUnavailable}
-        </p>
+        <DashboardEmptyState variant="NO_DATA" title={m.overviewUnavailable} />
       )}
 
       <section className="mgr-mission-active-list" aria-label={m.activeList}>
@@ -97,14 +110,10 @@ export function MissionStatusCard({
               ))}
             </ul>
           ) : (
-            <p className="mgr-mission-active-empty" role="status">
-              {m.empty}
-            </p>
+            <DashboardEmptyState variant="NO_MISSIONS" title={m.empty} />
           )
         ) : (
-          <p className="mgr-mission-active-empty" role="status">
-            {m.missionsUnavailable}
-          </p>
+          <DashboardEmptyState variant="NO_DATA" title={m.missionsUnavailable} />
         )}
       </section>
     </CardComponent>
@@ -130,14 +139,47 @@ export function PipelineCard({
   return (
     <CardComponent className="mgr-pipeline-card" title={p.title}>
       {!available ? (
-        <p className="mgr-data-unavailable" role="status">
-          {p.unavailable}
-        </p>
+        <DashboardEmptyState variant="NO_DATA" title={p.unavailable} />
       ) : (
-        <FunnelPipelineChart stages={stages} empty={p.empty} ariaLabel={p.title} />
+        <FunnelPipelineChart
+          stages={stages}
+          empty={p.empty}
+          ariaLabel={p.title}
+        />
       )}
     </CardComponent>
   )
+}
+
+function activityVisual(type: string): { icon: ReactNode; tone: string } {
+  const upper = (type || '').toUpperCase()
+  if (upper.includes('PAY') || upper.includes('DEPOSIT') || upper.includes('REFUND')) {
+    return { icon: <DollarOutlined />, tone: 'emerald' }
+  }
+  if (upper.includes('MISSION') || upper.includes('FLIGHT')) {
+    return { icon: <RocketOutlined />, tone: 'blue' }
+  }
+  if (upper.includes('APPROV') || upper.includes('COMPLET')) {
+    return { icon: <CheckCircleOutlined />, tone: 'emerald' }
+  }
+  if (upper.includes('ORDER') || upper.includes('QUOTE') || upper.includes('CONTRACT')) {
+    return { icon: <FileTextOutlined />, tone: 'amber' }
+  }
+  return { icon: <BellOutlined />, tone: 'neutral' }
+}
+
+function activityCategory(type: string, vi: boolean): string {
+  const upper = (type || '').toUpperCase()
+  if (upper.includes('PAY') || upper.includes('DEPOSIT') || upper.includes('REFUND')) {
+    return vi ? 'Thanh toán' : 'Payments'
+  }
+  if (upper.includes('MISSION') || upper.includes('FLIGHT')) {
+    return vi ? 'Nhiệm vụ' : 'Missions'
+  }
+  if (upper.includes('ORDER') || upper.includes('QUOTE') || upper.includes('CONTRACT')) {
+    return vi ? 'Đơn & báo giá' : 'Orders & quotes'
+  }
+  return vi ? 'Hệ thống' : 'System'
 }
 
 export function RecentActivityCard({
@@ -149,28 +191,124 @@ export function RecentActivityCard({
   activitiesAvailable: boolean
   className?: string
 }) {
-  const { t } = useI18n(dashboardPageMessages)
+  const { t, locale } = useI18n(dashboardPageMessages)
+  const vi = locale.startsWith('vi')
+  const [catFilter, setCatFilter] = useState<string>('ALL')
+
+  const categories = Array.from(
+    new Set(activities.map((a) => activityCategory(a.type, vi))),
+  )
+  const filtered =
+    catFilter === 'ALL'
+      ? activities
+      : activities.filter((a) => activityCategory(a.type, vi) === catFilter)
+
   return (
-    <CardComponent className={className} title={t.activity.title}>
+    <CardComponent
+      className={className}
+      title={t.activity.title}
+      extra={
+        activities.length > 0 ? (
+          <Tag bordered={false} color="processing">
+            {activities.length} {vi ? 'sự kiện' : 'events'}
+          </Tag>
+        ) : null
+      }
+    >
       {!activitiesAvailable ? (
-        <p className="mgr-activity-empty" role="status">
-          {t.activity.unavailable}
-        </p>
+        <div className="mgr-activity-empty" role="status">
+          <DashboardEmptyState variant="NO_DATA" title={t.activity.unavailable} />
+        </div>
       ) : activities.length === 0 ? (
-        <p className="mgr-activity-empty" role="status">
-          {t.activity.empty}
-        </p>
+        <div className="mgr-activity-empty" role="status">
+          <DashboardEmptyState
+            variant="NO_DATA"
+            title={t.activity.empty}
+            description={
+              vi
+                ? 'Các sự kiện tạo đơn, duyệt giá, phân công và thanh toán sẽ hiển thị tại đây.'
+                : 'Order, quotation, mission assignment, and payment events will appear here.'
+            }
+          />
+        </div>
       ) : (
-        <ol className="mgr-activity-list">
-          {activities.slice(0, MAX_ACTIVITIES).map((activity) => (
-            <li key={activity.id}>
-              <time className="mgr-time" dateTime={activity.occurredAt}>
-                {formatDashboardDate(activity.occurredAt)}
-              </time>
-              <span className="mgr-timeline-text">{dashboardActivityLabel(activity.description)}</span>
-            </li>
-          ))}
-        </ol>
+        <>
+          {categories.length > 1 ? (
+            <div className="mgr-filter-row" role="group">
+              <Button
+                size="small"
+                type={catFilter === 'ALL' ? 'primary' : 'default'}
+                onClick={() => setCatFilter('ALL')}
+              >
+                {vi ? 'Tất cả' : 'All'} ({activities.length})
+              </Button>
+              {categories.map((cat) => (
+                <Button
+                  key={cat}
+                  size="small"
+                  type={catFilter === cat ? 'primary' : 'default'}
+                  onClick={() => setCatFilter(cat)}
+                >
+                  {cat}
+                </Button>
+              ))}
+            </div>
+          ) : null}
+
+          <ol className="mgr-activity-list mgr-timeline-list">
+            {filtered.slice(0, MAX_ACTIVITIES).map((activity) => {
+              const { icon, tone } = activityVisual(activity.type)
+              const cat = activityCategory(activity.type, vi)
+              return (
+                <li key={activity.id} className="mgr-timeline-item">
+                  <span
+                    className={`mgr-timeline-node is-${tone}`}
+                    aria-hidden="true"
+                  >
+                    {icon}
+                  </span>
+                  <div className="mgr-timeline-card">
+                    <div className="mgr-timeline-top">
+                      <span className="mgr-timeline-cat">{cat}</span>
+                      <time className="mgr-time" dateTime={activity.occurredAt}>
+                        {formatDashboardDate(activity.occurredAt)}
+                      </time>
+                    </div>
+                    <p className="mgr-timeline-text">
+                      {dashboardActivityLabel(activity.description)}
+                    </p>
+                    {activity.orderId || activity.missionId ? (
+                      <div className="mgr-timeline-links">
+                        {activity.orderId ? (
+                          <a
+                            className="mgr-task-code"
+                            href={managerHref({
+                              screen: 'orderReview',
+                              orderId: activity.orderId,
+                            })}
+                          >
+                            {activity.orderCode ?? activity.orderId}
+                          </a>
+                        ) : null}
+                        {activity.missionId ? (
+                          <a
+                            className="mgr-task-code"
+                            href={managerHref({
+                              screen: 'missionDetail',
+                              missionId: activity.missionId,
+                            })}
+                          >
+                            {vi ? 'Mở nhiệm vụ' : 'Open mission'}
+                          </a>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </li>
+              )
+            })}
+          </ol>
+        </>
       )}
     </CardComponent>
   )

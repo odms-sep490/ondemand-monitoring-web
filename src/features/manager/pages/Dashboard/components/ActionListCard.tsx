@@ -1,12 +1,17 @@
-import { Badge, Button, Tag } from 'antd'
-import { useState } from 'react'
-
 import {
-  CardComponent,
-  EmptyState,
-} from '../../../../../shared/components/antd'
+  AuditOutlined,
+  DollarOutlined,
+  ExclamationCircleOutlined,
+  FileProtectOutlined,
+  ScheduleOutlined,
+} from '@ant-design/icons'
+import { Badge, Button, Tag } from 'antd'
+import { useState, type ReactNode } from 'react'
+
+import { CardComponent } from '../../../../../shared/components/antd'
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
+import { MANAGER_COLORS } from '../../../theme/managerTheme'
 import type { ActionItem } from '../../../types/dashboard'
 import { dashboardPageMessages } from '../DashboardPage.messages'
 import {
@@ -15,7 +20,7 @@ import {
   groupActionItems,
   statusLabel,
 } from '../dashboardHelpers'
-import { MANAGER_COLORS } from '../../../theme/managerTheme'
+import { DashboardEmptyState } from './DashboardEmptyState'
 
 const MAX_VISIBLE_ACTION_ITEMS = 6
 
@@ -24,6 +29,22 @@ const PRIORITY_COLOR = {
   MEDIUM: MANAGER_COLORS.warning,
   LOW: '#94A3B8',
 } as const
+
+function taskTypeIcon(type: string): ReactNode {
+  switch (type) {
+    case 'ADDITIONAL_CHECKLIST_PRICING':
+    case 'QUOTE_READY':
+      return <DollarOutlined />
+    case 'CONTRACT_REVIEW':
+      return <FileProtectOutlined />
+    case 'RESULT_REVIEW':
+      return <AuditOutlined />
+    case 'RESOURCE_MISSING':
+      return <ExclamationCircleOutlined />
+    default:
+      return <ScheduleOutlined />
+  }
+}
 
 export function ActionListCard({
   items,
@@ -61,17 +82,21 @@ export function ActionListCard({
       title={a.title}
       className="mgr-action-card"
       extra={
-        <Badge count={items.length} showZero color={MANAGER_COLORS.primary} />
+        <Badge
+          count={items.length}
+          showZero
+          color={items.length > 0 ? MANAGER_COLORS.primary : '#94A3B8'}
+        />
       }
     >
       {!itemsAvailable ? (
-        <div className="mgr-empty-fill">
-          <EmptyState title={a.unavailable} />
-        </div>
+        <DashboardEmptyState variant="NO_DATA" title={a.unavailable} />
       ) : items.length === 0 ? (
-        <div className="mgr-empty-fill">
-          <EmptyState title={a.empty} description={a.emptyDescription} />
-        </div>
+        <DashboardEmptyState
+          variant="ALL_CAUGHT_UP"
+          title={a.empty}
+          description={a.emptyDescription}
+        />
       ) : (
         <>
           {groups.length > 1 ? (
@@ -117,55 +142,62 @@ export function ActionListCard({
                   </h4>
                 ) : null}
                 <ul className="m-0 list-none p-0">
-                  {g.items.map((item) => (
-                    <li key={item.id} className="mgr-dash-row">
-                      <span
-                        className="mgr-prio"
-                        style={{
-                          background: PRIORITY_COLOR[item.priority ?? 'MEDIUM'],
-                          color: PRIORITY_COLOR[item.priority ?? 'MEDIUM'],
-                        }}
-                        aria-hidden="true"
-                      />
-                      <div className="mgr-dash-row-main">
-                        <div className="mgr-dash-row-title">{item.title}</div>
-                        {item.description ? (
-                          <div className="mgr-dash-row-description">
-                            {item.description}
+                  {g.items.map((item) => {
+                    const prio = item.priority ?? 'MEDIUM'
+                    const prioColor = PRIORITY_COLOR[prio]
+                    const code = item.orderCode ?? item.code
+                    const age = formatAge(
+                      item.createdAt,
+                      generatedAt,
+                      locale,
+                      t.age.now,
+                    )
+                    return (
+                      <li key={item.id} className="mgr-dash-row mgr-task-row">
+                        <span
+                          className="mgr-task-icon"
+                          style={{
+                            color: prioColor,
+                            background: `${prioColor}14`,
+                          }}
+                          aria-hidden="true"
+                        >
+                          {taskTypeIcon(item.type)}
+                        </span>
+                        <div className="mgr-dash-row-main">
+                          <div className="mgr-dash-row-title">{item.title}</div>
+                          {item.description ? (
+                            <div className="mgr-dash-row-description">
+                              {item.description}
+                            </div>
+                          ) : null}
+                          <div className="mgr-dash-row-meta">
+                            {code ? (
+                              <span className="mgr-task-code">{code}</span>
+                            ) : null}
+                            {age ? <span>{age}</span> : null}
                           </div>
-                        ) : null}
-                        <div className="mgr-dash-row-meta">
-                          {[
-                            item.orderCode ?? item.code,
-                            formatAge(
-                              item.createdAt,
-                              generatedAt,
-                              locale,
-                              t.age.now,
-                            ),
-                          ]
-                            .filter(Boolean)
-                            .join(' · ')}
                         </div>
-                      </div>
-                      <Button
-                        size="small"
-                        href={managerHref(actionItemRoute(item))}
-                      >
-                        {[
-                          'ORDER_PLANNING',
-                          'MISSION_PLANNING',
-                          'CONTRACT_REVIEW',
-                          'RESULT_REVIEW',
-                          'RESOURCE_MISSING',
-                        ].includes(item.type)
-                          ? typeLabel(item.type)
-                          : item.actionType
-                            ? a[item.actionType]
-                            : a.view}
-                      </Button>
-                    </li>
-                  ))}
+                        <Button
+                          size="small"
+                          type={prio === 'HIGH' ? 'primary' : 'default'}
+                          href={managerHref(actionItemRoute(item))}
+                        >
+                          {[
+                            'ORDER_PLANNING',
+                            'MISSION_PLANNING',
+                            'CONTRACT_REVIEW',
+                            'RESULT_REVIEW',
+                            'RESOURCE_MISSING',
+                          ].includes(item.type)
+                            ? typeLabel(item.type)
+                            : item.actionType
+                              ? a[item.actionType]
+                              : a.view}
+                        </Button>
+                      </li>
+                    )
+                  })}
                 </ul>
               </section>
             ))}

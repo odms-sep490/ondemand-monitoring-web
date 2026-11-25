@@ -1,14 +1,24 @@
-import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
-import { missionsApi } from '../../../api/missionsApi'
+import {
+  CalendarOutlined,
+  RightOutlined,
+  RocketOutlined,
+  UserOutlined,
+} from '@ant-design/icons'
+import { Button, Tag } from 'antd'
+
 import { CardComponent } from '../../../../../shared/components/antd'
+import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { useLanguage } from '../../../../../shared/i18n'
+import { missionsApi } from '../../../api/missionsApi'
 import { managerHref } from '../../../routes'
 import type {
   ActiveMission,
   DistributionPoint,
   MissionTrendPoint,
 } from '../../../types/dashboard'
-import { statusLabel, formatDashboardDate } from '../dashboardHelpers'
+import { formatDashboardDate, statusLabel } from '../dashboardHelpers'
+import { statusChartColor } from '../dashboardTone'
+import { DashboardEmptyState } from './DashboardEmptyState'
 import { DonutChart } from './charts/DonutChart'
 
 export function MissionDistributionPanel({
@@ -28,9 +38,11 @@ export function MissionDistributionPanel({
       {available ? (
         <DonutChart
           points={points.map((p) => ({
+            key: p.key,
             label: statusLabel(p.key),
             value: p.count,
           }))}
+          centerCaption={vi ? 'nhiệm vụ' : 'missions'}
           empty={
             vi
               ? 'Chưa có nhiệm vụ trong kỳ này.'
@@ -39,7 +51,10 @@ export function MissionDistributionPanel({
           ariaLabel={(total) => `${total} ${vi ? 'nhiệm vụ' : 'missions'}`}
         />
       ) : (
-        <p>{vi ? 'Chưa có dữ liệu trạng thái.' : 'Status data unavailable.'}</p>
+        <DashboardEmptyState
+          variant="NO_DATA"
+          title={vi ? 'Chưa có dữ liệu trạng thái.' : 'Status data unavailable.'}
+        />
       )}
     </CardComponent>
   )
@@ -97,107 +112,129 @@ export function ReferenceMissionPanel({
             ? 'Nhiệm vụ gần nhất'
             : 'Latest mission'
       }
-      className="mgr-ref-mission"
+      className="mgr-ref-mission mgr-mission-compact-card"
       extra={
-        <a href={managerHref({ screen: 'missions' })}>
-          {vi ? 'Xem tất cả →' : 'View all →'}
+        <a
+          className="mgr-card-link"
+          href={managerHref({ screen: 'missions' })}
+        >
+          {vi ? 'Xem tất cả' : 'View all'}{' '}
+          <RightOutlined style={{ fontSize: 11 }} aria-hidden="true" />
         </a>
       }
     >
-      <div className="mgr-ref-scene">
-        <img
-          className="mgr-ref-landscape"
-          src="/images/dashboard-mission-3d.png"
-          alt=""
+      {Boolean(recent.error) && !active ? (
+        <DashboardEmptyState
+          variant="ERROR"
+          title={
+            vi
+              ? 'Không tải được nhiệm vụ gần nhất.'
+              : 'Could not load the latest mission.'
+          }
+          actionLabel={vi ? 'Thử lại' : 'Retry'}
+          onAction={recent.reload}
         />
-
-        <div className="mgr-ref-mission-copy">
-          <strong>
-            {current?.missionCode ??
-              (recent.loading
-                ? vi
-                  ? 'Đang tải nhiệm vụ…'
-                  : 'Loading mission…'
-                : vi
-                  ? 'Chưa có nhiệm vụ'
-                  : 'No mission yet')}
-          </strong>
-          <span>
-            {current
-              ? statusLabel(current.status)
+      ) : !current ? (
+        <DashboardEmptyState
+          variant="NO_MISSIONS"
+          title={
+            recent.loading
+              ? vi
+                ? 'Đang tải nhiệm vụ…'
+                : 'Loading mission…'
+              : vi
+                ? 'Chưa có nhiệm vụ đang chạy'
+                : 'No active mission yet'
+          }
+          description={
+            recent.loading
+              ? undefined
               : missions
                 ? vi
-                  ? 'Sẵn sàng cho lịch bay tiếp theo'
-                  : 'Ready for the next flight'
+                  ? 'Hệ thống sẵn sàng cho lịch bay tiếp theo. Kiểm tra hàng đợi đơn để lập kế hoạch nhiệm vụ.'
+                  : 'Ready for the next flight. Review the order queue to schedule upcoming missions.'
                 : vi
-                  ? 'Chưa tải được dữ liệu'
-                  : 'Data unavailable'}
-          </span>
-          {current && (
-            <a
+                  ? 'Chưa tải được dữ liệu nhiệm vụ.'
+                  : 'Mission data unavailable.'
+          }
+          actionLabel={
+            recent.loading
+              ? undefined
+              : vi
+                ? 'Xem danh sách nhiệm vụ'
+                : 'View missions'
+          }
+          actionHref={
+            recent.loading ? undefined : managerHref({ screen: 'missions' })
+          }
+        />
+      ) : (
+        <div className="mgr-mission-compact">
+          <div className="mgr-mission-compact-head">
+            <div className="mgr-mission-compact-id">
+              <span className="mgr-mission-badge-icon" aria-hidden="true">
+                <RocketOutlined />
+              </span>
+              <div>
+                <div className="mgr-mission-code-row">
+                  <strong className="mgr-mission-code">
+                    {current.missionCode}
+                  </strong>
+                  <Tag color={statusChartColor(current.status)}>
+                    {statusLabel(current.status)}
+                  </Tag>
+                </div>
+                {!active ? (
+                  <p className="mgr-mission-subnote">
+                    {vi
+                      ? 'Hiển thị nhiệm vụ gần nhất do chưa có nhiệm vụ đang bay.'
+                      : 'Showing latest mission as none is currently in flight.'}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+            <Button
+              type="primary"
+              size="small"
               href={managerHref({
                 screen: 'missionDetail',
                 missionId: current.missionId,
               })}
             >
-              {vi ? 'Mở nhiệm vụ →' : 'Open mission →'}
-            </a>
-          )}
-        </div>
-        <small className="mgr-ref-scene-caption">
-          {vi
-            ? 'Hình minh họa · không phải vị trí trực tiếp'
-            : 'Illustration · not a live location'}
-        </small>
-      </div>
-      <dl className="mgr-ref-flight-facts">
-        <div>
-          <dt>{vi ? 'Lịch thực hiện' : 'Schedule'}</dt>
-          <dd>
-            {current?.scheduledStartAt
-              ? formatDashboardDate(current.scheduledStartAt)
-              : vi
-                ? 'Chưa lên lịch'
-                : 'Not scheduled'}
-          </dd>
-        </div>
-        <div>
-          <dt>{vi ? 'Nhân sự' : 'Operator'}</dt>
-          <dd>{current?.operatorName ?? missing}</dd>
-        </div>
-        <div>
-          <dt>{vi ? 'Thiết bị' : 'Drone'}</dt>
-          <dd>{current?.droneName ?? missing}</dd>
-        </div>
-      </dl>
-      {current && (
-        <div className="mgr-ref-mission-summary">
-          <div>
-            <span>{vi ? 'Trạng thái nhiệm vụ' : 'Mission status'}</span>
-            <strong>{statusLabel(current.status)}</strong>
+              {vi ? 'Mở nhiệm vụ' : 'Open mission'}
+            </Button>
           </div>
-          <div>
-            <span>{vi ? 'Mã nhiệm vụ' : 'Mission code'}</span>
-            <strong>{current.missionCode}</strong>
-          </div>
-          {!active && (
-            <p>
-              {vi
-                ? 'Đang hiển thị nhiệm vụ gần nhất vì không có nhiệm vụ hoạt động.'
-                : 'Showing the latest mission because none is currently active.'}
-            </p>
-          )}
+
+          <dl className="mgr-mission-facts-grid">
+            <div className="mgr-mission-fact-tile">
+              <dt>
+                <CalendarOutlined aria-hidden="true" />{' '}
+                {vi ? 'Lịch thực hiện' : 'Schedule'}
+              </dt>
+              <dd>
+                {current.scheduledStartAt
+                  ? formatDashboardDate(current.scheduledStartAt)
+                  : vi
+                    ? 'Chưa lên lịch'
+                    : 'Not scheduled'}
+              </dd>
+            </div>
+            <div className="mgr-mission-fact-tile">
+              <dt>
+                <UserOutlined aria-hidden="true" />{' '}
+                {vi ? 'Nhân sự' : 'Operator'}
+              </dt>
+              <dd>{current.operatorName ?? missing}</dd>
+            </div>
+            <div className="mgr-mission-fact-tile">
+              <dt>
+                <RocketOutlined aria-hidden="true" />{' '}
+                {vi ? 'Thiết bị' : 'Drone'}
+              </dt>
+              <dd>{current.droneName ?? missing}</dd>
+            </div>
+          </dl>
         </div>
-      )}
-      {Boolean(recent.error) && !active && (
-        <p role="status">
-          {vi
-            ? 'Không tải được nhiệm vụ gần nhất.'
-            : 'Could not load the latest mission.'}{' '}
-          <button type="button" onClick={recent.reload}>
-            {vi ? 'Thử lại' : 'Retry'}
-          </button>
-        </p>
       )}
     </CardComponent>
   )
@@ -240,11 +277,14 @@ export function PerformancePanel({ points }: { points?: MissionTrendPoint[] }) {
           </p>
         </>
       ) : (
-        <p>
-          {vi
-            ? 'Chưa có kết quả nhiệm vụ trong kỳ này.'
-            : 'No mission outcomes in this period.'}
-        </p>
+        <DashboardEmptyState
+          variant="NO_DATA"
+          title={
+            vi
+              ? 'Chưa có kết quả nhiệm vụ trong kỳ này.'
+              : 'No mission outcomes in this period.'
+          }
+        />
       )}
     </CardComponent>
   )

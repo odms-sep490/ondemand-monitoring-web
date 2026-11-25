@@ -30,6 +30,7 @@ export type ApiRequestOptions = {
   query?: Record<string, string | number | boolean | undefined>
   signal?: AbortSignal
   headers?: Record<string, string>
+  responseType?: 'json' | 'blob'
 }
 
 // Backend envelope shape, matches `ApiResponse` in
@@ -111,6 +112,7 @@ async function defaultTransport(
     // in interactive hybrid mode. Its aggregate endpoint must remain real.
     if (
       (method === 'GET' && pathname === '/api/manager/dashboard') ||
+      pathname.startsWith('/api/customer/order-conversations') ||
       matchesRealApiRoute(env.realApiRoutes, method, pathname)
     ) {
       return authenticatedFetch(input, init)
@@ -146,10 +148,11 @@ export async function apiRequest<T>(
     query,
     signal,
     headers: customHeaders,
+    responseType = 'json',
   } = options
   const url = buildUrl(path, query)
   const headers = new Headers()
-  headers.set('Accept', 'application/json')
+  headers.set('Accept', responseType === 'blob' ? 'audio/wav, application/json' : 'application/json')
   const multipart = body instanceof FormData
   if (body !== undefined && !multipart)
     headers.set('Content-Type', 'application/json')
@@ -185,8 +188,15 @@ export async function apiRequest<T>(
     })
   }
 
-  const payload = (await response.json().catch(() => undefined)) as
-    ApiEnvelope<T> | undefined
+  const isAudioResponse =
+    responseType === 'blob' &&
+    response.ok &&
+    response.headers.get('Content-Type')?.toLowerCase().includes('audio/')
+  const payload = isAudioResponse
+    ? undefined
+    : ((await response.json().catch(() => undefined)) as
+        | ApiEnvelope<T>
+        | undefined)
 
   if (!response.ok || payload?.success === false) {
     const errors =
@@ -210,6 +220,8 @@ export async function apiRequest<T>(
   if (payload && typeof payload === 'object' && 'success' in payload) {
     return payload.data as T
   }
+
+  if (responseType === 'blob') return (await response.blob()) as T
 
   return payload as T
 }

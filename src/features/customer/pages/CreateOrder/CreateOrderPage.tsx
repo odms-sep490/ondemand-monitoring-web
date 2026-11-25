@@ -13,6 +13,8 @@ import { LocationStep } from './components/LocationStep'
 import { ReviewStep } from './components/ReviewStep'
 import { ScheduleStep } from './components/ScheduleStep'
 import { ServiceStep } from './components/ServiceStep'
+import { OrderConversation } from './components/OrderConversation'
+import { validateStep } from '../../lib/createOrder/validators'
 import { SiteDetailsStep } from './components/SiteDetailsStep'
 import { WizardFooter } from './components/WizardFooter'
 import { createOrderPageMessages } from './CreateOrderPage.messages'
@@ -34,9 +36,10 @@ export function CreateOrderPage() {
   const confirmTriggerRef = useRef<HTMLElement | null>(null)
   const leaveTriggerRef = useRef<HTMLButtonElement | null>(null)
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false)
+  const [assistantStep, setAssistantStep] = useState<Step | undefined>(undefined)
   const { t } = useI18n(createOrderPageMessages)
-  const { f, meta, wizard, submit, service, time, checklist } =
-    useCreateOrderWizard()
+  const { f, meta, wizard, submit, service, time, checklist, applyValidatedAgentDraft } =
+    useCreateOrderWizard(assistantStep)
   const { form, step } = f
   const estimate = selectionEstimate(
     meta.pricingEstimate,
@@ -127,6 +130,7 @@ export function CreateOrderPage() {
       <CreatedSuccess
         orderId={submit.createdId}
         orderCode={submit.createdCode}
+        assistantSuccess={Boolean(form.orderAgentSessionId)}
       />
     )
   }
@@ -157,26 +161,10 @@ export function CreateOrderPage() {
     </nav>
   )
 
-  return (
-    <div
-      ref={pageRef}
-      className={`cus-page co-page${step === 1 ? ' is-service-selection' : ''}${step === 6 ? ' is-review-step' : ''}`}
-    >
-      <h1 className="odm-visually-hidden">
-        {step === 6 ? t.reviewTitle : t.pageTitle}
-      </h1>
-
-      {meta.loading && !meta.services.length && <LoadingState />}
-      {Boolean(meta.error) && (
-        <ErrorState
-          title={t.metaErrorTitle}
-          error={meta.error}
-          onRetry={meta.reload}
-        />
-      )}
-
+  function renderOrderStep(step: Step) { return <>
       {step === 1 && (
         <ServiceStep
+          selection={checklist.quoteSelection}
           form={form}
           errors={f.errors}
           update={f.update}
@@ -204,6 +192,7 @@ export function CreateOrderPage() {
           checklist={
             <ChecklistEditor
               variant="compact"
+              expandableRows
               quote
               checklist={checklist}
               disabled={submit.submitting}
@@ -250,6 +239,48 @@ export function CreateOrderPage() {
         />
       )}
 
+</> }
+  function renderAssistantStep(step: Step) {
+    if (step !== 5) return renderOrderStep(step)
+    return (
+      <ScheduleStep
+        form={form}
+        errors={f.errors}
+        update={f.update}
+        preferredTimes={meta.preferredTimes}
+        assistantMode
+      />
+    )
+  }
+
+  return (
+    <div
+      ref={pageRef}
+      className={`cus-page co-page${step === 1 ? ' is-service-selection' : ''}${step === 3 ? ' is-content-step' : ''}${step === 6 ? ' is-review-step' : ''}`}
+    >
+      <h1 className="odm-visually-hidden">
+        {step === 6 ? t.reviewTitle : t.pageTitle}
+      </h1>
+
+      {meta.loading && !meta.services.length && <LoadingState />}
+      {Boolean(meta.error) && (
+        <ErrorState
+          title={t.metaErrorTitle}
+          error={meta.error}
+          onRetry={meta.reload}
+        />
+      )}
+
+      <OrderConversation form={form} setForm={f.setForm} services={meta.services} deliverables={meta.deliverables}
+        preferredTimes={meta.preferredTimes}
+        onValidateStep={(target) => wizard.validate(target) && (target < 3 || checklist.valid)}
+        stepValidity={Object.fromEntries(([1, 2, 3, 4, 5, 6] as Step[]).map((target) => [target,
+          Object.keys(validateStep(target, form, { monitoringValid: form.locationStatus === 'confirmed', blockedZoneNames: [] }, t.validation)).length === 0 && (target < 3 || checklist.valid),
+        ]))}
+        serializeChecklist={checklist.serialize} checklistValid={checklist.valid} mediaTotals={checklist.mediaTotals} onApply={applyValidatedAgentDraft}
+        onSubmitFinal={() => submit.submit()}
+        onOpenStep={f.setStep} onManualStepChange={setAssistantStep} renderStep={renderAssistantStep} serviceSelectionStep={step === 1} />
+      {renderOrderStep(step)}
       {f.submitError && !submit.confirmOpen && (
         <div className="co-notice is-danger" role="alert">
           {f.submitError}
@@ -298,3 +329,4 @@ export function CreateOrderPage() {
     </div>
   )
 }
+

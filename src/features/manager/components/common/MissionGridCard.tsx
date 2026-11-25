@@ -752,7 +752,8 @@ export function MissionGridCard({
             {!isCancelled &&
               !disabled &&
               hasFlightWindow &&
-              currentDevices.length < maxDevices && (
+              currentDevices.length < maxDevices &&
+              (showAddDevice || animation.phase !== 'IDLE') && (
                 <div
                   ref={animation.targetRef}
                   className={`mg-drone-assignment-target${
@@ -797,12 +798,15 @@ export function MissionGridCard({
               />
             )}
 
-            {!disabled && !isCancelled && hasFlightWindow && (
-              <p
-                className={`mg-drone-assignment-feedback is-${animation.phase.toLowerCase()}`}
-                role="status"
-                aria-live="polite"
-              >
+            {!disabled &&
+              !isCancelled &&
+              hasFlightWindow &&
+              (showAddDevice || animation.phase !== 'IDLE') && (
+                <p
+                  className={`mg-drone-assignment-feedback is-${animation.phase.toLowerCase()}`}
+                  role="status"
+                  aria-live="polite"
+                >
                 {animation.phase === 'IDLE'
                   ? t.deviceAssignIdle
                   : animation.phase === 'PREPARING'

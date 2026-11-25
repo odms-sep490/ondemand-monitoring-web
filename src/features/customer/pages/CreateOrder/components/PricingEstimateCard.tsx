@@ -65,6 +65,11 @@ export function PricingEstimateCard({
         <span>{t.servicePrice}</span>
         <strong>{formatMoney(serviceFallbackPrice, locale)}</strong>
       </div>
+      <div className="co-money-row co-money-total">
+        <span>{t.total}</span>
+        <span>{formatMoney(serviceFallbackPrice, locale)}</span>
+      </div>
+      <p className="co-estimate-notice">{t.estimateNotice}</p>
     </div>
   )
   else if (loading && !estimate) body = <p className="co-hint">{t.loading}</p>

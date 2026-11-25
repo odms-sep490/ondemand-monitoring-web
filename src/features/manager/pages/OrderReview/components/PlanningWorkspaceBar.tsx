@@ -1,4 +1,5 @@
 import { PlusOutlined, ReloadOutlined, RightOutlined } from '@ant-design/icons'
+import type { ReactNode } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { orderMissionPlanningSectionMessages } from './OrderMissionPlanningSection.messages'
@@ -18,6 +19,7 @@ export function PlanningWorkspaceBar({
   onAddMission,
   onReload,
   onFinalize,
+  extraActions,
 }: {
   sidebarCollapsed: boolean
   onOpenSidebar: () => void
@@ -34,6 +36,7 @@ export function PlanningWorkspaceBar({
   onAddMission: () => void
   onReload: () => void
   onFinalize: () => void
+  extraActions?: ReactNode
 }) {
   const { t } = useI18n(orderMissionPlanningSectionMessages)
   return (
@@ -86,6 +89,7 @@ export function PlanningWorkspaceBar({
             {t.finalizeAction}
           </button>
         ) : null}
+        {extraActions}
       </div>
     </div>
   )

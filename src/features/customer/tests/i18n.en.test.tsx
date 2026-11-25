@@ -212,8 +212,8 @@ const ROUTES: Route[] = [
   {
     name: 'CreateOrder',
     hash: '#portal/customer/orders/new',
-    vi: 'Chọn dịch vụ giám sát',
-    en: 'Choose a monitoring service',
+    vi: 'Xin chào, tôi có thể giúp bạn tạo yêu cầu',
+    en: 'Hello, I can help you create an order request',
   },
   {
     name: 'Live',

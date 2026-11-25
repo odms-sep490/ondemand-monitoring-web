@@ -77,7 +77,9 @@ export function ManagerLayout({
   return (
     <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
       <div className="odm odm-mgr mgr-layout">
-        {route.screen !== 'schedule' && route.screen !== 'missionDetail' ? (
+        {route.screen !== 'schedule' &&
+        route.screen !== 'missionDetail' &&
+        route.screen !== 'drones' ? (
           <span className="mgr-flight-decor" aria-hidden="true">
             <span className="mgr-flight-route" />
             <Suspense fallback={null}>

@@ -13,6 +13,8 @@ import {
 import { pricingAreaHa } from '../../../lib/createOrder/payload'
 import { circleCoverageArea } from '../../../lib/createOrder/coverageGeometry'
 import { useCreateOrderWizard } from './useCreateOrderWizard'
+import { buildOrderPayload } from '../../../lib/createOrder/payload'
+import type { OrderAgentSession } from '../../../lib/createOrder/orderAgent'
 
 function quote(areaHa?: number): ServicePricePreview {
   const total =
@@ -80,6 +82,40 @@ beforeEach(() => {
 afterEach(() => {
   vi.restoreAllMocks()
   localStorage.removeItem(CREATE_ORDER_DRAFT_STORAGE_KEY)
+})
+
+it('applies all validated data once and opens the existing Review without calling createOrder',async()=>{
+  vi.mocked(customerApi.listPreferredTimes).mockResolvedValue([{id:'morning',name:'Morning'}])
+  vi.mocked(customerApi.listServiceDeliverables).mockResolvedValue([{id:'link',serviceId:'construction',deliverableTypeId:'photo',deliverableTypeName:'Photo'}])
+  const create=vi.spyOn(customerApi,'createOrder')
+  const {result}=renderHook(useCreateOrderWizard)
+  await waitFor(()=>expect(result.current.checklist.status).toBe('ready'))
+  act(()=>result.current.f.setForm(current=>({...current,
+    ...circleArea(1),latitude:'10.6402',longitude:'106.6912',locationStatus:'confirmed',locationConfirmedAt:'confirmed',
+    address:'Test site',normalizedAddress:'Test site',flightPurpose:'CONSTRUCTION_MONITORING',description:'Theo dõi mái',
+    siteContactName:'Customer',siteContactPhone:'0901234567',accessNotes:'Gate',monitoringRelationship:'OWNER',
+    monitoringAuthorizationConfirmed:true,termsAccepted:true,preferredTimeId:'morning',deliverableTypeId:'photo',
+  })))
+  await waitFor(()=>expect(result.current.f.form.preferredTimeId).toBe('morning'))
+  const before=result.current.f.form
+  const canonicalDraft={...buildOrderPayload({form:before,score:result.current.score,mediaTotals:result.current.checklist.mediaTotals,
+    deliverableOptions:result.current.meta.deliverables}),checklistItems:result.current.checklist.serialize()}
+  const session:OrderAgentSession={id:'session',revision:9,expiresAt:'2099-01-01',state:{messages:[],confirmedFields:{},pendingChanges:{},readyForReview:true,canonicalDraft}}
+  act(()=>result.current.applyValidatedAgentDraft(session,before))
+  expect(result.current.f.step).toBe(6)
+  expect(result.current.f.form.agentChecklistItems).toEqual(canonicalDraft.checklistItems)
+  expect(result.current.f.form.coverageArea).toEqual(before.coverageArea)
+  expect(JSON.parse(localStorage.getItem(CREATE_ORDER_DRAFT_STORAGE_KEY)!).step).toBe(6)
+  expect(create).not.toHaveBeenCalled()
+  const applied=result.current.f.form
+  const storage=vi.spyOn(Storage.prototype,'setItem').mockImplementation(()=>{throw new DOMException('Full','QuotaExceededError')})
+  expect(()=>result.current.applyValidatedAgentDraft(session,applied)).toThrow('Chưa lưu được bản nháp')
+  expect(result.current.f.form).toBe(applied)
+  expect(result.current.f.step).toBe(6)
+  storage.mockRestore()
+  act(()=>result.current.wizard.goTo(4))
+  expect(result.current.f.step).toBe(4)
+  expect(create).not.toHaveBeenCalled()
 })
 
 describe('area availability in the customer wizard', () => {

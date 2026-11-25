@@ -444,3 +444,93 @@
 .odm-recommendation-details > summary:focus-visible { outline: 2px solid var(--primary, #1565e8); outline-offset: 3px; }
 .odm-recommendation-details .odm-mcard-recommendation-pairs { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; padding: 0; list-style: none; }
 .odm-recommendation-details .odm-mcard-recommendation-pairs li { padding: 8px 10px; background: var(--surface-muted, #f6f8fd); border-radius: 8px; margin: 0; min-width: 0; overflow-wrap: anywhere; }
+
+
+/* Balanced 2-column MissionGridCard polish */
+.odm-mission-grid-card {
+  gap: 16px 24px;
+}
+.odm-mission-grid-card .odm-mcard-sec-head {
+  min-height: 36px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.odm-mission-grid-card .odm-mcard-office-link {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+.odm-mission-grid-card .odm-mcard-staff-actions .odm-btn-sm {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+.odm-mcard-empty-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 60px;
+  padding: 12px 16px;
+  border: 1px dashed var(--mgr-border, #cbd5e1);
+  border-radius: 10px;
+  background: var(--mgr-card-2, #f8fafc);
+  color: var(--mgr-muted, #64748b);
+  font-size: 13px;
+  font-weight: 500;
+}
+.odm-mcard-empty-slot svg {
+  flex: none;
+  opacity: 0.7;
+}
+.odm-mission-grid-card .odm-mcard-section--staff,
+.odm-mission-grid-card .odm-mcard-section--devices {
+  padding-top: 16px;
+}
+.odm-mission-grid-card .odm-mcard-navigation {
+  padding-top: 14px;
+  border-top: 1px solid var(--ui-border, #e2e8f0);
+}
+:root[data-theme='dark'] .odm-mcard-empty-slot {
+  border-color: rgb(148 163 184 / 24%);
+  background: rgb(15 23 42 / 35%);
+  color: #94a3b8;
+}
+
+
+/* Fix assigned drone card horizontal alignment & match staff card height */
+.odm-mission-grid-card .odm-mcard-res-item.mg-assigned-drone {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto auto;
+  align-items: center;
+  justify-content: initial;
+  gap: 12px;
+  min-height: 68px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+.odm-mission-grid-card .odm-mcard-res-item.mg-assigned-drone .mg-assigned-drone-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+}
+.odm-mission-grid-card .odm-mcard-res-item.mg-assigned-drone .mg-assigned-drone-copy {
+  align-items: flex-start;
+  text-align: left;
+  min-width: 0;
+}
+.odm-mission-grid-card .odm-mcard-res-item.odm-mcard-res-staff-group {
+  min-height: 68px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+.odm-mission-grid-card .odm-mcard-section--schedule .odm-mcard-sec-head,
+.odm-mission-grid-card .odm-mcard-section--work .odm-mcard-sec-head {
+  min-height: 24px;
+  margin-bottom: 10px;
+}

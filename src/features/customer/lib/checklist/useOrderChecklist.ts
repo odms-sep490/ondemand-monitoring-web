@@ -4,6 +4,7 @@ import { customerApi } from '../../api/customerApi'
 import { checklistError } from './errors'
 import { checklistMessages } from './messages'
 import { useChecklistQuote } from './useChecklistQuote'
+import { applyChecklistSelection } from './applyChecklistSelection'
 import type { ChecklistQuoteContext } from '../../../../shared/api/checklistPricingApi'
 import {
   EVIDENCE_TYPES,
@@ -14,6 +15,7 @@ import {
   serializeChecklist,
   usesMedia,
   type ChecklistRow,
+  type ChecklistInput,
 } from './types'
 
 type State = {
@@ -30,6 +32,7 @@ const isCount = (value: number) =>
 export function useOrderChecklist(
   serviceId: string,
   pricingContext?: ChecklistQuoteContext,
+  confirmedSelection?: ChecklistInput[],
 ) {
   const { t } = useI18n(checklistMessages)
   const [state, setState] = useState<State | null>(null)
@@ -148,6 +151,19 @@ export function useOrderChecklist(
     }
     return () => controller.abort()
   }, [serviceId, revision])
+
+  const selectionKey = JSON.stringify(confirmedSelection ?? null)
+  const appliedSelection = useRef('')
+  useEffect(() => {
+    if (!confirmedSelection || state?.serviceId !== serviceId || state.status !== 'ready') return
+    const key = serviceId + ':' + revision + ':' + selectionKey
+    if(appliedSelection.current === key) return
+    // Catalog loading may still be adding non-package rows. Wait until every selected ID exists.
+    if(confirmedSelection.some(item => item.sourceChecklistId && !state.rows.some(row => row.sourceChecklistId === item.sourceChecklistId))) return
+    if(confirmedSelection.some(item=>item.sourceChecklistId && state.rows.find(row=>row.sourceChecklistId===item.sourceChecklistId)?.version!==item.expectedChecklistVersion))return
+    appliedSelection.current = key
+    setState(previous => previous?.serviceId === serviceId ? {...previous, rows:applyChecklistSelection(previous.rows,confirmedSelection)} : previous)
+  }, [serviceId, revision, selectionKey, state, confirmedSelection])
 
   const current = state?.serviceId === serviceId ? state : null
   const status = !serviceId ? 'idle' : (current?.status ?? 'loading')

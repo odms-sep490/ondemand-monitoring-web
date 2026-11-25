@@ -74,6 +74,69 @@ export const landingPageMessages = defineMessages({
     footerCopyright: '© 2026 OnDemand Monitor. Bảo lưu mọi quyền.',
     footerNote: 'Điều phối bay & kiểm định hiện trường',
     footerSupport: 'support@odms.vn',
+    heroBadge: 'Managed Drone-as-a-Service · Việt Nam',
+    scrollHint: 'Khám phá dịch vụ',
+    catalogEyebrow: 'DANH MỤC DỊCH VỤ HIỆN CÓ',
+    catalogHeading: 'Bốn nhóm nhiệm vụ giám sát chuyên sâu.',
+    catalogSubtitle:
+      'Chọn đúng nhóm dịch vụ theo hiện trường thực tế, tùy chỉnh danh mục checklist và theo dõi tiến độ bàn giao trên cùng một nền tảng.',
+    catalogCta: 'Bắt đầu với dịch vụ này',
+    catalogItems: [
+      {
+        id: 'factory',
+        code: '01 · NHÀ XƯỞNG',
+        name: 'Kiểm tra nhà xưởng',
+        summary:
+          'Kiểm tra mái tôn, kết cấu bên ngoài, hệ thống năng lượng áp mái và các vị trí trên cao khó tiếp cận an toàn bằng drone.',
+        deliverables: 'Đầu ra: Ảnh/video theo từng hạng mục checklist và báo cáo kiểm định.',
+        image: '/assets/landing/services/factory-inspection.jpg',
+        imageAlt: 'Góc nhìn từ trên cao khu nhà xưởng và hạ tầng công nghiệp',
+      },
+      {
+        id: 'area',
+        code: '02 · KHU VỰC',
+        name: 'Giám sát khu vực',
+        summary:
+          'Quan sát tổng thể mặt bằng rộng, ghi nhận hiện trạng định kỳ và theo dõi các điểm cần lưu ý trong vùng khoanh trên bản đồ.',
+        deliverables: 'Đầu ra: Toàn cảnh vùng giám sát, ảnh chi tiết theo tọa độ yêu cầu.',
+        image: '/images/landing/bridge-inspection.webp',
+        imageAlt: 'Góc nhìn tổng thể khu vực hạ tầng từ drone',
+      },
+      {
+        id: 'forest',
+        code: '03 · LÂM NGHIỆP',
+        name: 'Giám sát rừng',
+        summary:
+          'Theo dõi hiện trạng rừng, biến động thảm thực vật và ghi nhận sớm khu vực bất thường trên địa hình đồi núi rộng lớn.',
+        deliverables: 'Đầu ra: Dữ liệu ảnh/video theo tuyến bay và khu vực ưu tiên.',
+        image: '/assets/landing/services/forest-monitoring.jpg',
+        imageAlt: 'Toàn cảnh khu vực rừng và địa hình cao nguyên nhìn từ trên cao',
+      },
+      {
+        id: 'construction',
+        code: '04 · XÂY DỰNG',
+        name: 'Giám sát công trình',
+        summary:
+          'Ghi nhận hiện trạng và tiến độ thi công định kỳ bằng hình ảnh, video sắc nét phục vụ đối chiếu và nghiệm thu.',
+        deliverables: 'Đầu ra: Bộ ảnh/video tiến độ theo checklist kèm lịch sử đối soát.',
+        image: '/images/landing/construction-1280.webp',
+        imageAlt: 'Công trường xây dựng nhìn từ góc quay drone trên cao',
+      },
+    ],
+    aiEyebrow: 'TRỢ LÝ AI TƯ VẤN YÊU CẦU',
+    aiHeading: 'Chưa quen lập phạm vi bay? Trợ lý AI đồng hành từng bước.',
+    aiBody:
+      'Ngay trong màn hình tạo yêu cầu, trợ lý AI của OnDemand Monitor lắng nghe nhu cầu bằng văn bản hoặc giọng nói tiếng Việt, đặt câu hỏi làm rõ từng điểm thiếu và tự động điền vào bản nháp trước khi bạn xác nhận.',
+    aiStatusBadge: 'Hỗ trợ tiếng Việt & giọng nói',
+    aiBullets: [
+      'Gợi ý chọn đúng dịch vụ trong 4 nhóm đang hoạt động',
+      'Đánh giá mô tả nhiệm vụ và hỏi làm rõ mục tiêu, góc chụp, lưu ý hiện trường',
+      'Tổng hợp bản mô tả chuyên nghiệp để bạn kiểm tra trước khi áp dụng vào đơn',
+    ],
+    aiCta: 'Tư vấn với AI ngay',
+    finalHeading: 'Sẵn sàng khởi tạo nhiệm vụ giám sát đầu tiên?',
+    finalSub:
+      'Gửi yêu cầu trực tuyến, nhận kế hoạch bay minh bạch và kiểm soát toàn bộ dữ liệu bàn giao tại một nơi.',
   },
   en: {
     brandName: 'OnDemand Monitor',
@@ -148,5 +211,68 @@ export const landingPageMessages = defineMessages({
     footerCopyright: '© 2026 OnDemand Monitor. All rights reserved.',
     footerNote: 'Field flight dispatch & evidence verification',
     footerSupport: 'support@odms.vn',
+    heroBadge: 'Managed Drone-as-a-Service',
+    scrollHint: 'Explore services',
+    catalogEyebrow: 'ACTIVE SERVICE CATALOG',
+    catalogHeading: 'Four focused aerial monitoring workflows.',
+    catalogSubtitle:
+      'Select the service that fits your site, tailor checklist items and media counts, and track verified handover in one workspace.',
+    catalogCta: 'Start with this service',
+    catalogItems: [
+      {
+        id: 'factory',
+        code: '01 · INDUSTRIAL',
+        name: 'Factory & roof inspection',
+        summary:
+          'Inspect roofs, exterior structures, rooftop assets, and hard-to-reach elevated areas safely by drone.',
+        deliverables: 'Deliverables: Checklist-mapped photos, video, and verified inspection record.',
+        image: '/assets/landing/services/factory-inspection.jpg',
+        imageAlt: 'Aerial view of industrial factory roofs and port facilities',
+      },
+      {
+        id: 'area',
+        code: '02 · AREA',
+        name: 'Area monitoring',
+        summary:
+          'Capture broad site overviews, track recurring conditions, and monitor target zones drawn directly on the map.',
+        deliverables: 'Deliverables: Full-zone coverage and detailed imagery per target.',
+        image: '/images/landing/bridge-inspection.webp',
+        imageAlt: 'Aerial infrastructure overview captured from above',
+      },
+      {
+        id: 'forest',
+        code: '03 · FORESTRY',
+        name: 'Forest monitoring',
+        summary:
+          'Observe forest canopy conditions, vegetation changes, and priority zones across expansive highland terrain.',
+        deliverables: 'Deliverables: Route-aligned aerial photo and video evidence.',
+        image: '/assets/landing/services/forest-monitoring.jpg',
+        imageAlt: 'Aerial overview of forested highland terrain',
+      },
+      {
+        id: 'construction',
+        code: '04 · CONSTRUCTION',
+        name: 'Construction progress',
+        summary:
+          'Document site status and construction milestones with repeatable aerial photography and video.',
+        deliverables: 'Deliverables: Checklist-backed progress media with audit trail.',
+        image: '/images/landing/construction-1280.webp',
+        imageAlt: 'Aerial view of an active construction site',
+      },
+    ],
+    aiEyebrow: 'AI REQUEST CONSULTANT',
+    aiHeading: 'Unsure how to scope a flight? Our AI consultant guides every step.',
+    aiBody:
+      'Built directly into the Create Request workspace, the OnDemand Monitor AI consultant supports text and voice input, asks targeted clarification questions, and drafts a structured mission brief for your review.',
+    aiStatusBadge: 'Guided text & voice assistant',
+    aiBullets: [
+      'Helps choose the right service from active monitoring offerings',
+      'Evaluates your mission description and clarifies goals, angles, and site constraints',
+      'Generates a clean draft description you review before applying to the order',
+    ],
+    aiCta: 'Try AI consultation',
+    finalHeading: 'Ready to launch your next monitoring mission?',
+    finalSub:
+      'Submit your request online, track safety and flight readiness, and unlock verified original deliverables in one place.',
   },
 })

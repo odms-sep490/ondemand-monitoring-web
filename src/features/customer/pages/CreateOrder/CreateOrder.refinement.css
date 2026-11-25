@@ -124,86 +124,6 @@
   }
 }
 
-.co-schedule-options {
-  overflow: hidden;
-  border: 1px solid var(--ui-border);
-  border-radius: 12px;
-  background: var(--ui-surface);
-}
-
-.co-schedule-options-toggle {
-  display: flex;
-  width: 100%;
-  min-height: 64px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 12px 18px;
-  border: 0;
-  background: transparent;
-  color: var(--ui-text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.co-schedule-options-toggle:hover {
-  background: var(--ui-surface-2);
-}
-
-.co-schedule-options-toggle > span:first-child {
-  display: grid;
-  gap: 3px;
-}
-
-.co-schedule-options-toggle strong {
-  font-size: 14px;
-}
-
-.co-schedule-options-toggle small {
-  color: var(--ui-text-3);
-  font-size: 12px;
-  line-height: 1.4;
-}
-
-.co-schedule-options-chevron {
-  display: grid;
-  width: 30px;
-  height: 30px;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 1px solid var(--ui-border);
-  border-radius: 50%;
-  color: var(--ui-primary-text);
-  font-size: 19px;
-  line-height: 1;
-}
-
-.co-schedule-options-panel[hidden] {
-  display: none;
-}
-
-.co-schedule-options-panel {
-  padding: 0 12px 12px;
-  border-top: 1px solid var(--ui-border);
-}
-
-.co-schedule-options-panel > .ant-card {
-  height: auto;
-  min-height: 0;
-  max-height: none;
-  border: 0;
-  box-shadow: none; /* taste-skill-ignore: remove nested card elevation */
-}
-
-.co-schedule-options-panel > .ant-card .ant-card-body {
-  height: auto;
-  min-height: 0;
-  max-height: none;
-  overflow: visible;
-}
-
 .co-review-groups {
   display: grid;
   gap: 4px;
@@ -314,16 +234,10 @@
     display: none;
   }
 
-  .co-schedule-options-toggle {
-    min-height: 60px;
-    padding-inline: 14px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .co-action-dock,
-  .co-schedule-options-toggle,
-  .co-schedule-options-chevron {
+  .co-action-dock {
     scroll-behavior: auto;
     transition-duration: 0.01ms !important;
   }
@@ -2276,5 +2190,125 @@
   .co-page.is-service-selection .co-service-illustration,
   .co-page.is-service-selection .co-service-grid .co-service-illustration {
     height: clamp(150px, 42vw, 190px);
+  }
+}
+
+
+/* Step 1 balanced 2-column alignment polish */
+.co-page.is-service-selection .co-grid.is-service:not(.is-schedule) {
+  grid-template-columns: minmax(0, 1.55fr) minmax(340px, 1fr);
+  align-items: stretch;
+  gap: 18px;
+}
+.co-page.is-service-selection .co-grid.is-service > .co-summary.is-tall {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+}
+.co-page.is-service-selection .co-grid.is-service > .co-summary.is-tall > .ant-card:first-child {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+.co-page.is-service-selection .co-grid.is-service > .co-summary.is-tall > .ant-card:first-child > .ant-card-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 16px;
+}
+.co-page.is-service-selection .co-grid.is-service > .co-summary.is-tall > .ant-card:first-child .co-mt {
+  margin-top: 0;
+}
+.co-page.is-service-selection .co-summary textarea.co-input {
+  min-height: 92px;
+  padding: 9px 12px;
+}
+.co-page.is-service-selection .co-summary .co-counter {
+  margin-top: 4px;
+  font-size: 11.5px;
+}
+.co-page.is-service-selection .co-summary .co-attachment-details {
+  margin-top: auto;
+}
+.co-page.is-service-selection .co-pricing-estimate-card .ant-card-body {
+  padding: 12px 16px 14px;
+}
+.co-page.is-service-selection .co-pricing-estimate-card .co-estimate-notice {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--ui-text-3);
+}
+@media (max-width: 1000px) {
+  .co-page.is-service-selection .co-grid.is-service:not(.is-schedule) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .co-page.is-service-selection .co-grid.is-service > .co-summary.is-tall > .ant-card:first-child {
+    flex: none;
+  }
+}
+
+
+/* Step 2 balanced Map + Side Panel alignment & AI button clearance */
+.co-area-workspace {
+  grid-template-columns: minmax(0, 1.55fr) minmax(360px, 1fr);
+  align-items: stretch;
+  gap: 18px;
+  margin-block: 14px 16px;
+}
+.co-area-map-column {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: 16px;
+  background: var(--ui-surface);
+  box-sizing: border-box;
+}
+.co-area-map-shell {
+  flex: 1 1 auto;
+  min-height: 440px;
+  height: auto;
+  border-radius: 12px;
+}
+.co-area-map-tools {
+  margin-top: 0;
+  padding: 2px 4px 0;
+}
+.co-area-side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.co-area-side-panel > .co-area-card:last-child {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+.co-page .co-action-dock {
+  padding-right: 80px;
+}
+@media (max-width: 1080px) {
+  .co-area-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .co-area-map-shell {
+    height: min(56vh, 520px);
+  }
+  .co-area-side-panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+}
+@media (max-width: 760px) {
+  .co-area-side-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .co-page .co-action-dock {
+    padding-right: 12px;
   }
 }

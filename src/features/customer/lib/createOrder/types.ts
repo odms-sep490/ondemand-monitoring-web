@@ -105,6 +105,8 @@ export type FormState = {
   /** Free-text detail required when `flightPurpose` is OTHER. */
   otherFlightPurpose: string
   description: string
+  orderAgentSessionId?: string
+  agentChecklistItems?: import('../checklist/types').ChecklistInput[]
   address: string
   normalizedAddress: string
   latitude: string
@@ -182,3 +184,4 @@ export type UpdateField = <K extends keyof FormState>(
   key: K,
   value: FormState[K],
 ) => void
+

@@ -427,3 +427,170 @@
   .order-contract-panel.is-reviewing { padding: 14px; }
   .order-contract-panel.is-reviewing .order-contract-panel__review-file { flex-wrap: wrap; }
 }
+
+
+/* ── Polished Manager Contract Review & Payment Gate UI (ui-ux-pro-max) ── */
+.order-contract-panel.is-reviewing {
+  padding: 22px 24px;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 4%);
+}
+
+.order-contract-panel.is-reviewing .order-contract-panel__document {
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  border-radius: 12px;
+}
+
+.order-contract-panel.is-reviewing .order-contract-panel__review {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.order-contract-panel.is-reviewing .order-contract-panel__review-file {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #f8fbff;
+}
+
+.order-contract-panel__review-icon {
+  color: var(--ui-primary, #1565e8);
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.order-contract-panel__review-copy {
+  flex: 1;
+  min-width: 160px;
+  display: grid;
+  gap: 3px;
+  text-align: left;
+}
+
+.order-contract-panel__review-copy strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ui-text, #0f172a);
+}
+
+.order-contract-panel.is-reviewing .order-contract-panel__review > .ant-checkbox-wrapper {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  border-radius: 12px;
+  background: #f8fafc;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ui-text, #1e293b);
+  line-height: 1.5;
+  margin-inline-start: 0;
+}
+
+.order-contract-panel.is-reviewing .order-contract-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 2px;
+}
+
+.order-contract-panel.is-reviewing .order-contract-panel__actions .ant-btn {
+  min-height: 40px;
+  padding-inline: 18px;
+  font-weight: 600;
+}
+
+/* Refined Deposit & Contract Gate Banner */
+.mgr-banner.mgr-plan-gate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 18px 22px;
+  border: 1px solid #fde68a;
+  border-left: 4px solid #f59e0b;
+  border-radius: 14px;
+  background: #fffbeb;
+  color: #78350f;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 4%);
+}
+
+.mgr-banner.mgr-plan-gate .mgr-plan-gate-text {
+  display: grid;
+  gap: 5px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.mgr-banner.mgr-plan-gate .mgr-plan-gate-text strong {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.mgr-banner.mgr-plan-gate .mgr-plan-gate-text span {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #78350f;
+}
+
+.mgr-banner.mgr-plan-gate .mgr-plan-progress {
+  width: min(320px, 100%);
+  height: 7px;
+  margin-top: 4px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 0;
+  background: #fde68a;
+  accent-color: #d97706;
+}
+
+.mgr-banner.mgr-plan-gate .mgr-plan-progress::-webkit-progress-bar {
+  background: #fde68a;
+  border-radius: 999px;
+}
+
+.mgr-banner.mgr-plan-gate .mgr-plan-progress::-webkit-progress-value {
+  background: #d97706;
+  border-radius: 999px;
+}
+
+/* Keep "Hủy quy trình hợp đồng" inline next to Yêu cầu bổ sung / Xác nhận hợp đồng */
+.order-contract-panel.is-reviewing .order-contract-panel__actions {
+  align-items: center;
+}
+
+.order-contract-panel.is-reviewing .order-contract-panel__actions .contract-cancellation {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.order-contract-panel.is-reviewing .order-contract-panel__actions .contract-cancellation > .ant-btn {
+  border: 1px solid #fca5a5;
+  background: #fff5f5;
+  color: #dc2626;
+}
+
+.order-contract-panel.is-reviewing .order-contract-panel__actions .contract-cancellation > .ant-btn:hover {
+  border-color: #ef4444;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.order-contract-panel.is-reviewing .order-contract-panel__actions .contract-cancellation:has(.contract-cancellation__form),
+.order-contract-panel.is-reviewing .order-contract-panel__actions .contract-cancellation:has(.contract-cancellation__record) {
+  flex: 1 0 100%;
+  order: 10;
+  margin-right: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--ui-border, #e2e8f0);
+}

@@ -29,7 +29,7 @@ import { env } from '../../../../config/env'
 import './OrderDetail.css'
 
 type DetailTab =
-  'order' | 'monitoring' | 'finance' | 'contract' | 'payment' | 'support' | 'results'
+  'order' | 'monitoring' | 'finance' | 'contract' | 'support' | 'results'
 type CachedDeliveryState = {
   orderId: string
   delivery: Delivery | null
@@ -90,7 +90,11 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
   useEffect(() => {
     const openLinkedTab = () => {
       const tab = new URLSearchParams(window.location.hash.split('?')[1]).get('tab')
-      if (tab === 'contract' || tab === 'finance' || tab === 'payment') {
+      if (tab === 'contract') {
+        setSelectedTab({ orderId, tab: 'contract' })
+      } else if (tab === 'finance' || tab === 'payment' || tab === 'quote') {
+        setSelectedTab({ orderId, tab: 'finance' })
+      } else if (tab === 'order' || tab === 'monitoring' || tab === 'support' || tab === 'results') {
         setSelectedTab({ orderId, tab })
       }
     }
@@ -256,11 +260,19 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
       <CustomerFinancePanel
         orderId={order.id}
         legalStatus={order.legalReviewStatus}
-        active={activeTab === 'finance' || activeTab === 'payment'}
-        section={activeTab === 'contract' ? 'contract' : activeTab === 'payment' ? 'payment' : 'quote'}
-        onQuoteAccepted={(invoice) => setSelectedTab({ orderId, tab: invoice.contractRequired && !invoice.contractConfirmedAt ? 'contract' : 'payment' })}
+        active={activeTab === 'finance'}
+        section={activeTab === 'contract' ? 'contract' : 'all'}
+        onQuoteAccepted={(invoice) =>
+          setSelectedTab({
+            orderId,
+            tab:
+              invoice.contractRequired && !invoice.contractConfirmedAt
+                ? 'contract'
+                : 'finance',
+          })
+        }
         onOpenContract={() => setSelectedTab({ orderId, tab: 'contract' })}
-        onOpenPayment={() => setSelectedTab({ orderId, tab: 'payment' })}
+        onOpenPayment={() => handleTabChange('finance')}
         onStateChange={updateFinance}
         refreshKey={`${order.status}:${order.checklistRevision}:${financeRefreshVersion}`}
       />
@@ -314,8 +326,8 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                             orderId={order.id}
                             initialDelivery={cachedDelivery?.delivery ?? null}
                             onStateChange={updateDelivery}
-                            onOpenPayment={() => setSelectedTab({ orderId, tab: 'payment' })}
-                            onOpenFinance={() => handleTabChange('payment')}
+                            onOpenPayment={() => handleTabChange('finance')}
+                            onOpenFinance={() => handleTabChange('finance')}
                             onPaymentCompleted={() => {
                               setFinanceRefreshVersion((version) => version + 1)
                               detail.reload()
@@ -355,18 +367,13 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                 children: null,
               },
               {
-                key: 'payment',
-                label: t.tabPayment,
-                children: null,
-              },
-              {
                 key: 'support',
                 label: t.tabSupport,
                 children: activeTab === 'support' ? supportContent : null,
               },
             ]}
           />
-          <div hidden={activeTab !== 'finance' && activeTab !== 'payment' && activeTab !== 'contract'}>
+          <div hidden={activeTab !== 'finance' && activeTab !== 'contract'}>
             {financeContent}
           </div>
         </div>
