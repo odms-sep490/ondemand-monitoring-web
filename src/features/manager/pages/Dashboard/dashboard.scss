@@ -1901,7 +1901,8 @@
     align-items: center;
   }
   .mgr-dash-header.app-page-banner .mgr-dash-controls { width: auto; }
-  .ant-btn-primary, .ant-btn-primary > span { color: #fff !important; }
+  .ant-btn-primary:not(.ant-btn-background-ghost),
+  .ant-btn-primary:not(.ant-btn-background-ghost) > span { color: #fff !important; }
   .mgr-dash-finance-grid { grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); }
   .mgr-dash-columns { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
   .mgr-analytics-list { align-items: stretch; }
@@ -2273,7 +2274,13 @@
 
 :root .mgr-layout .mgr-dash {
  .mgr-mission-trend-card .ant-card-head-wrapper { align-items: center; gap: 16px; }
- .mgr-mission-trend-card .ant-picker { width: 238px; max-width: 100%; }
+ .mgr-mission-trend-card .ant-picker {
+   width: 244px;
+   max-width: 100%;
+   height: 32px;
+   padding: 4px 11px;
+   border-radius: 10px;
+ }
 }
 @container manager-dashboard (max-width: 650px) {
  :root .mgr-layout .mgr-dash .mgr-mission-trend-card .ant-card-head-wrapper { align-items: flex-start; flex-direction: column; padding-block: 14px; }
@@ -2444,22 +2451,89 @@
     line-height: 1.15;
   }
 
-  /* Compact Recent Mission Panel */
+  /* Compact Recent Mission Panel (unified with ActionListCard) */
+  .mgr-card-extra-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .mgr-mission-compact-card {
     .ant-card-body {
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
+      min-height: 0;
       padding: 16px;
+
+      .mgr-cmd-empty {
+        flex: 1;
+      }
+
+      .mgr-scroll-list {
+        max-height: 332px;
+      }
     }
   }
 
-  .mgr-mission-compact {
+  .mgr-mission-fallback-note {
+    margin: 0 0 10px;
+  }
+
+  .mgr-mission-row-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+
+    .ant-tag {
+      margin: 0;
+      font-size: 11px;
+      line-height: 18px;
+    }
+  }
+
+  .mgr-mission-row-facts {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--mgr-muted);
+  }
+
+  .mgr-mission-overview-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .mgr-mission-overview-chip {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 16px;
-    width: 100%;
+    gap: 2px;
+    padding: 9px 11px;
+    border-radius: 10px;
+    border: 1px solid var(--mgr-border);
+    background: color-mix(in srgb, var(--mgr-border) 22%, var(--mgr-card));
+
+    span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mgr-muted);
+    }
+
+    strong {
+      font-size: 16px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      color: var(--mgr-text);
+    }
+
+    &.is-blue strong { color: #1565e8; }
+    &.is-emerald strong { color: #059669; }
+    &.is-danger strong { color: #dc2626; }
   }
 
   .mgr-mission-compact-head {
@@ -2551,6 +2625,31 @@
   }
 
   /* Compact, content-driven Action / Todo List */
+  .mgr-scroll-list {
+    padding-right: 6px;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-button {
+      display: none;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--mgr-muted) 28%, transparent);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: color-mix(in srgb, var(--mgr-muted) 48%, transparent);
+    }
+  }
+
   .mgr-action-card .ant-card-body {
     display: flex;
     flex-direction: column;
@@ -2559,6 +2658,10 @@
 
     .mgr-cmd-empty {
       flex: 1;
+    }
+
+    .mgr-scroll-list {
+      max-height: 332px;
     }
   }
 
@@ -2784,7 +2887,8 @@
     animation: none !important;
   }
   :root .mgr-layout .mgr-dash .mgr-dash-kpi,
-  :root .mgr-layout .mgr-dash .mgr-task-row {
+  :root .mgr-layout .mgr-dash .mgr-task-row,
+  :root .mgr-layout .mgr-dash .mgr-mission-queue-row {
     transition: none !important;
   }
 }
@@ -2810,6 +2914,9 @@
     }
     .mgr-mission-facts-grid {
       grid-template-columns: minmax(0, 1fr);
+    }
+    .mgr-mission-overview-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .mgr-donut-layout {
       grid-template-columns: minmax(0, 1fr);
@@ -3136,5 +3243,358 @@
     .mgr-dash-finance-grid {
       grid-template-columns: minmax(0, 1fr);
     }
+  }
+}
+
+/* ==========================================================================
+   UNIFIED TELEMETRY COMMAND DECK — SYNCHRONIZED WITH RESOURCE LIFECYCLE
+   ========================================================================== */
+:root .mgr-layout .mgr-dash {
+  gap: 18px;
+
+  /* Deep-navy Command Masthead matching rl-readiness-hero */
+  .mgr-dash-header.mgr-dash-deck-hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px 24px;
+    padding: 20px 24px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #0f172a 0%, #172554 100%);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    box-shadow: 0 10px 28px rgb(15 23 42 / 14%);
+    color: #f8fafc;
+  }
+
+  .mgr-dash-deck-hero::before,
+  .mgr-dash-deck-hero::after {
+    display: none;
+  }
+
+  .mgr-dash-deck-hero .mgr-dash-date {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #93c5fd;
+  }
+
+  .mgr-dash-deck-hero .mgr-weather-chip,
+  .mgr-dash-deck-hero .mgr-dash-weather {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(148, 163, 184, 0.25);
+    color: #e2e8f0;
+  }
+
+  .mgr-dash-deck-hero .mgr-hero-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+  }
+
+  .mgr-dash-deck-hero .mgr-hero-greet {
+    margin: 4px 0 14px;
+    font-size: 13px;
+    color: #cbd5e1;
+  }
+
+  .mgr-dash-deck-hero .mgr-dash-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mgr-dash-deck-hero .mgr-deck-ghost-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    color: #f1f5f9;
+    font-weight: 500;
+    box-shadow: none;
+
+    &:hover,
+    &:focus-visible {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(147, 197, 253, 0.55);
+      color: #ffffff;
+    }
+  }
+
+  .mgr-dash-deck-hero .mgr-dash-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .mgr-dash-deck-hero .mgr-dash-control-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mgr-deck-range {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    gap: 2px;
+  }
+
+  .mgr-deck-range-btn {
+    border: 0;
+    background: transparent;
+    color: #cbd5e1;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease;
+
+    &:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &.is-active {
+      background: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgb(37 99 235 / 35%);
+    }
+  }
+
+  .mgr-dash-deck-hero .mgr-hero-updated {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: #94a3b8;
+  }
+
+  /* 5 KPI Instrument Stat Tiles matching .rl-tile identically */
+  .mgr-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .mgr-dash-kpi.mgr-deck-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 10px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: var(--mgr-card, #ffffff);
+    border: 1px solid var(--mgr-border, #e2e8f0);
+    box-shadow: 0 1px 3px rgb(15 23 42 / 4%);
+    text-decoration: none;
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+
+    &::before {
+      display: none;
+    }
+
+    &:hover {
+      border-color: #93c5fd;
+      box-shadow: 0 8px 20px rgb(15 23 42 / 7%);
+      transform: translateY(-2px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+  }
+
+  .mgr-deck-tile-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .mgr-deck-tile .mgr-kpi-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--mgr-muted, #64748b);
+  }
+
+  .mgr-deck-tile .mgr-kpi-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+
+    &.is-amber {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    &.is-indigo {
+      background: #eef2ff;
+      color: #4338ca;
+    }
+
+    &.is-orange {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    &.is-blue {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    &.is-emerald {
+      background: #ecfdf5;
+      color: #047857;
+    }
+  }
+
+  .mgr-deck-tile .mgr-kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--mgr-text, #0f172a);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mgr-deck-tile-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .mgr-deck-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+
+    &.is-amber {
+      background: #fffbeb;
+      color: #b45309;
+    }
+
+    &.is-indigo {
+      background: #eef2ff;
+      color: #4338ca;
+    }
+
+    &.is-orange {
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    &.is-blue {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    &.is-emerald {
+      background: #ecfdf5;
+      color: #047857;
+    }
+  }
+
+  /* Primary Dashboard Pill Tab Bar — visually distinct above inner Resource Lifecycle tabs */
+  .mgr-dashboard-groups > .ant-tabs-nav {
+    background: var(--mgr-card, #ffffff);
+    border: 1px solid var(--mgr-border, #e2e8f0);
+    border-radius: 14px;
+    padding: 6px 10px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 3px rgb(15 23 42 / 4%);
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .mgr-dashboard-groups > .ant-tabs-nav .ant-tabs-ink-bar {
+    display: none;
+  }
+
+  .mgr-dashboard-groups > .ant-tabs-nav .ant-tabs-tab {
+    padding: 8px 14px;
+    border-radius: 9px;
+    margin: 0 2px;
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--mgr-muted, #475569);
+    transition: background 150ms ease, color 150ms ease;
+
+    &:hover {
+      background: color-mix(in srgb, var(--mgr-border, #e2e8f0) 45%, transparent);
+      color: var(--mgr-text, #0f172a);
+    }
+  }
+
+  .mgr-dashboard-groups > .ant-tabs-nav .ant-tabs-tab-active {
+    background: #eff6ff;
+
+    .ant-tabs-tab-btn {
+      color: #1d4ed8 !important;
+      font-weight: 700;
+    }
+  }
+
+  /* Unified Card surfaces matching .rl-chart-card */
+  .mgr-dashboard-group .ant-card {
+    border-radius: 16px;
+    border: 1px solid var(--mgr-border, #e2e8f0);
+    box-shadow: 0 1px 3px rgb(15 23 42 / 4%);
+
+    .ant-card-head {
+      min-height: 48px;
+      border-bottom: 1px solid var(--mgr-border, #e2e8f0);
+    }
+
+    .ant-card-head-title {
+      font-size: 14.5px;
+      font-weight: 700;
+    }
+  }
+}
+
+@container manager-dashboard (max-width: 1100px) {
+  :root .mgr-layout .mgr-dash .mgr-kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container manager-dashboard (max-width: 680px) {
+  :root .mgr-layout .mgr-dash {
+    .mgr-kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .mgr-dash-deck-hero .mgr-dash-controls {
+      align-items: flex-start;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root .mgr-layout .mgr-dash .mgr-dash-kpi.mgr-deck-tile {
+    transition: none;
   }
 }

@@ -156,7 +156,10 @@ export function DashboardPage() {
             children: (
               <section className="mgr-dashboard-group">
                 <div className="mgr-group-grid">
-                  <ReferenceMissionPanel missions={response.activeMissions} />
+                  <ReferenceMissionPanel
+                    missions={response.activeMissions}
+                    overview={response.missionOverview}
+                  />
                   <ActionListCard
                     items={data.actionItems.filter(
                       (item) => item.type !== 'QUOTE_READY',

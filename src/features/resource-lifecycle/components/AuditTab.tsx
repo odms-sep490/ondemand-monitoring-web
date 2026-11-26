@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react'
 import { Card, Input, Table, Tag } from 'antd'
-import { auditActionVi, formatDateTimeOrUnknown } from '../formatters'
+import {
+  auditActionVi,
+  auditActorVi,
+  auditReasonVi,
+  formatDateTimeOrUnknown,
+} from '../formatters'
 import { resourceLifecycleMessages } from '../messages'
 import { useI18n } from '../../../shared/i18n'
 import type { AuditLogResponse } from '../types'
@@ -20,9 +25,12 @@ export function AuditTab({ audits, loading }: AuditTabProps) {
     return audits.filter(
       (a) =>
         a.action.toLowerCase().includes(q) ||
+        auditActionVi(a.action).toLowerCase().includes(q) ||
         a.actorId.toLowerCase().includes(q) ||
+        auditActorVi(a.actorId).toLowerCase().includes(q) ||
         a.entityId.toLowerCase().includes(q) ||
-        (a.reason ?? '').toLowerCase().includes(q),
+        (a.reason ?? '').toLowerCase().includes(q) ||
+        auditReasonVi(a.reason).toLowerCase().includes(q),
     )
   }, [audits, search])
 
@@ -42,7 +50,11 @@ export function AuditTab({ audits, loading }: AuditTabProps) {
         loading={loading}
         size="small"
         dataSource={filtered}
-        pagination={{ pageSize: 12 }}
+        pagination={{
+          pageSize: 12,
+          showSizeChanger: true,
+          locale: { items_per_page: '/ trang' },
+        }}
         columns={[
           {
             title: 'Thời gian',
@@ -65,9 +77,17 @@ export function AuditTab({ audits, loading }: AuditTabProps) {
               </Tag>
             ),
           },
-          { title: 'Người thực hiện', dataIndex: 'actorId' },
+          {
+            title: 'Người thực hiện',
+            dataIndex: 'actorId',
+            render: (actorId: string) => auditActorVi(actorId),
+          },
           { title: 'Mã đối tượng', dataIndex: 'entityId' },
-          { title: 'Lý do', dataIndex: 'reason' },
+          {
+            title: 'Lý do',
+            dataIndex: 'reason',
+            render: (reason: string | null) => auditReasonVi(reason),
+          },
         ]}
       />
     </Card>

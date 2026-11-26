@@ -1,11 +1,15 @@
-import { ReloadOutlined } from '@ant-design/icons'
-import { Button, Space } from 'antd'
+import {
+  CalendarOutlined,
+  CompassOutlined,
+  FileSearchOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons'
+import { Button } from 'antd'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { managerHref } from '../../../routes'
 import { dashboardPageMessages } from '../DashboardPage.messages'
 import { DashboardWeather } from './DashboardWeather'
-import '../../../../../shared/components/pageBanner.css'
 
 export type DashboardRange = '7D' | '30D' | '90D'
 const RANGES: DashboardRange[] = ['7D', '30D', '90D']
@@ -19,8 +23,15 @@ type Props = {
   onRefresh: () => void
 }
 
-/** Compact operations heading with the dashboard's live period controls. */
-export function DashboardHeader({ subtitle, range, pendingCount, pendingCountAvailable, onRangeChange, onRefresh }: Props) {
+/** Deep-navy telemetry command masthead synchronized with Resource Lifecycle & Maintenance. */
+export function DashboardHeader({
+  subtitle,
+  range,
+  pendingCount,
+  pendingCountAvailable,
+  onRangeChange,
+  onRefresh,
+}: Props) {
   const { t, locale } = useI18n(dashboardPageMessages)
   const now = new Date()
   const today = new Intl.DateTimeFormat(locale, {
@@ -31,9 +42,14 @@ export function DashboardHeader({ subtitle, range, pendingCount, pendingCountAva
   }).format(now)
 
   return (
-    <header className="mgr-dash-header app-page-banner">
+    <header className="mgr-dash-header mgr-dash-deck-hero">
       <div className="mgr-dash-heading">
-        <p className="mgr-dash-date">{today}<DashboardWeather locale={locale} /></p>
+        <div className="mgr-dash-eyebrow-row">
+          <p className="mgr-dash-date">
+            <span>{today}</span>
+            <DashboardWeather locale={locale} />
+          </p>
+        </div>
         <h1 className="mgr-hero-title">{t.title}</h1>
         <p className="mgr-hero-greet">
           {pendingCountAvailable
@@ -43,14 +59,23 @@ export function DashboardHeader({ subtitle, range, pendingCount, pendingCountAva
         <nav className="mgr-dash-shortcuts" aria-label={t.hero.shortcutsLabel}>
           <Button
             type="primary"
+            icon={<FileSearchOutlined aria-hidden="true" />}
             href={managerHref({ screen: 'orderQueue' })}
           >
             {t.hero.reviewOrders}
           </Button>
-          <Button ghost href={managerHref({ screen: 'missions' })}>
+          <Button
+            className="mgr-deck-ghost-btn"
+            icon={<CompassOutlined aria-hidden="true" />}
+            href={managerHref({ screen: 'missions' })}
+          >
             {t.hero.viewMissions}
           </Button>
-          <Button ghost href={managerHref({ screen: 'schedule', calendar: true })}>
+          <Button
+            className="mgr-deck-ghost-btn"
+            icon={<CalendarOutlined aria-hidden="true" />}
+            href={managerHref({ screen: 'schedule', calendar: true })}
+          >
             {t.hero.viewSchedule}
           </Button>
         </nav>
@@ -58,26 +83,35 @@ export function DashboardHeader({ subtitle, range, pendingCount, pendingCountAva
 
       <div className="mgr-dash-controls">
         <div className="mgr-dash-control-row">
-          <div role="group" aria-label={t.rangeLabel} className="mgr-hero-range">
-            <Space.Compact>
-              {RANGES.map((value) => (
-                <Button
+          <div
+            role="group"
+            aria-label={t.rangeLabel}
+            className="mgr-deck-range"
+          >
+            {RANGES.map((value) => {
+              const active = range === value
+              return (
+                <button
                   key={value}
-                  type={range === value ? 'primary' : 'default'}
-                  aria-pressed={range === value}
+                  type="button"
+                  className={`mgr-deck-range-btn${active ? ' is-active' : ''}`}
+                  aria-pressed={active}
                   onClick={() => onRangeChange(value)}
                 >
                   {t.ranges[value]}
-                </Button>
-              ))}
-            </Space.Compact>
+                </button>
+              )
+            })}
           </div>
-          <Button icon={<ReloadOutlined aria-hidden="true" />} onClick={onRefresh}>
+          <Button
+            className="mgr-deck-ghost-btn"
+            icon={<ReloadOutlined aria-hidden="true" />}
+            onClick={onRefresh}
+          >
             {t.refresh}
           </Button>
         </div>
         <p className="mgr-hero-updated">{subtitle}</p>
-
       </div>
     </header>
   )

@@ -224,6 +224,432 @@
   padding: 20px;
 }
 
+/* ==========================================================================
+   TELEMETRY COMMAND DECK OVERVIEW REDESIGN
+   ========================================================================== */
+
+.rl-overview-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.rl-bento-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.rl-readiness-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0f172a 0%, #172554 100%);
+  color: #f8fafc;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rl-readiness-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rl-readiness-eyebrow {
+  font-size: 12px;
+  font-weight: 500;
+  color: #93c5fd;
+  margin-bottom: 4px;
+}
+
+.rl-readiness-metric {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.rl-readiness-pct {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #ffffff;
+}
+
+.rl-readiness-total {
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.rl-readiness-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  color: #bfdbfe;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rl-spectrum-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.2);
+  gap: 2px;
+}
+
+.rl-spectrum-seg {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.rl-readiness-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.rl-readiness-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rl-tile {
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--mgr-card, #ffffff);
+  border: 1px solid var(--mgr-border, #e2e8f0);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.rl-tile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rl-tile-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--mgr-muted, #64748b);
+}
+
+.rl-tile-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.rl-tile-value {
+  font-size: 28px;
+  font-weight: 750;
+  line-height: 1.1;
+  color: var(--mgr-text, #0f172a);
+  font-variant-numeric: tabular-nums;
+}
+
+.rl-tile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--mgr-muted, #64748b);
+}
+
+.rl-pill-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 11.5px;
+}
+
+/* Semi-Arc Gauge Card */
+.rl-gauge-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rl-gauge-wrap {
+  position: relative;
+  height: 148px;
+  width: 100%;
+}
+
+.rl-gauge-center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+
+  strong {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--mgr-text, #0f172a);
+    font-variant-numeric: tabular-nums;
+  }
+
+  span {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--mgr-muted, #64748b);
+  }
+}
+
+.rl-health-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rl-health-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rl-health-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+}
+
+.rl-health-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--mgr-text, #334155);
+  font-weight: 500;
+}
+
+.rl-health-val {
+  font-weight: 700;
+  color: var(--mgr-text, #0f172a);
+  font-variant-numeric: tabular-nums;
+}
+
+.rl-health-track {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mgr-border, #e2e8f0) 65%, transparent);
+  overflow: hidden;
+}
+
+.rl-health-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+/* Custom Dark Telemetry Tooltip */
+.rl-tooltip {
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.25);
+  font-size: 12px;
+  min-width: 170px;
+}
+
+.rl-tooltip-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #ffffff;
+}
+
+.rl-tooltip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 0;
+  color: #cbd5e1;
+
+  strong {
+    color: #ffffff;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Staff Capacity Strip under Composed Chart */
+.rl-staff-pills {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--mgr-border, #e2e8f0);
+}
+
+.rl-staff-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: var(--mgr-surface-subtle, #f8fafc);
+  border: 1px solid var(--mgr-border, #e2e8f0);
+  font-size: 12px;
+}
+
+.rl-staff-pill-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--mgr-text, #0f172a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rl-staff-pill-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.rl-period-controls {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rl-period-segmented.ant-segmented {
+  height: 30px;
+  padding: 2px;
+  border-radius: 8px;
+  background: #f1f5f9;
+
+  .ant-segmented-item {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+
+  .ant-segmented-item-label {
+    min-height: 26px;
+    line-height: 26px;
+    padding: 0 10px;
+  }
+}
+
+.rl-date-stepper {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  border: 1px solid var(--mgr-border, #e2e8f0);
+  border-radius: 8px;
+  background: var(--mgr-card, #fff);
+  overflow: hidden;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+
+  &:hover,
+  &:focus-within {
+    border-color: var(--ant-color-primary, #1565e8);
+  }
+}
+
+.rl-date-step-btn.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: #475569;
+
+  &:first-child {
+    border-right: 1px solid var(--mgr-border, #e2e8f0);
+  }
+
+  &:last-child {
+    border-left: 1px solid var(--mgr-border, #e2e8f0);
+  }
+
+  &:hover {
+    background: #f8fafc !important;
+    color: var(--ant-color-primary, #1565e8) !important;
+  }
+}
+
+.rl-date-step-picker.ant-picker {
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 0;
+  box-shadow: none !important;
+
+  input {
+    font-size: 12.5px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+}
+
+.rl-date-today-btn.ant-btn {
+  height: 30px;
+  padding-inline: 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+@media (max-width: 1100px) {
+  .rl-bento-top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rl-readiness-hero {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .rl-bento-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 1100px) {
   .rl-hero-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -13,7 +13,6 @@ type Props = {
   byColumn: Record<TicketStatus, MaintenanceTicket[]>
   selectedTicket: MaintenanceTicket | null
   setSelectedTicket: Dispatch<SetStateAction<MaintenanceTicket | null>>
-  setAssignTicket: Dispatch<SetStateAction<MaintenanceTicket | null>>
 }
 
 const LANE_PREVIEW = 5
@@ -23,7 +22,6 @@ export function TicketBoard({
   byColumn,
   selectedTicket,
   setSelectedTicket,
-  setAssignTicket,
 }: Props) {
   const { t } = useI18n(maintenancePageMessages)
   const [expanded, setExpanded] = useState<
@@ -37,7 +35,10 @@ export function TicketBoard({
         const shown = open ? all : all.slice(0, LANE_PREVIEW)
         const hidden = all.length - LANE_PREVIEW
         return (
-          <section key={col} className="mgr-maint-col">
+          <section
+            key={col}
+            className={`mgr-maint-col mgr-maint-col--${col.toLowerCase()}`}
+          >
             <div className="mgr-maint-col-head">
               <TicketStatusTag status={col} />
               <span className="mgr-maint-col-count">
@@ -54,7 +55,7 @@ export function TicketBoard({
                   ticket={ticket}
                   selected={selectedTicket?.id === ticket.id}
                   onSelect={setSelectedTicket}
-                  onAssignClick={setAssignTicket}
+                  
                 />
               ))}
               {hidden > 0 && (

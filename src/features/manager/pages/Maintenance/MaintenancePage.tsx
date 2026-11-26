@@ -1,7 +1,6 @@
 // MNG-10: Maintenance ticket list with Manager Search, Filter & System Operator Assignment Workflow
 import { useMemo, useState } from 'react'
-
-import { Button, Card, Space, Tag } from 'antd'
+import { AuditOutlined } from '@ant-design/icons'
 
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
@@ -15,7 +14,6 @@ import { PageHeader } from '../../components/common/PageHeader'
 import type { MaintenanceTicket } from '../../types/maintenance'
 import '../../manager.css'
 import './maintenance.scss'
-import { AssignModal } from './components/AssignModal'
 import { MaintenanceSkeleton } from './components/MaintenanceSkeleton'
 import { MaintenanceStats } from './components/MaintenanceStats'
 import { TicketBoard } from './components/TicketBoard'
@@ -26,9 +24,7 @@ import { maintenancePageMessages } from './MaintenancePage.messages'
 export function MaintenancePage() {
   const { t } = useI18n(maintenancePageMessages)
   const { t: wf } = useI18n(maintenanceWorkflowMessages)
-  const [tickets, setTickets] = useState<MaintenanceTicket[] | null>(null)
   const [selectedTicket, setSelectedTicket] = useState<MaintenanceTicket | null>(null)
-  const [assignTicket, setAssignTicket] = useState<MaintenanceTicket | null>(null)
   const [workflowTicketId, setWorkflowTicketId] = useState<string | null>(null)
 
   // Manager Search & Filter controls state
@@ -45,7 +41,7 @@ export function MaintenancePage() {
     [],
   )
 
-  const allTickets = useMemo(() => tickets ?? query.data?.items ?? [], [tickets, query.data?.items])
+  const allTickets = useMemo(() => query.data?.items ?? [], [query.data?.items])
 
   // Search, priority and assignment narrow the list; the board then splits it by status.
   const filteredTickets = useMemo(() => {
@@ -77,16 +73,11 @@ export function MaintenancePage() {
   const urgentCount = allTickets.filter(
     (ticket) => isActive(ticket) && (ticket.priority === 'CRITICAL' || ticket.priority === 'HIGH'),
   ).length
+  const openCount = allTickets.filter((ticket) => ticket.status === 'OPEN').length
+  const inProgressCount = allTickets.filter((ticket) => ticket.status === 'IN_PROGRESS').length
   const resolvedCount = allTickets.filter(
     (ticket) => ticket.status === 'RESOLVED' || ticket.status === 'CLOSED',
   ).length
-
-  function handleTicketUpdated(updated: MaintenanceTicket) {
-    const base = tickets ?? query.data?.items ?? []
-    setTickets(base.map((ticket) => (ticket.id === updated.id ? updated : ticket)))
-    if (selectedTicket?.id === updated.id) setSelectedTicket(updated)
-    setAssignTicket(null)
-  }
 
   return (
     <div className="mgr-view mgr-maintenance">
@@ -99,27 +90,43 @@ export function MaintenancePage() {
         unassignedCount={unassignedCount}
         urgentCount={urgentCount}
         resolvedCount={resolvedCount}
+        openCount={openCount}
+        inProgressCount={inProgressCount}
+        totalCount={allTickets.length}
       />
 
       {(acceptanceQueue.data?.length ?? 0) > 0 && (
-        <Card
-          size="small"
-          title={`${wf.queues.managerAcceptance} (${acceptanceQueue.data?.length ?? 0})`}
-          style={{ marginBottom: 14 }}
-        >
-          <Space wrap>
+        <section className="mgr-maint-accept-banner">
+          <div className="mgr-maint-accept-head">
+            <h3 className="mgr-maint-accept-title">
+              <AuditOutlined />
+              <span>{wf.queues.managerAcceptance}</span>
+              <span className="mgr-maint-accept-count">
+                {acceptanceQueue.data?.length ?? 0}
+              </span>
+            </h3>
+          </div>
+          <div className="mgr-maint-accept-grid">
             {acceptanceQueue.data?.map((item) => (
-              <Button
+              <button
                 key={item.ticketId}
-                type="primary"
-                ghost
+                type="button"
+                className="mgr-maint-accept-item"
                 onClick={() => setWorkflowTicketId(item.ticketId)}
               >
-                {item.ticketCode} · {item.device?.name ?? ''} <Tag color="gold">R{item.currentRound}</Tag>
-              </Button>
+                <div className="mgr-maint-accept-info">
+                  <span className="mgr-maint-accept-code">{item.ticketCode}</span>
+                  <span className="mgr-maint-accept-device">
+                    {item.device?.name ?? '—'}
+                  </span>
+                </div>
+                <span className="mgr-maint-accept-round">
+                  {wf.roundShort(item.currentRound)}
+                </span>
+              </button>
             ))}
-          </Space>
-        </Card>
+          </div>
+        </section>
       )}
 
       <TicketFilterBar
@@ -143,14 +150,12 @@ export function MaintenancePage() {
             byColumn={byColumn}
             selectedTicket={selectedTicket}
             setSelectedTicket={setSelectedTicket}
-            setAssignTicket={setAssignTicket}
           />
           {selectedTicket && (
             <DetailPanel
               key={selectedTicket.id}
               ticket={selectedTicket}
               onClose={() => setSelectedTicket(null)}
-              onAssignClick={setAssignTicket}
               onOpenWorkflow={(ticket) => setWorkflowTicketId(ticket.id)}
             />
           )}
@@ -166,13 +171,6 @@ export function MaintenancePage() {
         </>
       )}
 
-      {assignTicket && (
-        <AssignModal
-          ticket={assignTicket}
-          onClose={() => setAssignTicket(null)}
-          onAssigned={handleTicketUpdated}
-        />
-      )}
     </div>
   )
 }

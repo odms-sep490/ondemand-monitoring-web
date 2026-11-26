@@ -18,6 +18,7 @@ export type BackendMaintenanceTicket = {
   openedAt: string
   resolvedAt?: string | null
   closedAt?: string | null
+  workflowStage?: string | null
 }
 
 /** `AvailableOperatorResponse` from `GET /api/operators/available`. */
@@ -44,6 +45,7 @@ function mapToTicket(item: BackendMaintenanceTicket): MaintenanceTicket {
     openedAt: item.openedAt,
     resolvedAt: item.resolvedAt ?? null,
     closedAt: item.closedAt ?? null,
+    workflowStage: item.workflowStage ?? (item.status === 'CLOSED' ? 'COMPLETED' : 'DRAFT_HANDOVER'),
   }
 }
 

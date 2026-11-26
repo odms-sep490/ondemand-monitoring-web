@@ -6,7 +6,7 @@ import { useI18n } from '../../../../../shared/i18n'
 import { formatIssueType, formatTicketDescription, formatTicketTitle } from '../../../lib/ticketText'
 import type { MaintenanceTicket } from '../../../types/maintenance'
 import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
-import { formatStamp } from '../maintenanceHelpers'
+import { formatStamp, handoverState } from '../maintenanceHelpers'
 import { maintenancePageMessages } from '../MaintenancePage.messages'
 import { maintenanceWorkflowMessages } from '../../../../maintenance-workflow/messages'
 import { TicketSeverityTag, TicketStatusTag } from './TicketTags'
@@ -14,7 +14,6 @@ import { TicketSeverityTag, TicketStatusTag } from './TicketTags'
 export type DetailPanelProps = {
   ticket: MaintenanceTicket
   onClose: () => void
-  onAssignClick: (ticket: MaintenanceTicket) => void
   onOpenWorkflow?: (ticket: MaintenanceTicket) => void
 }
 
@@ -68,7 +67,9 @@ export function TicketDetailContent({
         )}
         <dt className="mgr-ticket-key">{t.detail.assignedOperator}</dt>
         <dd>
-          {ticket.assignedTo ? (
+          {handoverState(ticket) === 'AWAITING_CLAIM' ? (
+            <b className="mgr-ticket-warn">{t.detail.awaitingClaim}</b>
+          ) : ticket.assignedTo && handoverState(ticket) !== 'NEEDS_HANDOVER' ? (
             <b className="mgr-ticket-ok">{ticket.assignedTo}</b>
           ) : (
             <b className="mgr-ticket-warn">{t.detail.unassigned}</b>
@@ -112,12 +113,10 @@ export function TicketDetailContent({
 
 function PanelBody({
   ticket,
-  onAssignClick,
   onOpenWorkflow,
-}: Pick<DetailPanelProps, 'ticket' | 'onAssignClick' | 'onOpenWorkflow'>) {
+}: Pick<DetailPanelProps, 'ticket' | 'onOpenWorkflow'>) {
   const { t } = useI18n(maintenancePageMessages)
   const { t: wf } = useI18n(maintenanceWorkflowMessages)
-  const open = ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
   return (
     <TicketDetailContent
       ticket={ticket}
@@ -132,11 +131,6 @@ function PanelBody({
               onClick={() => onOpenWorkflow(ticket)}
             >
               {wf.queues.openWorkflow}
-            </Button>
-          )}
-          {open && (
-            <Button size="large" block onClick={() => onAssignClick(ticket)}>
-              {ticket.assignedTo ? t.detail.changeOperator : t.detail.assignOperator}
             </Button>
           )}
           {ticket.status === 'RESOLVED' && (
@@ -154,7 +148,6 @@ function PanelBody({
 export function DetailPanel({
   ticket,
   onClose,
-  onAssignClick,
   onOpenWorkflow,
 }: DetailPanelProps) {
   const { t } = useI18n(maintenancePageMessages)
@@ -173,7 +166,6 @@ export function DetailPanel({
     >
       <PanelBody
         ticket={ticket}
-        onAssignClick={onAssignClick}
         onOpenWorkflow={onOpenWorkflow}
       />
     </Drawer>

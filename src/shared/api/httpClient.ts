@@ -174,7 +174,10 @@ export async function apiRequest<T>(
           ? undefined
           : multipart
             ? body
-            : JSON.stringify(body),
+            : // Callers that already serialized (JSON.stringify) must not be wrapped in a second string literal.
+              typeof body === 'string'
+              ? body
+              : JSON.stringify(body),
       signal,
     })
   } catch (error) {

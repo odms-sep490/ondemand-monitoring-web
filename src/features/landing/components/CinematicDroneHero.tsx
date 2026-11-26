@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import { Icon } from '../../../shared/components/Icon'
 import { LANDING_MOTION } from '../landingMotion'
@@ -13,21 +13,41 @@ type Props = {
   seeHowItWorksLabel: string
   badgeLabel: string
   scrollHintLabel: string
+  sceneLabels?: readonly string[]
+  proofItems: readonly string[]
 }
 
-/** Curated high-resolution aerial scenes cycling slowly with smooth cross-fades (9s per scene). */
-const HERO_SLIDES = [
-  '/images/landing/wind-farm.webp',
-  '/assets/landing/services/factory-inspection.jpg',
-  '/assets/landing/services/forest-monitoring.jpg',
-  '/images/landing/landing-apron.webp',
+const HERO_VIDEOS = [
+  {
+    id: 'wind-farm',
+    src: '/assets/landing/hero/hero-drone.mp4',
+    poster: '/images/landing/wind-farm.webp',
+  },
+  {
+    id: 'factory-solar',
+    src: '/assets/landing/hero/hero-factory.mp4',
+    poster: '/assets/landing/services/factory-inspection.jpg',
+  },
+  {
+    id: 'solar-inspection',
+    src: '/assets/landing/hero/hero-solar.mp4',
+    poster: '/assets/landing/services/factory-inspection.jpg',
+  },
+  {
+    id: 'forest-monitoring',
+    src: '/assets/landing/hero/hero-forest.mp4',
+    poster: '/assets/landing/services/forest-monitoring.jpg',
+  },
 ] as const
 
-const SLIDE_INTERVAL_MS = 9000
+const SCENE_DURATION_MS = 9000
+const CROSSFADE_LEAD_SECONDS = 1.25
+const CROSSFADE_PAUSE_DELAY_MS = 1350
 
 /**
- * Full-bleed cinematic aerial hero with ultra-slow 9s cross-fade transitions,
- * gentle Ken Burns drift, scroll-linked parallax, offscreen auto-pause, and reduced-motion safety.
+ * Full-bleed cinematic multi-scene aerial video hero with smooth opacity cross-fades,
+ * interactive scene switcher, scroll-linked parallax, offscreen auto-pause,
+ * and reduced-motion static poster fallback.
  */
 export function CinematicDroneHero({
   titleLine1,
@@ -39,39 +59,105 @@ export function CinematicDroneHero({
   seeHowItWorksLabel,
   badgeLabel,
   scrollHintLabel,
+  sceneLabels,
+  proofItems,
 }: Props) {
   const sectionRef = useRef<HTMLElement>(null)
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([])
+  const transitionLockRef = useRef(false)
+  const pauseTimersRef = useRef<number[]>([])
   const reduceMotion = useReducedMotion()
-  const [slideIndex, setSlideIndex] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [inView, setInView] = useState(true)
 
-  // Slowly advance aerial slides every 9 seconds; pause when offscreen, hidden, or reduced-motion.
+  // Track viewport visibility so offscreen hero videos pause cleanly.
   useEffect(() => {
     if (reduceMotion) return
     const section = sectionRef.current
-    let inView = true
-
     const observer =
       section && typeof IntersectionObserver !== 'undefined'
         ? new IntersectionObserver(
             (entries) => {
-              inView = entries[0]?.isIntersecting ?? true
+              setInView(entries[0]?.isIntersecting ?? true)
             },
-            { threshold: 0.1 },
+            { threshold: 0.08 },
           )
         : null
     if (section) observer?.observe(section)
+    return () => observer?.disconnect()
+  }, [reduceMotion])
 
-    const timer = window.setInterval(() => {
-      if (inView && !document.hidden) {
-        setSlideIndex((current) => (current + 1) % HERO_SLIDES.length)
-      }
-    }, SLIDE_INTERVAL_MS)
+  // Sync play/pause: start incoming clip immediately, keep outgoing clip moving during the 1.25s crossfade.
+  useEffect(() => {
+    if (reduceMotion) return
+    transitionLockRef.current = false
+    pauseTimersRef.current.forEach((id) => window.clearTimeout(id))
+    pauseTimersRef.current = []
+
+    const syncPlayback = () => {
+      const shouldPlay = inView && !document.hidden
+      videoRefs.current.forEach((video, idx) => {
+        if (!video) return
+        if (!shouldPlay) {
+          video.pause?.()
+          return
+        }
+        if (idx === activeIndex) {
+          const result = video.play?.()
+          if (result && typeof result.catch === 'function') {
+            void result.catch(() => {
+              // Ignore autoplay restriction errors; poster remains visible.
+            })
+          }
+        } else {
+          // Delay pausing outgoing clips until the cross-dissolve completes so motion never freezes.
+          const tid = window.setTimeout(() => {
+            video.pause?.()
+          }, CROSSFADE_PAUSE_DELAY_MS)
+          pauseTimersRef.current.push(tid)
+        }
+      })
+    }
+
+    const onVisibility = () => syncPlayback()
+    document.addEventListener('visibilitychange', onVisibility)
+    syncPlayback()
 
     return () => {
-      window.clearInterval(timer)
-      observer?.disconnect()
+      document.removeEventListener('visibilitychange', onVisibility)
+      pauseTimersRef.current.forEach((id) => window.clearTimeout(id))
+      pauseTimersRef.current = []
     }
-  }, [reduceMotion])
+  }, [activeIndex, inView, reduceMotion])
+
+  // Fallback timer if video metadata/timeupdate doesn't trigger early crossfade.
+  useEffect(() => {
+    if (reduceMotion || !inView) return
+    const timer = window.setTimeout(() => {
+      if (!document.hidden) {
+        selectScene((activeIndex + 1) % HERO_VIDEOS.length)
+      }
+    }, SCENE_DURATION_MS)
+    return () => window.clearTimeout(timer)
+  }, [activeIndex, inView, reduceMotion])
+
+  const selectScene = (idx: number) => {
+    if (idx === activeIndex) return
+    transitionLockRef.current = true
+    const nextVideo = videoRefs.current[idx]
+    if (nextVideo) {
+      try {
+        nextVideo.currentTime = 0
+      } catch {
+        // Ignore if metadata not loaded yet.
+      }
+      const result = nextVideo.play?.()
+      if (result && typeof result.catch === 'function') {
+        void result.catch(() => {})
+      }
+    }
+    setActiveIndex(idx)
+  }
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -79,8 +165,6 @@ export function CinematicDroneHero({
   })
   const mediaY = useTransform(scrollYProgress, [0, 1], ['0%', '14%'])
   const mediaScale = useTransform(scrollYProgress, [0, 1], [1, 1.07])
-
-  const activeSlide = HERO_SLIDES[slideIndex] ?? HERO_SLIDES[0]
 
   return (
     <section
@@ -93,24 +177,51 @@ export function CinematicDroneHero({
         style={reduceMotion ? undefined : { y: mediaY, scale: mediaScale }}
         aria-hidden="true"
       >
-        <AnimatePresence mode="sync">
-          <motion.img
-            key={activeSlide}
+        {reduceMotion ? (
+          <img
             className="lpx-hero-media"
-            src={activeSlide}
+            src={HERO_VIDEOS[activeIndex]?.poster ?? HERO_VIDEOS[0].poster}
             alt={imageAlt}
             width={1600}
             height={900}
-            fetchPriority={slideIndex === 0 ? 'high' : 'auto'}
-            initial={reduceMotion ? false : { opacity: 0, scale: 1.04 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={reduceMotion ? undefined : { opacity: 0 }}
-            transition={{
-              opacity: { duration: 1.8, ease: 'easeInOut' },
-              scale: { duration: 9.5, ease: 'linear' },
-            }}
+            fetchPriority="high"
           />
-        </AnimatePresence>
+        ) : (
+          HERO_VIDEOS.map((clip, idx) => {
+            const isCurrent = idx === activeIndex
+            return (
+              <video
+                key={clip.id}
+                ref={(el) => {
+                  videoRefs.current[idx] = el
+                }}
+                className={`lpx-hero-media lp3-hero-video${isCurrent ? ' is-active' : ''}`}
+                src={clip.src}
+                poster={clip.poster}
+                autoPlay={isCurrent}
+                muted
+                playsInline
+                preload="auto"
+                onTimeUpdate={(e) => {
+                  if (idx !== activeIndex || transitionLockRef.current) return
+                  const v = e.currentTarget
+                  if (
+                    Number.isFinite(v.duration) &&
+                    v.duration > CROSSFADE_LEAD_SECONDS * 2 &&
+                    v.duration - v.currentTime <= CROSSFADE_LEAD_SECONDS
+                  ) {
+                    selectScene((idx + 1) % HERO_VIDEOS.length)
+                  }
+                }}
+                onEnded={() => {
+                  if (idx === activeIndex && !transitionLockRef.current) {
+                    selectScene((idx + 1) % HERO_VIDEOS.length)
+                  }
+                }}
+              />
+            )
+          })
+        )}
       </motion.div>
 
       <div className="lpx-hero-scrim lp2-hero-scrim" aria-hidden="true" />
@@ -149,10 +260,53 @@ export function CinematicDroneHero({
               {seeHowItWorksLabel}
             </a>
           </div>
+
+          <ul className="lp3-hero-proofs" aria-label={badgeLabel}>
+            {proofItems.map((item) => (
+              <li key={item}>
+                <span className="lp3-hero-proof-dot" aria-hidden="true" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
         </motion.div>
       </div>
 
-      <a className="lp2-scroll-cue" href="#catalog" aria-label={scrollHintLabel}>
+      <div className="lp3-hero-scenes" role="tablist" aria-label={imageAlt}>
+        {HERO_VIDEOS.map((clip, idx) => {
+          const isCurrent = idx === activeIndex
+          const label = sceneLabels?.[idx] ?? `CAM ${idx + 1}`
+          return (
+            <button
+              key={clip.id}
+              type="button"
+              role="tab"
+              aria-selected={isCurrent}
+              className={`lp3-scene-btn${isCurrent ? ' is-active' : ''}`}
+              onClick={() => selectScene(idx)}
+            >
+              <span className="lp3-scene-idx">{`CAM ${idx + 1}`}</span>
+              <span className="lp3-scene-name">{label}</span>
+              <span className="lp3-scene-bar" aria-hidden="true">
+                {isCurrent && (
+                  <motion.span
+                    key={`bar-${activeIndex}`}
+                    className="lp3-scene-bar-fill"
+                    initial={reduceMotion ? { scaleX: 1 } : { scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{
+                      duration: reduceMotion ? 0 : SCENE_DURATION_MS / 1000,
+                      ease: 'linear',
+                    }}
+                  />
+                )}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      <a className="lp2-scroll-cue" href="#interactive-3d" aria-label={scrollHintLabel}>
         <span className="lp2-scroll-cue-line" aria-hidden="true" />
         <span>{scrollHintLabel}</span>
       </a>

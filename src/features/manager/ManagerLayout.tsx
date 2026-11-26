@@ -1,5 +1,8 @@
 import '@ant-design/v5-patch-for-react-19'
 import { ConfigProvider, Layout } from 'antd'
+import enUS from 'antd/locale/en_US'
+import viVN from 'antd/locale/vi_VN'
+import 'dayjs/locale/vi'
 import { useReducedMotion } from 'motion/react'
 import {
   lazy,
@@ -63,7 +66,7 @@ export function ManagerLayout({
   const [collapsed, setCollapsed] = useState(false)
   const [broken, setBroken] = useState(false)
   const reduceMotion = useReducedMotion()
-  const { t } = useI18n(managerLayoutMessages)
+  const { t, lang } = useI18n(managerLayoutMessages)
   const themeConfig = useMemo(() => buildManagerTheme(dark), [dark])
 
   useEffect(() => {
@@ -75,7 +78,11 @@ export function ManagerLayout({
   const rail = collapsed && !broken
 
   return (
-    <ConfigProvider theme={themeConfig} getPopupContainer={mgrPopupContainer}>
+    <ConfigProvider
+      theme={themeConfig}
+      locale={lang === 'vi' ? viVN : enUS}
+      getPopupContainer={mgrPopupContainer}
+    >
       <div className="odm odm-mgr mgr-layout">
         {route.screen !== 'schedule' &&
         route.screen !== 'missionDetail' &&

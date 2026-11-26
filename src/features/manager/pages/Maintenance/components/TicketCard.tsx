@@ -1,5 +1,5 @@
 import { CheckOutlined } from '@ant-design/icons'
-import { Button, Popover } from 'antd'
+import { Popover } from 'antd'
 import { useState } from 'react'
 import type { KeyboardEvent } from 'react'
 
@@ -8,7 +8,7 @@ import { getTicketSeverityLabel } from '../../../../../shared/lib/statusTone'
 import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
 import { formatTicketTitle } from '../../../lib/ticketText'
 import type { MaintenanceTicket } from '../../../types/maintenance'
-import { formatAge } from '../maintenanceHelpers'
+import { formatAge, handoverState } from '../maintenanceHelpers'
 import { maintenancePageMessages } from '../MaintenancePage.messages'
 import { TicketDetailContent } from './DetailPanel'
 import { TicketSeverityTag } from './TicketTags'
@@ -16,14 +16,13 @@ import { TicketSeverityTag } from './TicketTags'
 export type TicketCardProps = {
   ticket: MaintenanceTicket
   onSelect: (ticket: MaintenanceTicket) => void
-  onAssignClick: (ticket: MaintenanceTicket) => void
   selected: boolean
 }
 
-export function TicketCard({ ticket, onSelect, onAssignClick, selected }: TicketCardProps) {
+export function TicketCard({ ticket, onSelect, selected }: TicketCardProps) {
   const { t, lang } = useI18n(maintenancePageMessages)
   const [hoverOpen, setHoverOpen] = useState(false)
-  const open = ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
+  const handover = handoverState(ticket)
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
@@ -35,7 +34,7 @@ export function TicketCard({ ticket, onSelect, onAssignClick, selected }: Ticket
 
   const card = (
     <div
-      className={`mgr-ticket-card${selected ? ' is-selected' : ''}`}
+      className={`mgr-ticket-card mgr-ticket-card--${ticket.priority.toLowerCase()}${selected ? ' is-selected' : ''}`}
       tabIndex={0}
       aria-label={`${ticket.code} · ${getTicketSeverityLabel(ticket.priority, lang)}`}
       onClick={() => {
@@ -56,39 +55,26 @@ export function TicketCard({ ticket, onSelect, onAssignClick, selected }: Ticket
         <span className="mgr-ticket-drone">{ticket.droneCode}</span>
       </div>
 
-      <div className={`mgr-ticket-op ${ticket.assignedTo ? 'is-ok' : 'is-warn'}`}>
-        <span className="mgr-ticket-op-dot" aria-hidden="true" />
-        {ticket.assignedTo ? (
-          <span>
-            {t.card.operatorLabel}
-            <b>{ticket.assignedTo}</b>
-          </span>
-        ) : (
-          <span>{t.card.unassigned}</span>
+      <div className="mgr-ticket-card-footer">
+        <div className={`mgr-ticket-op ${handover === 'NEEDS_HANDOVER' ? 'is-warn' : 'is-ok'}`}>
+          <span className="mgr-ticket-op-dot" aria-hidden="true" />
+          {ticket.assignedTo && handover !== 'NEEDS_HANDOVER' && handover !== 'AWAITING_CLAIM' ? (
+            <span>
+              {t.card.operatorLabel}
+              <b>{ticket.assignedTo}</b>
+            </span>
+          ) : (
+            <span>{handover === 'AWAITING_CLAIM' ? t.card.awaitingClaim : t.card.unassigned}</span>
+          )}
+        </div>
+
+
+        {ticket.status === 'RESOLVED' && (
+          <div className="mgr-ticket-done">
+            <CheckOutlined aria-hidden="true" /> {t.card.resolved}
+          </div>
         )}
       </div>
-
-      {open && (
-        <Button
-          type="primary"
-          size="small"
-          block
-          className="mgr-ticket-card-action"
-          aria-label={ticket.assignedTo ? t.card.changeOperatorFull : t.card.assignOperatorFull}
-          onClick={(event) => {
-            event.stopPropagation()
-            onAssignClick(ticket)
-          }}
-        >
-          {ticket.assignedTo ? t.card.changeOperator : t.card.assignOperator}
-        </Button>
-      )}
-
-      {ticket.status === 'RESOLVED' && (
-        <div className="mgr-ticket-done">
-          <CheckOutlined aria-hidden="true" /> {t.card.resolved}
-        </div>
-      )}
     </div>
   )
 

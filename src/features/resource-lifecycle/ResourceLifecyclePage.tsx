@@ -173,6 +173,8 @@ export function ResourceLifecyclePage({
               <PoliciesTab
                 family="MAINTENANCE"
                 policies={policies}
+                drones={drones}
+                staff={staff}
                 loading={loading}
                 onRefresh={() => void loadAll()}
               />
@@ -185,6 +187,8 @@ export function ResourceLifecyclePage({
               <PoliciesTab
                 family="WORKFORCE"
                 policies={policies}
+                drones={drones}
+                staff={staff}
                 loading={loading}
                 onRefresh={() => void loadAll()}
               />
@@ -197,6 +201,8 @@ export function ResourceLifecyclePage({
               <PoliciesTab
                 family="ALLOCATION"
                 policies={policies}
+                drones={drones}
+                staff={staff}
                 loading={loading}
                 onRefresh={() => void loadAll()}
               />

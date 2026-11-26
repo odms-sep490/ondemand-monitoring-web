@@ -125,7 +125,7 @@ export function AlertsAndForecastTab({
           loading={loading}
           size="small"
           dataSource={alerts}
-          pagination={{ pageSize: 8 }}
+          pagination={{ pageSize: 8, locale: { items_per_page: '/ trang' } }}
           columns={[
             {
               title: 'Loại',
@@ -196,7 +196,7 @@ export function AlertsAndForecastTab({
           loading={loading}
           size="small"
           dataSource={forecasts}
-          pagination={{ pageSize: 8 }}
+          pagination={{ pageSize: 8, locale: { items_per_page: '/ trang' } }}
           columns={[
             { title: 'Drone', dataIndex: 'deviceName', render: (v: string) => <strong>{v}</strong> },
             {
