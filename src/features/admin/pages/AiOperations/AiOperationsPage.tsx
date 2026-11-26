@@ -62,6 +62,7 @@ const STATUS_META: Record<string, { label: string; color: string }> = {
   DEGRADED: { label: 'Suy giảm', color: 'orange' },
   OFFLINE: { label: 'Ngoại tuyến', color: 'red' },
   IDLE: { label: 'Sẵn sàng', color: 'blue' },
+  UNCONFIGURED: { label: 'Chưa cấu hình', color: 'orange' },
   LOADING: { label: 'Đang tải', color: 'gold' },
   DISABLED: { label: 'Đã tắt', color: 'default' },
 }
@@ -785,6 +786,11 @@ export function AiOperationsPage({
                         <strong>{m.name}</strong>
                         <div className="aiops-cell-sub">
                           {m.code} · {m.version} · {m.modelSize}
+                          {m.code === 'checklist-image-vision' && <div>
+                            Nhiệt độ sinh kết quả: {String(m.config.temperature ?? (m.source === 'Ollama' ? 0 : 'Mặc định nhà cung cấp'))}
+                            {' · '}Thời gian chờ: {Math.min(Number(m.config.timeoutSec ?? 90), m.source === 'Ollama' ? 90 : 25)} giây
+                            {' · '}Giới hạn token: {String(m.config.maxTokens ?? (m.source === 'Ollama' ? 'Tự động theo số tiêu chí' : 4096))}
+                          </div>}
                         </div>
                       </td>
                       <td>
@@ -800,7 +806,7 @@ export function AiOperationsPage({
                       <td>
                         <div>{m.source}</div>
                         <div className="aiops-cell-sub">
-                          {m.license} · SHA: {m.checksumSha256}
+                          {m.license} · {m.code === 'checklist-image-vision' ? 'Mã kiểm tra' : 'SHA'}: {m.checksumSha256}
                         </div>
                       </td>
                       <td>

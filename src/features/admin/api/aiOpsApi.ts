@@ -305,7 +305,19 @@ export type AiOverviewView = {
 
 const BASE = '/api/admin/ai-ops'
 
+export type ChecklistVisionResult = {
+  findings: Array<{ code: string; verdict: string; observation: string }>
+}
+
 export const aiOpsApi = {
+  runChecklistVision: (image: File, promptVersionId: string, criteria: string[], language: string) => {
+    const body = new FormData()
+    body.append('image', image)
+    body.append('promptVersionId', promptVersionId)
+    body.append('criteria', JSON.stringify(criteria))
+    body.append('language', language)
+    return apiRequest<ChecklistVisionResult>(`${BASE}/checklist-vision/playground`, { method: 'POST', body })
+  },
   getOverview: (signal?: AbortSignal) =>
     apiRequest<AiOverviewView>(`${BASE}/overview`, { signal }),
   listModels: (signal?: AbortSignal) =>

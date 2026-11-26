@@ -1,3 +1,4 @@
+import ChecklistVisionPlayground from './ChecklistVisionPlayground'
 import { useEffect, useMemo, useState } from 'react'
 import { Alert, Button, Empty, Input, Modal, Select, Space, Spin, Tag } from 'antd'
 import {
@@ -755,7 +756,10 @@ export function PromptManagementWorkspace() {
                 </div>
               )}
 
-              {subTab === 'playground' && (
+              {subTab === 'playground' && selectedKey === 'checklist.image-vision.system' && (
+                <ChecklistVisionPlayground key={selectedKey} versions={versions.filter(v => v.promptKey === selectedKey)} />
+              )}
+              {subTab === 'playground' && selectedKey !== 'checklist.image-vision.system' && (
                 <div className="aiops-stack">
                   <Alert
                     type="info"

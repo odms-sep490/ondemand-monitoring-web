@@ -11,9 +11,8 @@ import { PolicyTab } from './components/PolicyTab'
 import { BaseChecklistPricingTab } from './components/BaseChecklistPricingTab'
 import { baseChecklistPricingApi } from '../../api/baseChecklistPricingApi'
 import { operatingConfigPageMessages } from './OperatingConfigPage.messages'
-import { ChecklistImageAiSettings } from './components/ChecklistImageAiSettings'
 
-type Tab = 'policy' | 'pricing' | 'nfz' | 'criteria' | 'ai'
+type Tab = 'policy' | 'pricing' | 'nfz' | 'criteria'
 
 export function OperatingConfigPage() {
   const { t } = useI18n(operatingConfigPageMessages)
@@ -37,14 +36,12 @@ export function OperatingConfigPage() {
   )
 
   const counts: Record<Tab, number> = {
-    ai: 0,
     criteria: 0,
     policy: (policyData?.items.length ?? 0) + (weightsData?.items.length ?? 0),
     nfz: nfzData?.items.length ?? 0,
     pricing: pricingData?.length ?? 0,
   }
   const tabs: Array<{ key: Tab; label: string }> = [
-    { key: 'ai', label: t.aiTab },
     { key: 'criteria', label: 'Tiêu chí duyệt đơn' },
     { key: 'policy', label: t.policyTab },
     { key: 'pricing', label: 'Định giá' },
@@ -69,14 +66,13 @@ export function OperatingConfigPage() {
             className={`adm-tab${tab === item.key ? ' is-active' : ''}`}
           >
             {item.label}
-            {item.key !== 'criteria' && item.key !== 'ai' && (
+            {item.key !== 'criteria' && (
               <span className="adm-tab-count odm-mono">{counts[item.key]}</span>
             )}
           </button>
         ))}
       </div>
       {tab === 'criteria' && <OrderCriteriaTab />}
-      {tab === 'ai' && <ChecklistImageAiSettings />}
       {tab === 'policy' && <PolicyTab />}
       {tab === 'pricing' && <BaseChecklistPricingTab />}
       {tab === 'nfz' && <NoFlyZonesTab />}
