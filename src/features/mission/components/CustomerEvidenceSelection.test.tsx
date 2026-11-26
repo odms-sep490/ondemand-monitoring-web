@@ -236,6 +236,12 @@ describe('inspector delivery suggestions', () => {
     ['OTHER_CONFLICT', 409, /Bạn vẫn có thể tự chọn bằng chứng/, false],
     ['RATE_LIMITED', 429, /Có quá nhiều yêu cầu đánh giá. Hãy thử lại sau/, false],
     ['AI_PROVIDER_UNAVAILABLE', 502, /AI đánh giá ảnh hiện không khả dụng/, false],
+    [
+      'CHECKLIST_IMAGE_ASSESSMENT_DISABLED',
+      409,
+      /AI đánh giá ảnh đã được tắt/,
+      false,
+    ],
   ] as const)(
     'handles a Vietnamese assessment error with code %s',
     async (code, status, message, stale) => {

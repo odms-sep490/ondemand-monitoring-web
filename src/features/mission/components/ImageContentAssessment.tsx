@@ -12,6 +12,8 @@ import type {
 
 const messages = {
   en: {
+    assessmentDisabled:
+      'AI image assessment has been turned off. You can still select evidence manually.',
     image: 'Image to assess',
     choose: 'Choose an image',
     preview: (fileName: string) => 'Selected image preview for ' + fileName,
@@ -33,6 +35,8 @@ const messages = {
     verdicts: { MATCH: 'Match', MISMATCH: 'Mismatch', UNCERTAIN: 'Uncertain' },
   },
   vi: {
+    assessmentDisabled:
+      'AI đánh giá ảnh đã được tắt. Bạn vẫn có thể tự chọn bằng chứng.',
     image: 'Ảnh cần đánh giá',
     choose: 'Chọn một ảnh',
     preview: (fileName: string) => 'Bản xem trước của ảnh đã chọn ' + fileName,
@@ -150,6 +154,7 @@ function AssessmentForm({
     | 'previewNotReady'
     | 'rateLimited'
     | 'providerUnavailable'
+    | 'assessmentDisabled'
     | null
   >(null)
   const selectedImage = images.find(({ evidenceId }) => evidenceId === imageId)
@@ -176,6 +181,8 @@ function AssessmentForm({
     } catch (cause) {
       const code = cause instanceof ApiError ? cause.code : undefined
       if (code === 'CONCURRENT_UPDATE') setError('stale')
+      else if (code === 'CHECKLIST_IMAGE_ASSESSMENT_DISABLED')
+        setError('assessmentDisabled')
       else if (code === 'MEDIA_DERIVATIVE_UNAVAILABLE')
         setError('previewNotReady')
       else if (code === 'AI_PROVIDER_UNAVAILABLE')
