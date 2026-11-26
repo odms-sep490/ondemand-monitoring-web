@@ -30,9 +30,17 @@ export function TimeslotsTable({
           <tr key={s.id}>
             <td>
               <div className="adm-cell-mono">{s.code}</div>
-              <div className="adm-cell-email">{codes[s.code]}</div>
             </td>
-            <td className="adm-wrap adm-strong">{codes[s.code] ?? s.name}</td>
+            <td className="adm-wrap adm-strong">
+              {!s.name ||
+              [
+                s.code,
+                timeslotCodeMessages.vi[s.code],
+                timeslotCodeMessages.en[s.code],
+              ].includes(s.name)
+                ? (codes[s.code] ?? s.name)
+                : s.name}
+            </td>
             <td className="adm-cell-mono">
               {s.startTime} – {s.endTime}
             </td>

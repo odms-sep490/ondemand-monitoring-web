@@ -66,12 +66,9 @@ describe('ServicesTab', () => {
     fireEvent.change(screen.getByLabelText(/Tên dịch vụ/), {
       target: { value: 'Dịch vụ thử' },
     })
-    fireEvent.change(screen.getByLabelText(/Giá danh mục cũ/), {
-      target: { value: '1800000' },
-    })
+    expect(screen.queryByLabelText(/Giá danh mục cũ/)).toBeNull()
     fireEvent.click(screen.getByText('Lưu'))
     expect(await screen.findByText('Dịch vụ thử')).toBeTruthy()
-    expect(screen.getByText(/1\.800\.000/)).toBeTruthy()
   })
 
   it('validates the required name and shows BE errors inline', async () => {
@@ -90,7 +87,9 @@ describe('ServicesTab', () => {
       /Tên dịch vụ/,
     )) as HTMLInputElement
     expect(name.value).toBe('Giám sát công trình')
-    expect(screen.getByLabelText(/Giá danh mục cũ/)).toHaveValue(3_500_000)
+    expect(
+      screen.getByRole('button', { name: 'Kiểm tra giá mặc định' }),
+    ).toBeInTheDocument()
     expect(
       (screen.getByLabelText(/Mô tả/) as HTMLTextAreaElement).value,
     ).toContain('công trình')
@@ -102,9 +101,7 @@ describe('ServicesTab', () => {
   it('deletes after a danger confirmation', async () => {
     render(<ServicesTab />)
     await screen.findByText('Giám sát công trình')
-    fireEvent.click(
-      screen.getByLabelText('Thao tác khác Giám sát công trình'),
-    )
+    fireEvent.click(screen.getByLabelText('Thao tác khác Giám sát công trình'))
     fireEvent.click(screen.getByLabelText('Xoá Giám sát công trình'))
     expect(screen.getByText(/Bạn có chắc muốn xoá/)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Xoá' }))
