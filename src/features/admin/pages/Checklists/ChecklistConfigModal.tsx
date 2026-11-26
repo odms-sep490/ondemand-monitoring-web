@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import { LoadingState } from '../../../../shared/components/odm/StateView'
-import { Modal } from '../../../../shared/components/ui'
+import { Button, Modal } from '../../../../shared/components/ui'
 import {
   checklistsApi,
   type ChecklistDefinition,
@@ -15,6 +15,7 @@ import {
   type ConfigServiceContext,
 } from './ChecklistConfigForm'
 import { ChecklistHistoryPanel } from './ChecklistHistoryPanel'
+import './checklistConfig.css'
 
 export type { ConfigServiceContext }
 
@@ -32,53 +33,55 @@ export function ChecklistConfigModal({
   checklist?: ChecklistDefinition
   service?: ConfigServiceContext
   close: () => void
-  saved: () => void
+  saved: (updated?: ChecklistDefinition) => void
 }) {
   const { t } = useI18n(checklistMessages)
   const creating = !checklist && !service
   const checklistId = checklist?.id ?? service?.row.checklistId
   const [showHistory, setShowHistory] = useState(false)
   return (
-    <Modal
-      width={720}
-      icon="clipboard"
-      title={creating ? t.add : t.configTitle}
-      subtitle={
-        service
-          ? `${service.name} · ${service.row.content}`
-          : checklist?.content
-      }
-      onClose={close}
-    >
-      {checklistId && (
-        <div className="checklist-modal-tools">
-          <button
-            type="button"
-            className="odm-btn odm-btn-gh odm-btn-sm"
-            aria-pressed={showHistory}
-            onClick={() => setShowHistory((value) => !value)}
-          >
-            {showHistory ? t.historyBack : t.tabHistory}
-          </button>
+    <div className="checklist-config-shell">
+      <Modal
+        width={820}
+        icon="clipboard"
+        title={creating ? t.add : t.configTitle}
+        subtitle={
+          service
+            ? `${service.name} · ${service.row.content}`
+            : checklist?.content
+        }
+        onClose={close}
+      >
+        {checklistId && (
+          <div className="checklist-modal-tools">
+            <Button
+              size="sm"
+              icon={showHistory ? 'arrow-left' : 'clock'}
+              aria-pressed={showHistory}
+              onClick={() => setShowHistory((value) => !value)}
+            >
+              {showHistory ? t.historyBack : t.tabHistory}
+            </Button>
+          </div>
+        )}
+        {showHistory && checklistId && (
+          <ChecklistHistoryPanel checklistId={checklistId} />
+        )}
+        <div hidden={showHistory}>
+          {checklist || creating ? (
+            <ChecklistConfigForm
+              key={checklist?.id ?? 'new'}
+              row={checklist}
+              service={service}
+              close={close}
+              saved={saved}
+            />
+          ) : service ? (
+            <ServiceFormLoader service={service} close={close} saved={saved} />
+          ) : null}
         </div>
-      )}
-      {showHistory && checklistId && (
-        <ChecklistHistoryPanel checklistId={checklistId} />
-      )}
-      <div hidden={showHistory}>
-        {checklist || creating ? (
-          <ChecklistConfigForm
-            key={checklist?.id ?? 'new'}
-            row={checklist}
-            service={service}
-            close={close}
-            saved={saved}
-          />
-        ) : service ? (
-          <ServiceFormLoader service={service} close={close} saved={saved} />
-        ) : null}
-      </div>
-    </Modal>
+      </Modal>
+    </div>
   )
 }
 
@@ -90,7 +93,7 @@ function ServiceFormLoader({
 }: {
   service: ConfigServiceContext
   close: () => void
-  saved: () => void
+  saved: (updated?: ChecklistDefinition) => void
 }) {
   const { t } = useI18n(checklistMessages)
   const query = useApiQuery(

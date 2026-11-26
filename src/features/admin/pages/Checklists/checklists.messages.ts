@@ -4,6 +4,11 @@ export const checklistMessages = defineMessages({
   vi: {
     // Unified configuration
     title: 'Thư viện checklist',
+    librarySearchLabel: 'Tìm kiếm checklist',
+    libraryClear: 'Xóa bộ lọc',
+    libraryRefresh: 'Làm mới',
+    libraryLoading: 'Đang cập nhật danh sách…',
+    libraryResults: (count: number) => `${count} checklist trong danh sách`,
     configTitle: 'Cấu hình checklist',
     configure: 'Cấu hình',
     tabHistory: 'Lịch sử thay đổi',
@@ -176,13 +181,14 @@ export const checklistMessages = defineMessages({
     noneUsed: 'Chưa có dịch vụ sử dụng.',
     emptyTemplate: 'Chưa có checklist mặc định',
     saving: 'Đang lưu...',
+    configSaved: 'Đã lưu cấu hình checklist.',
     imagesShort: 'ảnh',
     videosShort: 'video',
     includedImages: 'Số ảnh đã bao gồm',
     includedVideos: 'Số video đã bao gồm',
     videoDuration: 'Thời lượng video tiêu chuẩn (giây)',
     invalidPricing:
-      'Evidence allowances must be whole numbers: max 500 images/videos and video duration from 1 to 7200 seconds.',
+      'Số ảnh/video phải là số nguyên, tối đa 500 mỗi loại. Thời lượng video từ 1 đến 7200 giây.',
     evidenceColumn: 'Ảnh / video bao gồm',
     inheritedValue: 'Kế thừa',
     overrideValue: 'Ghi đè',
@@ -198,6 +204,11 @@ export const checklistMessages = defineMessages({
   en: {
     // Unified configuration
     title: 'Checklist library',
+    librarySearchLabel: 'Find a checklist',
+    libraryClear: 'Clear filters',
+    libraryRefresh: 'Refresh',
+    libraryLoading: 'Updating checklists…',
+    libraryResults: (count: number) => `${count} checklists in this list`,
     configTitle: 'Checklist configuration',
     configure: 'Configure',
     tabHistory: 'Change history',
@@ -371,6 +382,7 @@ export const checklistMessages = defineMessages({
     noneUsed: 'Not used by any service.',
     emptyTemplate: 'No checklist assigned.',
     saving: 'Saving...',
+    configSaved: 'Checklist configuration saved.',
     imagesShort: 'images',
     videosShort: 'videos',
     includedImages: 'Included images',

@@ -117,6 +117,14 @@ describe('Admin checklist catalog', () => {
         expect.any(AbortSignal),
       ),
     )
+    fireEvent.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }))
+    await waitFor(() =>
+      expect(checklistsApi.list).toHaveBeenLastCalledWith(
+        '', undefined, 0, expect.any(AbortSignal),
+      ),
+    )
+    expect(screen.getByRole('searchbox')).toHaveValue('')
+    expect(screen.getByRole('combobox')).toHaveValue('')
   })
   it('sends the description and one list entry per non-empty line, in order', async () => {
     render(<ChecklistCatalogPage />)
@@ -696,7 +704,7 @@ describe('Admin checklist visual structure and interaction', () => {
       'aria-describedby',
       'checklist-content-hint',
     )
-    expect(screen.getByRole('button', { name: 'Lưu' })).toHaveClass('odm-btn-p')
+    expect(screen.getByRole('button', { name: 'Lưu' })).toHaveClass('ui-btn', 'is-primary')
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByRole('dialog')).toBeNull()
   })

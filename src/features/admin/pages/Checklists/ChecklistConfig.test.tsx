@@ -157,6 +157,43 @@ describe('AI image assessment criteria', () => {
     return vi.mocked(checklistsApi.update).mock.calls[0][2]
   }
 
+  it('keeps the evidence tab open after saving and uses saved criteria as the next baseline', async () => {
+    const criterion = 'Thấy toàn bộ mái'
+    vi.mocked(checklistsApi.update).mockResolvedValue({
+      ...shared,
+      imageAssessmentCriteria: [criterion],
+    })
+    await openEditor()
+    const dialog = screen.getByRole('dialog')
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm tiêu chí' }))
+    fireEvent.change(screen.getByLabelText('Tiêu chí 1'), {
+      target: { value: criterion },
+    })
+    await saveSharedChecklist()
+    expect(await within(dialog).findByRole('status')).toHaveTextContent(
+      'Đã lưu cấu hình checklist.',
+    )
+    expect(screen.getByRole('dialog')).toBe(dialog)
+    expect(
+      screen.getByRole('tab', { name: 'Yêu cầu minh chứng' }),
+    ).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByLabelText('Tiêu chí 1')).toBeVisible()
+    expect(screen.getByLabelText('Tiêu chí 1')).toHaveValue(criterion)
+
+    fireEvent.change(screen.getByLabelText('Số video đã bao gồm'), {
+      target: { value: '2' },
+    })
+    expect(within(dialog).queryByRole('status')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
+    await waitFor(() => expect(checklistsApi.update).toHaveBeenCalledTimes(2))
+    expect(vi.mocked(checklistsApi.update).mock.calls[1][2]).not.toHaveProperty(
+      'imageAssessmentCriteria',
+    )
+    expect(await within(dialog).findByRole('status')).toBeInTheDocument()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Hủy' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
   it('validates criteria, keeps the draft through history, and saves trimmed criteria in order', async () => {
     await openEditor()
     const add = screen.getByRole('button', { name: 'Thêm tiêu chí' })
