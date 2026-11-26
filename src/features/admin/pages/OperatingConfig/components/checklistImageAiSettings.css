@@ -1,0 +1,52 @@
+.checklist-image-ai-settings {
+  padding: 24px;
+  background: var(--odm-bg-card, #fff);
+  border: 1px solid var(--odm-border, #e2e8f0);
+  border-radius: 14px;
+}
+
+.checklist-image-ai-settings header,
+.checklist-image-ai-settings__control,
+.checklist-image-ai-settings footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.checklist-image-ai-settings h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.checklist-image-ai-settings p {
+  color: var(--odm-text-secondary, #64748b);
+  line-height: 1.6;
+  margin: 8px 0 0;
+}
+
+.checklist-image-ai-settings__control {
+  margin: 24px 0;
+  padding: 20px 0;
+  border-block: 1px solid var(--odm-border, #e2e8f0);
+}
+
+.checklist-image-ai-settings__control label {
+  font-weight: 600;
+}
+
+.checklist-image-ai-settings footer {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+@media (max-width: 600px) {
+  .checklist-image-ai-settings {
+    padding: 16px;
+  }
+  .checklist-image-ai-settings header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

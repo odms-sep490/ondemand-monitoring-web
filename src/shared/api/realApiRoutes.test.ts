@@ -92,4 +92,15 @@ describe('matchesRealApiRoute', () => {
       matchesRealApiRoute(env.realApiRoutes, 'GET', '/api/notifications'),
     ).toBe(true)
   })
+  it('sends AI settings reads and writes to the real backend', () => {
+    for (const method of ['GET', 'PUT']) {
+      expect(
+        matchesRealApiRoute(
+          env.realApiRoutes,
+          method,
+          '/api/admin/config/checklist-image-ai',
+        ),
+      ).toBe(true)
+    }
+  })
 })

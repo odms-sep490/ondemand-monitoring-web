@@ -69,6 +69,9 @@ const realApiRoutes = [
   ...depositRefundApiRoutes,
   ...busyScheduleApiRoutes,
   ...notificationApiRoutes,
+  ...parseRealApiRoutes(
+    'GET /api/admin/config/checklist-image-ai,PUT /api/admin/config/checklist-image-ai',
+  ),
 ]
 
 export const env = {

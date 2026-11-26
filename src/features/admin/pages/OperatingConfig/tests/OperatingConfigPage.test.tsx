@@ -6,6 +6,7 @@ import { setLanguage } from '../../../../../shared/i18n'
 import { OperatingConfigPage } from '../OperatingConfigPage'
 import { adminApi } from '../../../api/adminApi'
 import { baseChecklistPricingApi } from '../../../api/baseChecklistPricingApi'
+import { checklistImageAiApi } from '../../../api/checklistImageAiApi'
 import { useMockTransport } from './helpers'
 
 useMockTransport()
@@ -42,6 +43,24 @@ describe('OperatingConfigPage', () => {
         name: 'Giá Base Checklist',
       }),
     ).toBeInTheDocument()
+  })
+
+  it('opens the system-wide AI settings from operating configuration', async () => {
+    vi.spyOn(checklistImageAiApi, 'get').mockResolvedValue({
+      enabled: true,
+      providerConfigured: true,
+      effectiveEnabled: true,
+      version: 0,
+      updatedAt: '2026-11-26T00:00:00Z',
+      updatedBy: 'admin',
+    })
+    render(<OperatingConfigPage />)
+    fireEvent.click(screen.getByRole('tab', { name: 'AI đánh giá ảnh' }))
+    expect(
+      await screen.findByRole('switch', {
+        name: 'Bật AI đánh giá ảnh toàn hệ thống',
+      }),
+    ).toBeChecked()
   })
 
   it('shows independent quote and deposit timeout settings with the default values', async () => {
