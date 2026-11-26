@@ -151,6 +151,7 @@ export function deriveMissionDetailView({
   const activeTab: MissionDetailTab = tab === 'resources' ? 'plan' : tab
   const tabs: Array<{ id: MissionDetailTab; label: string }> = [
     { id: 'result', label: t.tabs.result },
+    { id: 'reports', label: t.tabs.reports },
     { id: 'media', label: t.tabs.media },
     { id: 'checklist', label: t.tabs.checklist },
     { id: 'route', label: t.tabs.route },

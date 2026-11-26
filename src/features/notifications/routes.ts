@@ -27,7 +27,9 @@ export function notificationHref(
           ? '?tab=contract'
           : notification.type === 'ORDER_DEPOSIT_REQUIRED'
             ? '?tab=payment'
-            : ['ORDER_APPROVED', 'ORDER_QUOTE_APPROVED'].includes(notification.type)
+            : notification.type === 'ORDER_FEEDBACK_REQUESTED'
+              ? '?tab=results'
+                        : ['ORDER_APPROVED', 'ORDER_QUOTE_APPROVED'].includes(notification.type)
               ? '?tab=finance'
             : '')
       )
@@ -43,6 +45,12 @@ export function notificationHref(
   }
 
   if (notification.type === 'SYSTEM_UPDATE') return notificationsHref(role)
+
+  if (notification.type.startsWith('MAINTENANCE_')) {
+    if (role === 'MANAGER' || role === 'ADMIN') return managerHref({ screen: 'maintenance' })
+    if (role === 'STAFF') return operatorHref({ screen: 'maintenance' })
+    return notificationsHref(role)
+  }
 
   if (role === 'CUSTOMER') {
     // The customer mission-history screens were removed; open the parent

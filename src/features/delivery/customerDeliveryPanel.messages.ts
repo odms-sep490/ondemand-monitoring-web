@@ -148,7 +148,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     missionPaymentEyebrow: 'Thanh toán để mở bản gốc',
     missionPaymentTitle: 'Đã duyệt kết quả — thanh toán để tải bản gốc',
     missionPaymentBody:
-      'Thanh toán khoản phí nhiệm vụ ngay tại đây. Sau khi hoàn tất, các nút Tải bản gốc sẽ mở trực tiếp bên dưới.',
+      'Chuyển tới mục Báo giá & thanh toán để thanh toán phần còn lại. Sau khi hoàn tất, các nút Tải bản gốc sẽ tự động mở.',
     missionPaymentPartialBody: (available: number, total: number) =>
       `${available}/${total} tệp đã mở tải. Hoàn tất thanh toán để mở toàn bộ ảnh/video gốc.`,
     missionPaymentExpiredTitle: 'Đã hết hạn thanh toán nhiệm vụ',
@@ -325,7 +325,7 @@ export const customerDeliveryPanelMessages = defineMessages({
     missionPaymentEyebrow: 'Unlock original files',
     missionPaymentTitle: 'Results accepted — pay to download originals',
     missionPaymentBody:
-      'Complete this mission payment right here to unlock Download original buttons directly below.',
+      'Go to Quote & payment to pay the remaining balance. Once completed, Download original buttons will unlock automatically.',
     missionPaymentPartialBody: (available: number, total: number) =>
       `${available} of ${total} files are downloadable. Complete payment to unlock the remaining originals.`,
     missionPaymentExpiredTitle: 'Mission payment deadline expired',

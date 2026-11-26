@@ -157,31 +157,39 @@ export function DeliveryMissionPaymentCard({
       {error ? <Alert type="error" showIcon message={error} /> : null}
 
       <div className="delivery-mission-pay-card__actions">
-        {canPay ? (
-          <Button
-            type="primary"
-            size="large"
-            loading={paying}
-            disabled={paying}
-            onClick={() => onPay(milestone.id)}
-          >
+        {canPay && onOpenFinance ? (
+          <Button type="primary" size="large" onClick={onOpenFinance}>
             {ctaLabel}
           </Button>
-        ) : null}
-        {env.testPaymentsEnabled && canPay ? (
-          <Button
-            size="large"
-            disabled={paying}
-            onClick={() => onTestPay(milestone.id)}
-          >
-            {t.missionTestPayment}
-          </Button>
-        ) : null}
-        {onOpenFinance ? (
-          <Button type="link" onClick={onOpenFinance}>
-            {t.viewInvoiceDetails}
-          </Button>
-        ) : null}
+        ) : (
+          <>
+            {canPay ? (
+              <Button
+                type="primary"
+                size="large"
+                loading={paying}
+                disabled={paying}
+                onClick={() => onPay(milestone.id)}
+              >
+                {ctaLabel}
+              </Button>
+            ) : null}
+            {env.testPaymentsEnabled && canPay ? (
+              <Button
+                size="large"
+                disabled={paying}
+                onClick={() => onTestPay(milestone.id)}
+              >
+                {t.missionTestPayment}
+              </Button>
+            ) : null}
+            {onOpenFinance ? (
+              <Button type="link" onClick={onOpenFinance}>
+                {t.viewInvoiceDetails}
+              </Button>
+            ) : null}
+          </>
+        )}
       </div>
     </article>
   )

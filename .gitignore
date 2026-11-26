@@ -38,3 +38,7 @@ evd/
 document/
 
 *.tsbuildinfo
+
+# Local AI codebase intelligence & indexing caches
+.serena/
+.jcodemunch/

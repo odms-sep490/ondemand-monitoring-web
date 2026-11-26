@@ -346,7 +346,7 @@ export type MissionStaffAssignmentResponse = {
   staffName: string | null
   staffEmail: string | null
   staffPhone: string | null
-  assignedRole: 'PILOT' | 'OPERATOR' | 'MAINTAINER' | 'INSPECTOR'
+  assignedRole: 'PILOT' | 'OPERATOR' | 'MAINTAINER' | 'INSPECTOR' | 'TECHNICAL'
   responseStatus: 'PLANNING' | 'PENDING' | 'ACCEPTED' | 'REJECTED'
   assignedAt: string | null
   respondedAt: string | null

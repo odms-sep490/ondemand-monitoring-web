@@ -6,7 +6,8 @@ import { customerFinanceSectionsMessages } from '../CustomerFinanceSections.mess
 import { pricingLabel } from '../../../../shared/lib/pricingPresentation'
 import { StatusTag } from '../../../../shared/components/antd'
 import { PaymentStat } from './PaymentStat'
-import type { Invoice } from '../../types'
+import type { Invoice, MissionPaymentMilestone } from '../../types'
+import { canPayMissionMilestone } from '../../missionMilestoneUtils'
 import { env } from '../../../../config/env'
 import { DeadlineCountdown } from './DeadlineCountdown'
 import { formatVnd } from '../../../../shared/lib/formatVnd'
@@ -80,6 +81,9 @@ export function InvoiceSection({
   refreshExpired,
   handedOverCount = 0,
   unpaidHandedOverCount = 0,
+  actionableMilestone = null,
+  onPayMission,
+  onTestPayMission,
 }: {
   invoice: Invoice
   legalReady: boolean
@@ -90,6 +94,9 @@ export function InvoiceSection({
   refreshExpired?: () => void
   handedOverCount?: number
   unpaidHandedOverCount?: number
+  actionableMilestone?: MissionPaymentMilestone | null
+  onPayMission?: (milestoneId: string) => void
+  onTestPayMission?: (milestoneId: string) => void
 }) {
   const { t, locale } = useI18n(customerFinanceSectionsMessages)
   const [expiredDeadlineKey, setExpiredDeadlineKey] = useState<string | null>(
@@ -134,7 +141,18 @@ export function InvoiceSection({
     0,
     invoice.totalAmount - invoice.depositAmount,
   )
- return (
+  const canPayActionableMission =
+    invoice.paidAmount >= invoice.depositAmount &&
+    actionableMilestone != null &&
+    canPayMissionMilestone(actionableMilestone)
+  const missionExpiresAtMs = actionableMilestone?.paymentExpiresAt
+    ? Date.parse(actionableMilestone.paymentExpiresAt)
+    : Number.NaN
+  const hasValidMissionDeadline = Number.isFinite(missionExpiresAtMs)
+  const missionExpired =
+    actionableMilestone?.status === 'EXPIRED' ||
+    (hasValidMissionDeadline && missionExpiresAtMs <= Date.now())
+  return (
     <div className="customer-invoice customer-invoice-actions">
       {invoice.paidAmount < invoice.depositAmount && !depositExpired ? (
         <section
@@ -163,6 +181,32 @@ export function InvoiceSection({
           <p className="customer-deposit-checkout-note">
             {t.depositItemMilestoneNote}
           </p>
+        </section>
+      ) : canPayActionableMission && actionableMilestone ? (
+        <section
+          className="customer-deposit-checkout-box"
+          aria-label={t.currentPaymentDueEyebrow}
+        >
+          <span className="customer-deposit-checkout-eyebrow">
+            {t.currentPaymentDueEyebrow}
+          </span>
+          <div className="customer-deposit-checkout-head">
+            <strong>{t.missionItemTitle(actionableMilestone.missionCode)}</strong>
+            <span className="customer-deposit-checkout-amount">
+              {formatVnd(actionableMilestone.amount)}
+            </span>
+          </div>
+          <dl className="customer-deposit-checkout-breakdown">
+            <div>
+              <dt>{t.depositItemOrderTotal}</dt>
+              <dd>{formatVnd(invoice.totalAmount)}</dd>
+            </div>
+            <div>
+              <dt>{t.paid}</dt>
+              <dd>{formatVnd(invoice.paidAmount)}</dd>
+            </div>
+          </dl>
+          <p className="customer-deposit-checkout-note">{t.missionItemNote}</p>
         </section>
       ) : null}
       {invoice.depositExpiresAt &&
@@ -194,6 +238,32 @@ export function InvoiceSection({
             <b>{t.depositDeadlineInvalid}</b>
           </div>
         )
+      ) : canPayActionableMission &&
+        actionableMilestone?.paymentExpiresAt &&
+        hasValidMissionDeadline ? (
+        <DeadlineCountdown
+          expired={missionExpired}
+          label={missionExpired ? t.missionExpired : t.missionDeadlineLabel}
+          deadline={actionableMilestone.paymentExpiresAt}
+          startAt={actionableMilestone.handedOverAt ?? null}
+          deadlineLabel={t.missionDeadlineAt(
+            new Date(actionableMilestone.paymentExpiresAt).toLocaleString(
+              locale,
+              {
+                dateStyle: 'short',
+                timeStyle: 'medium',
+              },
+            ),
+          )}
+          dayLabel={t.dayUnit}
+          hourLabel={t.hourUnit}
+          minuteLabel={t.minuteUnit}
+          secondLabel={t.secondUnit}
+          clockLabel={t.clockLabel}
+          onExpire={() => {
+            refreshExpired?.()
+          }}
+        />
       ) : null}
       {invoice.orderCancellationReason === 'DEPOSIT_PAYMENT_EXPIRED' ? (
         <div className="customer-deposit-notice">
@@ -246,6 +316,27 @@ export function InvoiceSection({
               <Button
                 disabled={busy}
                 onClick={() => void completeTestDeposit()}
+              >
+                {testPaymentLabel}
+              </Button>
+            ) : null}
+          </>
+        ) : canPayActionableMission &&
+          actionableMilestone &&
+          !missionExpired &&
+          onPayMission ? (
+          <>
+            <Button
+              type="primary"
+              disabled={busy}
+              onClick={() => onPayMission(actionableMilestone.id)}
+            >
+              {t.payMission(formatVnd(actionableMilestone.amount))}
+            </Button>
+            {env.testPaymentsEnabled && onTestPayMission ? (
+              <Button
+                disabled={busy}
+                onClick={() => onTestPayMission(actionableMilestone.id)}
               >
                 {testPaymentLabel}
               </Button>

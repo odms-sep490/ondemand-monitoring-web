@@ -264,47 +264,47 @@ export function CustomerEvidenceSelection({
                 ? 'Chọn ảnh/video gửi khách hàng'
                 : 'Select customer images and videos'}
           </h4>
-          <p>
-            {readOnly
-              ? vi
-                ? 'Xem ảnh/video để nghiệm thu. Chỉ chọn tệp gửi khách khi checklist đã đạt và được phép bàn giao.'
-                : 'Review the evidence. Delivery selection is available only for accepted checklists when permitted.'
-              : vi
+          {!readOnly && (
+            <p>
+              {vi
                 ? 'Chọn các tệp đã duyệt để bàn giao. Tệp không chọn vẫn được giữ dự phòng.'
                 : 'Select approved files for delivery. Unselected files stay in reserve.'}
-          </p>
+            </p>
+          )}
         </div>
-        <Tag
-          color={
-            readOnly
-              ? undefined
-              : changed
-                ? 'gold'
-                : ids.length
-                  ? 'blue'
-                  : undefined
-          }
-        >
-          {readOnly
-            ? vi
-              ? 'Chỉ xem'
-              : 'View only'
-            : saved
+        <div className="customer-evidence-selection__header-meta">
+          <Tag
+            color={
+              readOnly
+                ? undefined
+                : changed
+                  ? 'gold'
+                  : ids.length
+                    ? 'blue'
+                    : undefined
+            }
+          >
+            {readOnly
               ? vi
-                ? 'Đã lưu'
-                : 'Saved'
-              : changed
+                ? 'Chỉ xem'
+                : 'View only'
+              : saved
                 ? vi
-                  ? 'Chưa lưu'
-                  : 'Unsaved changes'
-                : ids.length
+                  ? 'Đã lưu'
+                  : 'Saved'
+                : changed
                   ? vi
-                    ? 'Đã lưu'
-                    : 'Saved'
-                  : vi
-                    ? 'Chưa chọn tệp'
-                    : 'No files selected'}
-        </Tag>
+                    ? 'Chưa lưu'
+                    : 'Unsaved changes'
+                  : ids.length
+                    ? vi
+                      ? 'Đã lưu'
+                      : 'Saved'
+                    : vi
+                      ? 'Chưa chọn tệp'
+                      : 'No files selected'}
+          </Tag>
+        </div>
       </header>
       <div
         className="customer-evidence-selection__summary"
@@ -452,8 +452,8 @@ export function CustomerEvidenceSelection({
               key={link.evidenceId}
               className={`customer-evidence-selection__row${checked ? ' is-selected' : ''}`}
             >
-              <div className="customer-evidence-selection__choice">
-                {!readOnly && (
+              {!readOnly && (
+                <div className="customer-evidence-selection__choice">
                   <Checkbox
                     id={`${selectionId}-${link.evidenceId}`}
                     aria-label={`${link.fileName} · ${state}`}
@@ -467,19 +467,17 @@ export function CustomerEvidenceSelection({
                       )
                     }
                   />
-                )}
-                <span>
-                  {readOnly
-                    ? typeLabel(link.mediaType === 'VIDEO')
-                    : checked
+                  <span>
+                    {checked
                       ? vi
                         ? 'Đã chọn'
                         : 'Selected'
                       : vi
                         ? 'Chọn gửi khách'
                         : 'Select for delivery'}
-                </span>
-              </div>
+                  </span>
+                </div>
+              )}
               <button
                 type="button"
                 className="customer-evidence-selection__thumbnail"

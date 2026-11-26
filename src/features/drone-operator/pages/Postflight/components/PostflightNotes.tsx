@@ -16,7 +16,7 @@ export function PostflightNotes({
       <div className="postflight-notes-body">
         <textarea
           className="postflight-notes-input"
-          rows={3}
+          rows={2}
           aria-label={t.notesLabel}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}

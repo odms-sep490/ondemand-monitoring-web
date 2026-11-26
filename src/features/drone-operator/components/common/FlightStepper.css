@@ -1,9 +1,10 @@
 .odm-flight-step-header {
-  display: grid;
-  grid-template-columns: minmax(170px, 260px) minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  gap: 18px;
-  min-height: 88px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  min-height: 58px;
   padding: 10px 20px;
   border-bottom: 1px solid var(--bd);
   background: var(--sf);

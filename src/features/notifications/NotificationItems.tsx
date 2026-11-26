@@ -6,6 +6,7 @@ import {
   DollarCircleOutlined,
   FileTextOutlined,
   TeamOutlined,
+  StarOutlined,
 } from '@ant-design/icons'
 import { useI18n } from '../../shared/i18n'
 import { notificationHref } from './routes'
@@ -38,6 +39,14 @@ const iconByType = {
   MISSION_COMPLETED: CheckCircleOutlined,
   MISSION_REVIEW_REQUIRED: FileTextOutlined,
   MISSION_WARNING: AlertOutlined,
+  ORDER_FEEDBACK_REQUESTED: StarOutlined,
+  ORDER_FEEDBACK_LOW_RATING: AlertOutlined,
+  MAINTENANCE_HANDOVER_SENT: TeamOutlined,
+  MAINTENANCE_RETURN_SUBMITTED: FileTextOutlined,
+  MAINTENANCE_REWORK_REQUIRED: AlertOutlined,
+  MAINTENANCE_ACCEPTED: CheckCircleOutlined,
+  MAINTENANCE_QUEUE_AVAILABLE: AlertOutlined,
+  MAINTENANCE_UNCLAIMED: AlertOutlined,
   SYSTEM_UPDATE: FileTextOutlined,
 } as const
 
@@ -96,6 +105,14 @@ export function notificationCopy(
     MISSION_COMPLETED: [t.completedTitle, t.completedDescription],
     MISSION_REVIEW_REQUIRED: [t.reviewTitle, t.reviewDescription],
     MISSION_WARNING: [t.warningTitle, t.warningDescription],
+    ORDER_FEEDBACK_REQUESTED: [t.feedbackRequestedTitle, t.feedbackRequestedDescription],
+    ORDER_FEEDBACK_LOW_RATING: [t.feedbackLowTitle, t.feedbackLowDescription],
+    MAINTENANCE_HANDOVER_SENT: [t.maintHandoverTitle, t.maintHandoverDescription],
+    MAINTENANCE_RETURN_SUBMITTED: [t.maintReturnTitle, t.maintReturnDescription],
+    MAINTENANCE_REWORK_REQUIRED: [t.maintReworkTitle, t.maintReworkDescription],
+    MAINTENANCE_ACCEPTED: [t.maintAcceptedTitle, t.maintAcceptedDescription],
+    MAINTENANCE_QUEUE_AVAILABLE: [t.maintQueueTitle, t.maintQueueDescription],
+    MAINTENANCE_UNCLAIMED: [t.maintUnclaimedTitle, t.maintUnclaimedDescription],
     SYSTEM_UPDATE: [t.systemTitle, t.systemDescription],
   }[notification.type]
   return {

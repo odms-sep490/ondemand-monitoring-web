@@ -60,6 +60,16 @@ export const customerFinanceSectionsMessages = defineMessages({
     awaitingResourceConfirmation:
       'Đang chờ nhân sự được phân công xác nhận tài nguyên.',
     payDeposit: 'Thanh toán đặt cọc',
+    payMission: (amount: string) => `Thanh toán ${amount}`,
+    missionDeadlineLabel: 'Thời hạn thanh toán nhiệm vụ',
+    missionDeadlineAt: (value: string) => `Hạn thanh toán: ${value}`,
+    missionExpired: 'Quá hạn thanh toán nhiệm vụ',
+    missionItemTitle: (missionCode?: string | null) =>
+      missionCode
+        ? `Thanh toán nhiệm vụ ${missionCode}`
+        : 'Thanh toán phần còn lại',
+    missionItemNote:
+      'Hoàn tất thanh toán để mở tải toàn bộ ảnh/video gốc đã bàn giao.',
     currentPaymentDueEyebrow: 'Khoản cần thanh toán hiện tại',
     depositItemTitle: (percent: number) => `Tiền đặt cọc đơn hàng (${percent}%)`,
     depositItemOrderTotal: 'Tổng giá trị đơn hàng',
@@ -153,6 +163,14 @@ export const customerFinanceSectionsMessages = defineMessages({
     awaitingResourceConfirmation:
       'Your missions are awaiting confirmation from the assigned staff.',
     payDeposit: 'Pay deposit',
+    payMission: (amount: string) => `Pay ${amount}`,
+    missionDeadlineLabel: 'Mission payment deadline',
+    missionDeadlineAt: (value: string) => `Pay by: ${value}`,
+    missionExpired: 'Mission payment expired',
+    missionItemTitle: (missionCode?: string | null) =>
+      missionCode ? `Mission payment ${missionCode}` : 'Remaining balance',
+    missionItemNote:
+      'Complete payment to unlock original photo and video downloads.',
     currentPaymentDueEyebrow: 'Current payment due',
     depositItemTitle: (percent: number) => `Order deposit (${percent}%)`,
     depositItemOrderTotal: 'Total order value',

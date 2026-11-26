@@ -72,6 +72,9 @@ export const STAFF_ROLE_LABELS: Record<
   get INSPECTOR() {
     return msgs().staffRoles.INSPECTOR
   },
+  get TECHNICAL() {
+    return msgs().staffRoles.TECHNICAL
+  },
 }
 
 export const STAFF_RESPONSE_LABELS: Record<

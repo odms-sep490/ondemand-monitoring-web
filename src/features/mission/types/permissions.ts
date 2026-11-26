@@ -15,6 +15,7 @@ export type MissionPermissions = {
   canExecuteMonitoringChecklist?: boolean
   canAccessMissionInspection?: boolean
   canAssessMonitoringChecklist?: boolean
+  canReviewMissionMedia?: boolean
 }
 
 export type MissionAction =

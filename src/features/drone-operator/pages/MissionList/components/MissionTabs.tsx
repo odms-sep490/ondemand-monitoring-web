@@ -1,6 +1,5 @@
 import type { OperatorMissionTab } from '../../../types/mission'
 import { MissionListTable } from './MissionListTable'
-import { UpcomingRail } from './UpcomingRail'
 import { missionListPageMessages } from '../MissionListPage.messages'
 import { useI18n } from '../../../../../shared/i18n'
 import type { Dispatch, SetStateAction } from 'react'
@@ -17,7 +16,6 @@ export function MissionTabs({
   counts,
   tabItems,
   now,
-  allMissions,
 }: {
   tab: OperatorMissionTab
   setTab: Dispatch<SetStateAction<OperatorMissionTab>>
@@ -137,7 +135,6 @@ export function MissionTabs({
           showDeadline={tab !== 'history'}
         />
       </div>
-      <UpcomingRail missions={allMissions} now={now} />
     </div>
   )
 }

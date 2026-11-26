@@ -118,7 +118,8 @@ export function CustomerFinancePanel({
     if (invoiceResult.status === 'fulfilled') setInvoice(invoiceResult.value)
     else if (isNotFound(invoiceResult.reason)) setInvoice(null)
     else setError(messageOf(invoiceResult.reason, t))
-    if (invoiceResult.status === 'fulfilled') {
+    // A null invoice means the quote is not accepted yet, so there are no payment milestones either.
+    if (invoiceResult.status === 'fulfilled' && invoiceResult.value) {
       setMissionPaymentsLoading(true)
       setMissionPaymentsError(null)
       try {
@@ -282,8 +283,10 @@ export function CustomerFinancePanel({
   const showQuote = section !== 'payment'
   const showPayment = section !== 'quote'
   const handedOverMilestones = getHandedOverMissionMilestones(missionPayments)
-  const unpaidHandedOverCount =
-    getActionableHandedOverMilestones(missionPayments).length
+  const actionableMilestones =
+    getActionableHandedOverMilestones(missionPayments)
+  const unpaidHandedOverCount = actionableMilestones.length
+  const primaryActionableMilestone = actionableMilestones[0] ?? null
   const invoiceSummaryContent = invoice ? (
     <InvoiceSummary invoice={invoice} />
   ) : null
@@ -312,6 +315,9 @@ export function CustomerFinancePanel({
         refreshExpired={() => void load()}
         handedOverCount={handedOverMilestones.length}
         unpaidHandedOverCount={unpaidHandedOverCount}
+        actionableMilestone={primaryActionableMilestone}
+        onPayMission={(milestoneId) => void payMission(milestoneId)}
+        onTestPayMission={(milestoneId) => void completeTestMission(milestoneId)}
       />
     </>
   ) : null
@@ -502,6 +508,9 @@ export function CustomerFinancePanel({
         <MissionPaymentMilestonesSection
           key={invoice.id}
           invoiceId={invoice.id}
+          invoiceNumber={invoice.invoiceNumber}
+          issuedAt={invoice.issuedAt}
+          depositExpiresAt={invoice.depositExpiresAt}
           paidAmount={invoice.paidAmount}
           depositAmount={invoice.depositAmount}
           depositPaid={

@@ -1,6 +1,7 @@
 import { DetailSection } from '../../../components/common/DetailSection'
 import {
   checkLabel,
+  checkTone,
   formatNumber,
   formatDateTime,
 } from '../../../components/common/missionDetailHelpers'
@@ -56,6 +57,7 @@ export function ChecksTab({
           <DetailSection
             title={t.precheckCard}
             badge={preflight ? checkLabel(preflight.status) : undefined}
+            badgeTone={preflight ? checkTone(preflight.status) : undefined}
           >
             {preflight ? (
               <div className="odm-or-detail-stack">
@@ -64,11 +66,26 @@ export function ChecksTab({
                     label={t.totalChecks}
                     value={preflight.totalChecks}
                   />
-                  <MetricTile label={t.passed} value={preflight.passedChecks} />
-                  <MetricTile label={t.failed} value={preflight.failedChecks} />
+                  <MetricTile
+                    label={t.passed}
+                    value={preflight.passedChecks}
+                    tone={preflight.passedChecks > 0 ? 'positive' : 'muted'}
+                  />
+                  <MetricTile
+                    label={t.failed}
+                    value={preflight.failedChecks}
+                    tone={preflight.failedChecks > 0 ? 'danger' : 'muted'}
+                  />
                   <MetricTile
                     label={t.progress}
                     value={formatNumber(preflight.progressPercent, '%')}
+                    tone={preflight.progressPercent >= 100 && preflight.failedChecks === 0 ? 'positive' : undefined}
+                  />
+                </div>
+                <div className="mgr-check-progress-track" aria-hidden="true">
+                  <span
+                    className={`mgr-check-progress-fill${preflight.failedChecks > 0 ? ' is-danger' : ''}`}
+                    style={{ width: `${Math.min(100, Math.max(0, preflight.progressPercent ?? 0))}%` }}
                   />
                 </div>
                 <div className="mgr-check-times">
@@ -91,14 +108,33 @@ export function ChecksTab({
           <DetailSection
             title={t.postcheckCard}
             badge={postcheck ? checkLabel(postcheck.status) : undefined}
+            badgeTone={postcheck ? checkTone(postcheck.status) : undefined}
           >
             {postcheck ? (
               <div className="odm-or-detail-stack">
                 <div className="odm-or-detail-grid mgr-check-compact-metrics">
                   <MetricTile label={t.totalChecks} value={postcheck.totalChecks} />
-                  <MetricTile label={t.passed} value={postcheck.passedChecks} />
-                  <MetricTile label={t.failed} value={postcheck.failedChecks} />
-                  <MetricTile label={t.progress} value={formatNumber(postcheck.progressPercent, '%')} />
+                  <MetricTile
+                    label={t.passed}
+                    value={postcheck.passedChecks}
+                    tone={postcheck.passedChecks > 0 ? 'positive' : 'muted'}
+                  />
+                  <MetricTile
+                    label={t.failed}
+                    value={postcheck.failedChecks}
+                    tone={postcheck.failedChecks > 0 ? 'danger' : 'muted'}
+                  />
+                  <MetricTile
+                    label={t.progress}
+                    value={formatNumber(postcheck.progressPercent, '%')}
+                    tone={postcheck.progressPercent >= 100 && postcheck.failedChecks === 0 ? 'positive' : undefined}
+                  />
+                </div>
+                <div className="mgr-check-progress-track" aria-hidden="true">
+                  <span
+                    className={`mgr-check-progress-fill${postcheck.failedChecks > 0 ? ' is-danger' : ''}`}
+                    style={{ width: `${Math.min(100, Math.max(0, postcheck.progressPercent ?? 0))}%` }}
+                  />
                 </div>
                 <div className="mgr-check-times">
                   <MetricTile label={t.checkStartedAt} value={formatDateTime(postcheck.startedAt, locale)} />

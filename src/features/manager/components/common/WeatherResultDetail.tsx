@@ -22,7 +22,10 @@ export function WeatherResultDetail({
     )
   }
   return (
-    <div className="odm-or-detail-stack">
+    <div
+      className="odm-or-detail-stack"
+      data-safe={weather.safeToFly ? 'true' : 'false'}
+    >
       <div className="odm-or-result-line">
         <span
           className={`odm-or-pill odm-or-pill-${weather.safeToFly ? 'green' : 'amber'}`}

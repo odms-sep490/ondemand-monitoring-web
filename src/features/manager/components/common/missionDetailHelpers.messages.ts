@@ -25,8 +25,9 @@ export const missionDetailHelpersMessages = defineMessages({
     staffRoles: {
       PILOT: 'Phi công',
       OPERATOR: 'Vận hành',
-      MAINTAINER: 'Bảo trì',
+      MAINTAINER: 'Kiểm tra sau bay',
       INSPECTOR: 'Nghiệm thu',
+      TECHNICAL: 'Kỹ thuật bảo trì',
     },
     staffResponses: {
       PLANNING: 'Đang lập kế hoạch',
@@ -61,6 +62,7 @@ export const missionDetailHelpersMessages = defineMessages({
       OPERATOR: 'Operator',
       MAINTAINER: 'Maintainer',
       INSPECTOR: 'Inspector',
+      TECHNICAL: 'Maintenance Tech',
     },
     staffResponses: {
       PLANNING: 'Planning',

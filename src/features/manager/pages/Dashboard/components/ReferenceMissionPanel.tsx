@@ -1,6 +1,5 @@
 import {
   CalendarOutlined,
-  RightOutlined,
   RocketOutlined,
   UserOutlined,
 } from '@ant-design/icons'
@@ -118,8 +117,7 @@ export function ReferenceMissionPanel({
           className="mgr-card-link"
           href={managerHref({ screen: 'missions' })}
         >
-          {vi ? 'Xem tất cả' : 'View all'}{' '}
-          <RightOutlined style={{ fontSize: 11 }} aria-hidden="true" />
+          {vi ? 'Xem tất cả' : 'View all'}
         </a>
       }
     >

@@ -1,77 +1,500 @@
-.mgr-mission-checks { display: grid; gap: 20px; min-width: 0; }
-.mgr-check-weather, .mgr-check-devices { padding: 20px; border: 1px solid var(--ui-border, #e5e7eb); border-radius: 12px; background: var(--ui-surface, #fff); }
-.mgr-mission-checks h2 { margin: 0 0 16px; font-size: 16px; color: var(--ui-text, #111827); }
-.mgr-check-weather > .odm-or-detail-stack { gap: 16px; }
-.mgr-check-weather .odm-or-kv { display: grid; grid-template-columns: minmax(180px, 1.4fr) repeat(6, minmax(0, 1fr)); gap: 16px; margin: 0; }
-.mgr-check-weather .odm-or-kv > div { display: block; padding: 0; border: 0; }
-.mgr-check-weather .odm-or-kv dt { font-size: 13px; color: var(--ui-text-2, #4b5563); }
-.mgr-check-weather .odm-or-kv dd { margin: 6px 0 0; text-align: left; font-size: 14px; line-height: 1.5; }
-.mgr-check-weather .odm-or-detail-note { margin: 0; font-size: 13px; }
-.mgr-check-device-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 4px; }
-.mgr-check-device-heading > span { font-size: 13px; color: var(--ui-text-2, #4b5563); }
-.mgr-check-workspace { display: grid; grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); gap: 24px; align-items: start; }
-.mgr-check-device-picker { display: grid; gap: 10px; }
-.mgr-check-device-picker button { display: grid; gap: 6px; min-width: 0; width: 100%; padding: 14px 16px; border: 1px solid var(--ui-border, #e5e7eb); border-radius: 10px; background: var(--ui-surface, #fff); color: var(--ui-text, #111827); text-align: left; font: inherit; font-size: 14px; cursor: pointer; }
-.mgr-check-device-picker button span { font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
-.mgr-check-device-picker button:hover { border-color: var(--ui-primary, #1565e8); }
-.mgr-check-device-picker button[aria-pressed=true] { border-color: var(--ui-primary, #1565e8); background: var(--ui-primary-soft, #eef4ff); }
-.mgr-check-device-picker button:focus-visible { outline: 2px solid var(--ui-primary, #1565e8); outline-offset: 3px; }
-.mgr-check-device-results { min-width: 0; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks { border: 0; box-shadow: none; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid { grid-template-columns: minmax(0, 1fr); padding: 0; gap: 20px; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-check-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-height: none; overflow: visible; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-detail-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-@media (max-width: 1100px) {
-  .mgr-check-weather .odm-or-kv { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .mgr-check-workspace { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr); gap: 16px; }
-  :root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-check-list { grid-template-columns: 1fr; }
+/* Operational checks panel — structured flat 1px framing, tabular numerals, semantic status pills. */
+.mgr-mission-checks {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
 }
-@media (max-width: 700px) {
-  .mgr-check-workspace { grid-template-columns: 1fr; }
-  .mgr-check-device-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .mgr-check-weather .odm-or-kv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .mgr-check-weather, .mgr-check-devices { padding: 16px; }
-  :root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.mgr-check-weather,
+.mgr-check-devices {
+  padding: 20px 22px;
+  border: 1px solid var(--ui-border, #dce4ef);
+  border-radius: 14px;
+  background: var(--ui-surface, #fff);
+  box-sizing: border-box;
+  min-width: 0;
 }
-@media (max-width: 400px) { .mgr-check-device-picker { grid-template-columns: 1fr; } }
 
-.mgr-check-workspace.is-no-devices { grid-template-columns: minmax(0, 1fr); }
-
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics {
-  display: flex; flex-wrap: wrap; gap: 16px 28px;
+.mgr-mission-checks h2 {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ui-text, #0f172a);
+  letter-spacing: -0.01em;
 }
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics .odm-or-detail-metric {
-  min-width: 100px; padding: 0; border: 0; border-radius: 0; background: transparent;
+
+/* ---------- Weather result card ---------- */
+.mgr-check-weather > .odm-or-detail-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
-.mgr-check-items-disclosure { min-width: 0; }
-.mgr-check-items-disclosure summary { width: fit-content; cursor: pointer; color: var(--ui-primary-text, #0b3fa8); font-size: 14px; font-weight: 600; padding: 8px 0; }
-.mgr-check-items-disclosure summary:focus-visible { outline: 2px solid var(--ui-primary, #1565e8); outline-offset: 3px; border-radius: 8px; }
-.mgr-check-items-disclosure[open] summary { margin-bottom: 8px; }
 
-.mgr-check-workspace { grid-template-columns: minmax(0, 1fr); }
-.mgr-check-device-picker { display: flex; flex-wrap: wrap; gap: 10px; }
-.mgr-check-device-picker button { flex: 0 1 250px; padding: 12px 16px; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 12px; }
-.mgr-check-device-avatar { width: 44px; height: 44px; object-fit: contain; border-radius: 8px; background: var(--ui-surface-2, #f3f6fb); }
-.mgr-check-device-name { display: grid; gap: 4px; min-width: 0; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 20px; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-check-list { grid-template-columns: minmax(0, 1fr); }
-@media (max-width: 900px) { :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid { grid-template-columns: minmax(0, 1fr); } }
+.mgr-check-weather .odm-or-result-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
 
-/* Keep both phases aligned, with stable rows instead of wrapping metrics. */
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid { align-items: stretch; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column { display: flex; min-width: 0; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column > .odm-or-detail-section { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column .odm-or-detail-stack { display: flex; flex-direction: column; flex: 1; gap: 16px; }
+.mgr-mission-checks .odm-or-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.mgr-mission-checks .odm-or-pill-green {
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.mgr-mission-checks .odm-or-pill-amber {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.mgr-mission-checks .odm-or-pill-red {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.mgr-mission-checks .odm-or-pill-blue {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.mgr-mission-checks .odm-or-pill-slate {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+.mgr-check-weather .odm-or-kv {
+  display: grid;
+  grid-template-columns: minmax(168px, 1.35fr) repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.mgr-check-weather .odm-or-kv > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 11px 13px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  border-radius: 10px;
+  background: var(--ui-surface-2, #f8fafc);
+  min-width: 0;
+}
+
+.mgr-check-weather .odm-or-kv dt {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ui-text-2, #64748b);
+  line-height: 1.3;
+}
+
+.mgr-check-weather .odm-or-kv dd {
+  margin: 0;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ui-text, #0f172a);
+  font-variant-numeric: tabular-nums;
+}
+
+.mgr-check-weather .odm-or-detail-note {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 9px;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #16a34a;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.mgr-check-weather .odm-or-detail-stack[data-safe='false'] .odm-or-detail-note {
+  border-left-color: #d97706;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+/* ---------- Device checks container ---------- */
+.mgr-check-device-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ui-border, #e2e8f0);
+}
+
+.mgr-check-device-heading h2 {
+  margin: 0;
+}
+
+.mgr-check-device-heading > span {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  background: var(--ui-surface-2, #f8fafc);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ui-text-2, #475569);
+}
+
+.mgr-check-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.mgr-check-workspace.is-no-devices {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mgr-check-device-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mgr-check-device-picker button {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  flex: 0 1 268px;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--ui-border, #dce4ef);
+  border-radius: 11px;
+  background: var(--ui-surface, #fff);
+  color: var(--ui-text, #0f172a);
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.mgr-check-device-picker button:hover {
+  border-color: var(--ui-primary, #1565e8);
+  background: #f8fbff;
+}
+
+.mgr-check-device-picker button[aria-pressed='true'] {
+  border-color: var(--ui-primary, #1565e8);
+  background: var(--ui-primary-soft, #eff6ff);
+  box-shadow: inset 0 0 0 1px var(--ui-primary, #1565e8);
+}
+
+.mgr-check-device-picker button:focus-visible {
+  outline: 2px solid var(--ui-primary, #1565e8);
+  outline-offset: 2px;
+}
+
+.mgr-check-device-avatar {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  background: var(--ui-surface-2, #f8fafc);
+}
+
+.mgr-check-device-name {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mgr-check-device-name strong {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ui-text, #0f172a);
+}
+
+.mgr-check-device-name span {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--ui-text-2, #475569);
+  overflow-wrap: anywhere;
+}
+
+.mgr-check-device-results {
+  min-width: 0;
+}
+
+/* ---------- Preflight / Postflight two-column phase cards ---------- */
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  padding: 0;
+  gap: 16px;
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column {
+  display: flex;
+  min-width: 0;
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column > .odm-or-detail-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--ui-border, #dce4ef);
+  border-radius: 12px;
+  background: var(--ui-surface, #fff);
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-detail-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ui-border, #edf2f7);
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-detail-section-head h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ui-text, #0f172a);
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column .odm-or-detail-stack {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 12px;
+}
+
 :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics,
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-device-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-times { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding-top: 16px; border-top: 1px solid var(--ui-border, #e5e7eb); }
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column .odm-or-detail-metric { min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-check-column .odm-or-detail-metric strong { overflow-wrap: anywhere; }
-:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-items-disclosure { margin-top: auto; }
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-device-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics .odm-or-detail-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  border-radius: 10px;
+  background: var(--ui-surface-2, #f8fafc);
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics .odm-or-detail-metric span {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ui-text-2, #64748b);
+  line-height: 1.3;
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics .odm-or-detail-metric strong {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ui-text, #0f172a);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics .odm-or-detail-metric.is-positive strong {
+  color: #15803d;
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics .odm-or-detail-metric.is-danger strong {
+  color: #dc2626;
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics .odm-or-detail-metric.is-muted strong {
+  color: #64748b;
+}
+
+.mgr-check-progress-track {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.mgr-check-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #16a34a;
+  transition: width 220ms ease;
+}
+
+.mgr-check-progress-fill.is-danger {
+  background: #dc2626;
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-times {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  border-radius: 10px;
+  background: var(--ui-surface-2, #f8fafc);
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-times .odm-or-detail-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-times .odm-or-detail-metric + .odm-or-detail-metric {
+  padding-left: 12px;
+  border-left: 1px solid var(--ui-border, #e2e8f0);
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-times .odm-or-detail-metric span {
+  font-size: 11.5px;
+  color: var(--ui-text-2, #64748b);
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-times .odm-or-detail-metric strong {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ui-text, #0f172a);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Expandable check items disclosure ---------- */
+:root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-items-disclosure {
+  margin-top: auto;
+  min-width: 0;
+}
+
+.mgr-check-items-disclosure summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  padding: 9px 12px;
+  border: 1px solid var(--ui-border, #dce4ef);
+  border-radius: 9px;
+  background: var(--ui-surface-2, #f8fafc);
+  color: var(--ui-primary-text, #1565e8);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.mgr-check-items-disclosure summary:hover {
+  border-color: var(--ui-primary, #1565e8);
+  background: #eff6ff;
+}
+
+.mgr-check-items-disclosure summary:focus-visible {
+  outline: 2px solid var(--ui-primary, #1565e8);
+  outline-offset: 2px;
+}
+
+.mgr-check-items-disclosure[open] summary {
+  margin-bottom: 10px;
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+:root .mgr-layout .mgr-md .mgr-mission-checks .odm-or-check-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  max-height: none;
+  overflow: visible;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .mgr-check-weather .odm-or-kv {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-md-checks-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .mgr-check-weather .odm-or-kv {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mgr-check-weather,
+  .mgr-check-devices {
+    padding: 16px;
+  }
+  .mgr-check-device-picker {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 600px) {
   :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-compact-metrics,
-  :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-device-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-device-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
-@media (max-width: 400px) {
-  :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-times { grid-template-columns: minmax(0, 1fr); }
+
+@media (max-width: 440px) {
+  .mgr-check-device-picker {
+    grid-template-columns: 1fr;
+  }
+  :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-times {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :root .mgr-layout .mgr-md .mgr-mission-checks .mgr-check-times .odm-or-detail-metric + .odm-or-detail-metric {
+    padding-left: 0;
+    padding-top: 8px;
+    border-left: 0;
+    border-top: 1px solid var(--ui-border, #e2e8f0);
+  }
 }

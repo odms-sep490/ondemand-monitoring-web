@@ -110,12 +110,12 @@ export const refundApi = {
       { method: 'POST', body: { reason } },
     ),
   getManagerOrderRefund: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<RefundResponse>(
+    apiRequest<RefundResponse | null>(
       `/api/manager/orders/${encodeURIComponent(orderId)}/deposit-refund`,
       { signal },
     ),
   getCustomerOrderRefund: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<RefundResponse>(
+    apiRequest<RefundResponse | null>(
       `/api/orders/${encodeURIComponent(orderId)}/deposit-refund`,
       { signal },
     ),

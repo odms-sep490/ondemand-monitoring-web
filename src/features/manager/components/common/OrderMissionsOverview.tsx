@@ -62,6 +62,7 @@ export function OrderMissionsOverview({
       .then((invoice) => {
         if (!controller.signal.aborted) {
           setDepositPaid(
+            invoice !== null &&
             !['CANCELLED', 'REFUNDED', 'OVERDUE'].includes(invoice.status) &&
               (invoice.depositStatus === 'DEPOSIT_PAID' ||
                 invoice.paidAmount >= invoice.depositAmount),

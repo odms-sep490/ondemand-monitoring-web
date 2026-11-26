@@ -24,6 +24,7 @@ export function SummaryBanner({
   replacementRequested,
   replacementRequestError,
   onRequestDroneReplacement,
+  onSendToMaintenance,
 }: {
   nOk: number
   nTotal: number
@@ -44,6 +45,8 @@ export function SummaryBanner({
   replacementRequested: boolean
   replacementRequestError: string | null
   onRequestDroneReplacement: () => void
+  /** Shown after a replacement was already requested; undefined once the ticket exists. */
+  onSendToMaintenance?: () => void
 }) {
   const { t, lang } = useI18n(preflightPageMessages)
   const bg = isFailed
@@ -222,6 +225,17 @@ export function SummaryBanner({
                 ? t.droneReplacementRequestSentShort
                 : t.requestDroneReplacement}
           </button>
+          {replacementRequested && (
+            <button
+              type="button"
+              className="odm-btn odm-btn-rd"
+              onClick={onSendToMaintenance}
+              disabled={!onSendToMaintenance || replacementRequesting}
+              style={{ minWidth: 180 }}
+            >
+              {onSendToMaintenance ? t.sendToMaintenance : t.sentToMaintenance}
+            </button>
+          )}
         </div>
       ) : !hasTriggered || error ? (
         <button

@@ -85,14 +85,10 @@ export function FlightStepper({
   )
 }
 
-/** Sub-header bar used by OPR-04/05/06: title, mono mission id, centered stepper, right-side slot. */
+/** Sub-header bar used by OPR-04/05/06: title, mono mission id, right-side slot (workflow stepper is shown only on Mission Detail). */
 export function FlightStepHeader({
   title,
   missionId,
-  active,
-  completed = false,
-  completedLabel,
-  failed = false,
   right,
   idTitle,
 }: {
@@ -115,12 +111,6 @@ export function FlightStepHeader({
           {missionId}
         </div>
       </div>
-      <FlightStepper
-        active={active}
-        completed={completed}
-        completedLabel={completedLabel}
-        failed={failed}
-      />
       <div className="odm-flight-step-right">
         {right ?? <span aria-hidden="true" />}
       </div>

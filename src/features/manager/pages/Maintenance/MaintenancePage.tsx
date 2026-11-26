@@ -1,9 +1,14 @@
 // MNG-10: Maintenance ticket list with Manager Search, Filter & System Operator Assignment Workflow
 import { useMemo, useState } from 'react'
 
+import { Button, Card, Space, Tag } from 'antd'
+
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
 import type { TicketStatus } from '../../../../shared/types/domain'
+import { maintenanceWorkflowApi } from '../../../maintenance-workflow/api/maintenanceWorkflowApi'
+import { MaintenanceWorkflowDrawer } from '../../../maintenance-workflow/components/MaintenanceWorkflowDrawer'
+import { maintenanceWorkflowMessages } from '../../../maintenance-workflow/messages'
 import { maintenanceApi } from '../../api/maintenanceApi'
 import { ErrorState } from '../../components/common/ErrorState'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -20,9 +25,11 @@ import { maintenancePageMessages } from './MaintenancePage.messages'
 
 export function MaintenancePage() {
   const { t } = useI18n(maintenancePageMessages)
+  const { t: wf } = useI18n(maintenanceWorkflowMessages)
   const [tickets, setTickets] = useState<MaintenanceTicket[] | null>(null)
   const [selectedTicket, setSelectedTicket] = useState<MaintenanceTicket | null>(null)
   const [assignTicket, setAssignTicket] = useState<MaintenanceTicket | null>(null)
+  const [workflowTicketId, setWorkflowTicketId] = useState<string | null>(null)
 
   // Manager Search & Filter controls state
   const [searchQuery, setSearchQuery] = useState('')
@@ -30,6 +37,13 @@ export function MaintenancePage() {
   const [assignedFilter, setAssignedFilter] = useState<string>('ALL')
 
   const query = useApiQuery((signal) => maintenanceApi.listTickets({ signal }), [])
+  const acceptanceQueue = useApiQuery(
+    (signal) =>
+      maintenanceWorkflowApi
+        .listManagerAcceptanceQueue(false, signal)
+        .catch(() => []),
+    [],
+  )
 
   const allTickets = useMemo(() => tickets ?? query.data?.items ?? [], [tickets, query.data?.items])
 
@@ -87,6 +101,27 @@ export function MaintenancePage() {
         resolvedCount={resolvedCount}
       />
 
+      {(acceptanceQueue.data?.length ?? 0) > 0 && (
+        <Card
+          size="small"
+          title={`${wf.queues.managerAcceptance} (${acceptanceQueue.data?.length ?? 0})`}
+          style={{ marginBottom: 14 }}
+        >
+          <Space wrap>
+            {acceptanceQueue.data?.map((item) => (
+              <Button
+                key={item.ticketId}
+                type="primary"
+                ghost
+                onClick={() => setWorkflowTicketId(item.ticketId)}
+              >
+                {item.ticketCode} · {item.device?.name ?? ''} <Tag color="gold">R{item.currentRound}</Tag>
+              </Button>
+            ))}
+          </Space>
+        </Card>
+      )}
+
       <TicketFilterBar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -116,8 +151,18 @@ export function MaintenancePage() {
               ticket={selectedTicket}
               onClose={() => setSelectedTicket(null)}
               onAssignClick={setAssignTicket}
+              onOpenWorkflow={(ticket) => setWorkflowTicketId(ticket.id)}
             />
           )}
+          <MaintenanceWorkflowDrawer
+            ticketId={workflowTicketId}
+            open={workflowTicketId !== null}
+            onClose={() => setWorkflowTicketId(null)}
+            onWorkflowChanged={() => {
+              query.reload()
+              acceptanceQueue.reload()
+            }}
+          />
         </>
       )}
 

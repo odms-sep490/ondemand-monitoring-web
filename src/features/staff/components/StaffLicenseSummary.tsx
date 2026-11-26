@@ -96,7 +96,11 @@ export function StaffLicenseSummary({
 
   const filtered = licenses.filter((license) => {
     if (assignedRole === 'PILOT') return license.licenseType === 'PILOT'
-    if (assignedRole === 'MAINTAINER' || assignedRole === 'TECHNICIAN')
+    if (
+      assignedRole === 'MAINTAINER' ||
+      assignedRole === 'TECHNICAL' ||
+      assignedRole === 'TECHNICIAN'
+    )
       return license.licenseType === 'TECHNICAL'
     return true
   })

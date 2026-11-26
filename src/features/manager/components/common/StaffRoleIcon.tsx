@@ -2,6 +2,7 @@ import {
   CheckCircleOutlined,
   ControlOutlined,
   SendOutlined,
+  SettingOutlined,
   ToolOutlined,
 } from '@ant-design/icons'
 
@@ -12,6 +13,7 @@ const ICONS: Record<MissionStaffRole, typeof SendOutlined> = {
   OPERATOR: ControlOutlined,
   MAINTAINER: ToolOutlined,
   INSPECTOR: CheckCircleOutlined,
+  TECHNICAL: SettingOutlined,
 }
 
 /** antd icon for a mission staff role (replaces emoji glyphs in copy). */

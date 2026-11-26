@@ -12,6 +12,8 @@ import { missionDetailPageMessages } from '../MissionDetailPage.messages'
 import { hasAcknowledgedHandover } from '../../../lib/flightWorkflowStorage'
 import type { WeatherPreflightStatus } from '../types'
 import { isWeatherCheckFreshAfterPermit } from '../weatherReadiness'
+import { isAwaitingResponse } from '../missionResponse'
+import { InspectionReportEntry } from '../../../../inspection-report/ReportStudio'
 
 // ─── Mission Header ───────────────────────────────────────────────────────────
 
@@ -157,18 +159,19 @@ export function MissionHeader({
         <div style={{ flex: 1 }} />
         {canRunPreflight && (
           <a
-            className="odm-btn"
+            className="odm-btn odm-btn-p"
             href={operatorHref({ screen: 'preflight', missionId: mission.id })}
           >
             {t.preflightCheckAction}
           </a>
         )}
         {access?.canMaintainDevice &&
-          ['RETURNING', 'POSTFLIGHT_CHECKING'].includes(
+          (['RETURNING', 'POSTFLIGHT_CHECKING'].includes(
             mission.deviceAssignmentStatus ?? '',
-          ) && (
+          ) ||
+            ['RETURNING', 'POSTFLIGHT_CHECKING'].includes(backendStatus)) && (
             <a
-              className="odm-btn"
+              className="odm-btn odm-btn-p"
               href={operatorHref({
                 screen: 'postflight',
                 missionId: mission.id,
@@ -176,6 +179,13 @@ export function MissionHeader({
             >
               {t.postflightCheckAction}
             </a>
+          )}
+        {mission.myResponseStatus !== 'REJECTED' &&
+          !isAwaitingResponse(mission) && (
+            <InspectionReportEntry
+              missionId={mission.id}
+              buttonClassName="odm-btn"
+            />
           )}
         {canOpenAcceptanceData && (
           <a

@@ -20,6 +20,7 @@ import { OrderHeader } from './components/OrderHeader'
 import { OrderInfoCard } from './components/OrderInfoCard'
 import { OrderOverviewVisualCard } from './components/OrderOverviewVisualCard'
 import { ReviewNotice } from './components/ReviewNotice'
+import { OrderFeedbackCard } from './components/OrderFeedbackCard'
 import { CardTitle } from './components/CardTitle'
 import { useOrderDetail } from './hooks/useOrderDetail'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
@@ -177,6 +178,9 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
     },
     [acknowledgeQuote, orderId],
   )
+  const openMissionPayment = useCallback(() => {
+    handleTabChange('finance')
+  }, [handleTabChange])
   const updateDelivery = useCallback(
     (delivery: Delivery | null) => {
       setDeliveryState({ orderId, delivery })
@@ -321,13 +325,17 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                       forceRender: true,
                       children: (
                         <div className="od-results-panel">
+                          <OrderFeedbackCard
+                            orderId={order.id}
+                            refreshKey={cachedDelivery?.delivery?.deliveryStatus}
+                          />
                           <CustomerDeliveryPanel
                             key={order.id}
                             orderId={order.id}
                             initialDelivery={cachedDelivery?.delivery ?? null}
                             onStateChange={updateDelivery}
-                            onOpenPayment={() => handleTabChange('finance')}
-                            onOpenFinance={() => handleTabChange('finance')}
+                            onOpenPayment={openMissionPayment}
+                            onOpenFinance={openMissionPayment}
                             onPaymentCompleted={() => {
                               setFinanceRefreshVersion((version) => version + 1)
                               detail.reload()

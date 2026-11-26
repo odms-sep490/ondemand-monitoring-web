@@ -1,5 +1,5 @@
-import { Tabs } from 'antd'
-import { useState } from 'react'
+import { Skeleton, Tabs } from 'antd'
+import { lazy, Suspense, useState } from 'react'
 import { StateView } from '../../../../shared/components/odm/StateView'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
@@ -29,6 +29,12 @@ import type {
   ManagerDashboardData,
   ManagerDashboardResponse,
 } from '../../types/dashboard'
+
+const ResourceLifecyclePage = lazy(() =>
+  import('../../../resource-lifecycle').then((m) => ({
+    default: m.ResourceLifecyclePage,
+  })),
+)
 
 function normalizeDashboard(
   data: ManagerDashboardResponse,
@@ -228,6 +234,18 @@ export function DashboardPage() {
                 activities={data.recentActivities}
                 activitiesAvailable={response.recentActivities !== undefined}
               />
+            ),
+          },
+          {
+            key: 'droneLifecycle',
+            label:
+              lang === 'vi' ? 'Quản lý nguồn lực' : 'Resource management',
+            children: (
+              <section className="mgr-dashboard-group">
+                <Suspense fallback={<Skeleton active paragraph={{ rows: 5 }} />}>
+                  <ResourceLifecyclePage embedded />
+                </Suspense>
+              </section>
             ),
           },
         ]}

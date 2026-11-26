@@ -8,12 +8,14 @@ import type { MaintenanceTicket } from '../../../types/maintenance'
 import { mgrPopupContainer } from '../../../components/common/mgrPopupContainer'
 import { formatStamp } from '../maintenanceHelpers'
 import { maintenancePageMessages } from '../MaintenancePage.messages'
+import { maintenanceWorkflowMessages } from '../../../../maintenance-workflow/messages'
 import { TicketSeverityTag, TicketStatusTag } from './TicketTags'
 
 export type DetailPanelProps = {
   ticket: MaintenanceTicket
   onClose: () => void
   onAssignClick: (ticket: MaintenanceTicket) => void
+  onOpenWorkflow?: (ticket: MaintenanceTicket) => void
 }
 
 function CloseIcon({ label }: { label: string }) {
@@ -108,16 +110,32 @@ export function TicketDetailContent({
   )
 }
 
-function PanelBody({ ticket, onAssignClick }: Pick<DetailPanelProps, 'ticket' | 'onAssignClick'>) {
+function PanelBody({
+  ticket,
+  onAssignClick,
+  onOpenWorkflow,
+}: Pick<DetailPanelProps, 'ticket' | 'onAssignClick' | 'onOpenWorkflow'>) {
   const { t } = useI18n(maintenancePageMessages)
+  const { t: wf } = useI18n(maintenanceWorkflowMessages)
   const open = ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS'
   return (
     <TicketDetailContent
       ticket={ticket}
       actions={
         <>
+          {onOpenWorkflow && (
+            <Button
+              type="primary"
+              size="large"
+              block
+              style={{ marginBottom: 8 }}
+              onClick={() => onOpenWorkflow(ticket)}
+            >
+              {wf.queues.openWorkflow}
+            </Button>
+          )}
           {open && (
-            <Button type="primary" size="large" block onClick={() => onAssignClick(ticket)}>
+            <Button size="large" block onClick={() => onAssignClick(ticket)}>
               {ticket.assignedTo ? t.detail.changeOperator : t.detail.assignOperator}
             </Button>
           )}
@@ -133,7 +151,12 @@ function PanelBody({ ticket, onAssignClick }: Pick<DetailPanelProps, 'ticket' | 
 }
 
 /** Ticket details in a drawer over the page. */
-export function DetailPanel({ ticket, onClose, onAssignClick }: DetailPanelProps) {
+export function DetailPanel({
+  ticket,
+  onClose,
+  onAssignClick,
+  onOpenWorkflow,
+}: DetailPanelProps) {
   const { t } = useI18n(maintenancePageMessages)
   const code = <span className="mgr-code mgr-ticket-panel-code">{ticket.code}</span>
   return (
@@ -148,7 +171,11 @@ export function DetailPanel({ ticket, onClose, onAssignClick }: DetailPanelProps
       closeIcon={<CloseIcon label={t.detail.close} />}
       title={code}
     >
-      <PanelBody ticket={ticket} onAssignClick={onAssignClick} />
+      <PanelBody
+        ticket={ticket}
+        onAssignClick={onAssignClick}
+        onOpenWorkflow={onOpenWorkflow}
+      />
     </Drawer>
   )
 }

@@ -17,11 +17,19 @@ export function InspectionCategory({
   handleSetResult: (key: PostflightItemKey, result: PreflightItemResult) => void
 }) {
   const { t } = useI18n(postflightPageMessages)
+  const assessedInCat = cat.items.filter((item) => results[item.key] != null).length
+  const failedInCat = cat.items.filter((item) => results[item.key] === 'fail').length
+  const allPassedInCat = assessedInCat === cat.items.length && failedInCat === 0
   return (
-    <section className="postflight-category">
+    <section
+      className={`postflight-category${failedInCat > 0 ? ' has-fail' : allPassedInCat ? ' is-complete' : ''}`}
+    >
       <h2 className="postflight-category-heading">
-        <span>
-          {cat.title}
+        <span className="postflight-category-title">{cat.title}</span>
+        <span
+          className={`postflight-category-counter${failedInCat > 0 ? ' is-fail' : allPassedInCat ? ' is-pass' : ''}`}
+        >
+          {assessedInCat}/{cat.items.length}
         </span>
       </h2>
 

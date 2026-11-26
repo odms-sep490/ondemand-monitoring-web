@@ -83,7 +83,7 @@ export function actionFor(mission: OperatorMission, t: Messages) {
       return {
         label: t.action.inspect,
         cls: 'odm-btn-ok',
-        href: operatorHref({ screen: 'postflight', missionId: mission.id }),
+        href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
       }
     }
     if (
@@ -95,7 +95,7 @@ export function actionFor(mission: OperatorMission, t: Messages) {
       return {
         label: t.action.reviewMedia,
         cls: 'odm-btn-p',
-        href: operatorHref({ screen: 'upload', missionId: mission.id }),
+        href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
       }
     }
     if (
@@ -119,7 +119,7 @@ export function actionFor(mission: OperatorMission, t: Messages) {
       return {
         label: t.action.openCockpit,
         cls: 'odm-btn-bl',
-        href: operatorHref({ screen: 'flight', missionId: mission.id }),
+        href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
       }
     }
     if (permissions.canOperatePayload) {
@@ -141,7 +141,7 @@ export function actionFor(mission: OperatorMission, t: Messages) {
         return {
           label: t.action.handover,
           cls: 'odm-btn-ok',
-          href: operatorHref({ screen: 'handover', missionId: mission.id }),
+          href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
         }
       }
       if (
@@ -153,7 +153,7 @@ export function actionFor(mission: OperatorMission, t: Messages) {
         return {
           label: t.action.preflight,
           cls: 'odm-btn-ok',
-          href: operatorHref({ screen: 'preflight', missionId: mission.id }),
+          href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
         }
       }
       if (
@@ -167,7 +167,7 @@ export function actionFor(mission: OperatorMission, t: Messages) {
         return {
           label: t.action.preflight,
           cls: 'odm-btn-ok',
-          href: operatorHref({ screen: 'preflight', missionId: mission.id }),
+          href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
         }
       }
     }

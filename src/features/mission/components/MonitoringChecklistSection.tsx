@@ -954,13 +954,18 @@ function ChecklistExecutionItem({
     }
   }
   if (compact) {
+    if (assessmentOnly && !editable && !editing && !savedNote && !error) {
+      return null
+    }
     return (
       <div className={`monitoring-item mc-item-body${assessmentOnly ? ' is-assessment-review' : ''}`}>
         {assessmentOnly && !hideAssessment && (
           <header className="mc-assessment-heading">
             <div>
               <h4>{lang === 'vi' ? 'Đánh giá kết quả' : 'Assess the result'}</h4>
-              <p>{lang === 'vi' ? 'Đối chiếu kết quả thực hiện với yêu cầu của hạng mục.' : 'Compare the work result against this checklist requirement.'}</p>
+              {editing && (
+                <p>{lang === 'vi' ? 'Đối chiếu kết quả thực hiện với yêu cầu của hạng mục.' : 'Compare the work result against this checklist requirement.'}</p>
+              )}
             </div>
             <span className={`mc-assessment-state is-${item.assessmentStatus.toLowerCase()}`}>{assessments[item.assessmentStatus]}</span>
           </header>

@@ -1,7 +1,22 @@
 // Admin (role ADMIN) client-side routing. All admin screens live under
 // the `#portal/admin` hash prefix.
 
+import type { AiOpsTab } from './api/aiOpsApi'
+
 export const ADMIN_ROOT = '#portal/admin'
+
+const AI_OPS_TABS = new Set<AiOpsTab>([
+  'overview',
+  'models',
+  'services',
+  'tracing',
+  'evaluation',
+  'supervisor',
+  'promptLab',
+  'security',
+  'audit',
+  'incidents',
+])
 
 export type AdminRoute =
   | { screen: 'dashboard' }
@@ -17,6 +32,8 @@ export type AdminRoute =
   | { screen: 'deviceCheckCriteria' }
   | { screen: 'auditLog' }
   | { screen: 'refunds' }
+  | { screen: 'resourceLifecycle' }
+  | { screen: 'aiOps'; tab?: AiOpsTab }
   | { screen: 'notFound' }
 
 export type AdminScreen = AdminRoute['screen']
@@ -66,6 +83,15 @@ export function parseAdminRoute(hash: string): AdminRoute {
       return { screen: 'auditLog' }
     case 'refunds':
       return { screen: 'refunds' }
+    case 'resource-lifecycle':
+      return { screen: 'resourceLifecycle' }
+    case 'ai-ops': {
+      const candidate = tail[0] as AiOpsTab | undefined
+      return {
+        screen: 'aiOps',
+        tab: candidate && AI_OPS_TABS.has(candidate) ? candidate : 'overview',
+      }
+    }
     default:
       return { screen: 'notFound' }
   }
@@ -101,6 +127,12 @@ export function adminHref(route: AdminRoute): string {
       return `${ADMIN_ROOT}/audit-log`
     case 'refunds':
       return `${ADMIN_ROOT}/refunds`
+    case 'resourceLifecycle':
+      return `${ADMIN_ROOT}/resource-lifecycle`
+    case 'aiOps':
+      return route.tab && route.tab !== 'overview'
+        ? `${ADMIN_ROOT}/ai-ops/${route.tab}`
+        : `${ADMIN_ROOT}/ai-ops`
     case 'notFound':
       return ADMIN_ROOT
   }

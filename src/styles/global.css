@@ -28,11 +28,25 @@
   --color-body: var(--slate-600);
   --color-muted: var(--slate-500);
   --color-border: var(--slate-200);
-  --color-primary: var(--blue-600);
-  --color-primary-hover: var(--blue-700);
+  --color-primary: #1565e8;
+  --color-primary-hover: #0958d9;
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-danger: #dc2626;
+  --focus-ring: 0 0 0 3px rgb(21 101 232 / 24%);
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
   --display: var(--sans);
-  --sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  --mono: 'DM Mono', ui-monospace, monospace;
+  --sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --shadow-panel: 0 20px 45px rgb(15 23 42 / 12%);
 }
 
@@ -58,6 +72,12 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {

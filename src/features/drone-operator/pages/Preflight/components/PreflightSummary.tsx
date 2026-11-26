@@ -21,6 +21,7 @@ export function PreflightSummary({
   replacementRequested,
   replacementRequestError,
   onRequestDroneReplacement,
+  onSendToMaintenance,
 }: {
   nOk: number
   nTotal: number
@@ -41,6 +42,7 @@ export function PreflightSummary({
   replacementRequested: boolean
   replacementRequestError: string | null
   onRequestDroneReplacement: () => void
+  onSendToMaintenance?: () => void
 }) {
   return (
     <SummaryBanner
@@ -63,6 +65,7 @@ export function PreflightSummary({
       replacementRequested={replacementRequested}
       replacementRequestError={replacementRequestError}
       onRequestDroneReplacement={onRequestDroneReplacement}
+      onSendToMaintenance={onSendToMaintenance}
     />
   )
 }
