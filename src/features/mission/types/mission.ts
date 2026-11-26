@@ -256,7 +256,12 @@ export interface ReferenceCaptureResult {
   duplicate?: boolean
 }
 
-export type MissionStaffRole = 'PILOT' | 'OPERATOR' | 'MAINTAINER' | 'INSPECTOR'
+export type MissionStaffRole =
+  | 'PILOT'
+  | 'OPERATOR'
+  | 'MAINTAINER'
+  | 'INSPECTOR'
+  | 'TECHNICAL'
 export type StaffResponseStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED'
 
 export interface MissionStaffAssignment {

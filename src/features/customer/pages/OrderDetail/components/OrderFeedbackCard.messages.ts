@@ -1,0 +1,34 @@
+import { defineMessages } from '../../../../../shared/i18n'
+
+export const orderFeedbackCardMessages = defineMessages({
+  vi: {
+    title: 'Đánh giá đơn hàng',
+    intro: 'Bạn đã nghiệm thu kết quả. Hãy cho chúng tôi biết trải nghiệm của bạn.',
+    overall: 'Đánh giá chung',
+    quality: 'Chất lượng kết quả',
+    punctuality: 'Đúng hẹn',
+    communication: 'Giao tiếp, hỗ trợ',
+    comment: 'Nhận xét (không bắt buộc)',
+    commentPlaceholder: 'Điều bạn hài lòng hoặc cần cải thiện…',
+    submit: 'Gửi đánh giá',
+    ratingRequired: 'Vui lòng chọn số sao đánh giá chung.',
+    submitted: 'Cảm ơn bạn đã đánh giá!',
+    thanks: 'Cảm ơn bạn đã đánh giá đơn hàng này.',
+    submitFailed: 'Không gửi được đánh giá. Vui lòng thử lại.',
+  },
+  en: {
+    title: 'Rate this order',
+    intro: 'You have accepted the result. Tell us how it went.',
+    overall: 'Overall rating',
+    quality: 'Result quality',
+    punctuality: 'Punctuality',
+    communication: 'Communication & support',
+    comment: 'Comment (optional)',
+    commentPlaceholder: 'What you liked or what we could improve…',
+    submit: 'Submit feedback',
+    ratingRequired: 'Please choose an overall star rating.',
+    submitted: 'Thank you for your feedback!',
+    thanks: 'Thank you for rating this order.',
+    submitFailed: 'Could not submit your feedback. Please try again.',
+  },
+})

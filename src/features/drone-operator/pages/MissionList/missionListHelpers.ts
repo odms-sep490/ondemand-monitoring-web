@@ -91,7 +91,7 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
   ) {
     return {
       label: t.inspect,
-      href: operatorHref({ screen: 'postflight', missionId: mission.id }),
+      href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
     }
   }
   if (
@@ -102,7 +102,7 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
   ) {
     return {
       label: t.reviewMedia,
-      href: operatorHref({ screen: 'checklist', missionId: mission.id }),
+      href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
     }
   }
   if (
@@ -111,7 +111,7 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
   ) {
     return {
       label: t.reviewMedia,
-      href: operatorHref({ screen: 'checklist', missionId: mission.id }),
+      href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
     }
   }
   if (
@@ -131,7 +131,7 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
   ) {
     return {
       label: t.openCockpit,
-      href: operatorHref({ screen: 'flight', missionId: mission.id }),
+      href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
     }
   }
   if (
@@ -147,7 +147,7 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
     }
     return {
       label: t.handover,
-      href: operatorHref({ screen: 'handover', missionId: mission.id }),
+      href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
     }
   }
   if (
@@ -158,7 +158,7 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
   ) {
     return {
       label: t.precheck,
-      href: operatorHref({ screen: 'preflight', missionId: mission.id }),
+      href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
     }
   }
   if (
@@ -173,7 +173,7 @@ export function railActionFor(mission: OperatorMission, t: Messages) {
   ) {
     return {
       label: t.precheck,
-      href: operatorHref({ screen: 'preflight', missionId: mission.id }),
+      href: operatorHref({ screen: 'missionDetail', missionId: mission.id }),
     }
   }
   return {

@@ -84,6 +84,7 @@ const routeMessages = defineMessages({
     unavailable:
       'Chưa thể kiểm tra phiên đăng nhập. Vui lòng kiểm tra kết nối và thử lại.',
     retry: 'Thử lại',
+    backHome: 'Về trang chủ',
     routeError: 'Không thể hiển thị trang này',
     routeErrorHint: 'Đã xảy ra lỗi khi tải nội dung. Hãy thử tải lại trang.',
   },
@@ -94,6 +95,7 @@ const routeMessages = defineMessages({
     unavailable:
       'Unable to verify your session. Check your connection and try again.',
     retry: 'Try again',
+    backHome: 'Back to home',
     routeError: 'This page could not be displayed',
     routeErrorHint: 'An error occurred while loading this page. Try reloading.',
   },
@@ -146,13 +148,23 @@ function SessionFeedback() {
       busy={!unavailable}
     >
       {unavailable && (
-        <button
-          type="button"
-          className="button"
-          onClick={() => void restoreAuthSession()}
-        >
-          {t.retry}
-        </button>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 12 }}>
+          <button
+            type="button"
+            className="button"
+            style={{ background: 'var(--color-primary)', color: '#fff' }}
+            onClick={() => void restoreAuthSession()}
+          >
+            {t.retry}
+          </button>
+          <a
+            href="#"
+            className="button"
+            style={{ borderColor: 'var(--color-border)', color: 'var(--color-foreground)' }}
+          >
+            {t.backHome}
+          </a>
+        </div>
       )}
     </RouteLoading>
   )

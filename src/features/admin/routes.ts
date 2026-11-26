@@ -32,6 +32,7 @@ export type AdminRoute =
   | { screen: 'deviceCheckCriteria' }
   | { screen: 'auditLog' }
   | { screen: 'refunds' }
+  | { screen: 'resourceLifecycle' }
   | { screen: 'aiOps'; tab?: AiOpsTab }
   | { screen: 'notFound' }
 
@@ -82,6 +83,8 @@ export function parseAdminRoute(hash: string): AdminRoute {
       return { screen: 'auditLog' }
     case 'refunds':
       return { screen: 'refunds' }
+    case 'resource-lifecycle':
+      return { screen: 'resourceLifecycle' }
     case 'ai-ops': {
       const candidate = tail[0] as AiOpsTab | undefined
       return {
@@ -124,6 +127,8 @@ export function adminHref(route: AdminRoute): string {
       return `${ADMIN_ROOT}/audit-log`
     case 'refunds':
       return `${ADMIN_ROOT}/refunds`
+    case 'resourceLifecycle':
+      return `${ADMIN_ROOT}/resource-lifecycle`
     case 'aiOps':
       return route.tab && route.tab !== 'overview'
         ? `${ADMIN_ROOT}/ai-ops/${route.tab}`

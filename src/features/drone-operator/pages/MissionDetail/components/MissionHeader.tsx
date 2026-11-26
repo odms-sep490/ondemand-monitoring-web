@@ -159,18 +159,19 @@ export function MissionHeader({
         <div style={{ flex: 1 }} />
         {canRunPreflight && (
           <a
-            className="odm-btn"
+            className="odm-btn odm-btn-p"
             href={operatorHref({ screen: 'preflight', missionId: mission.id })}
           >
             {t.preflightCheckAction}
           </a>
         )}
         {access?.canMaintainDevice &&
-          ['RETURNING', 'POSTFLIGHT_CHECKING'].includes(
+          (['RETURNING', 'POSTFLIGHT_CHECKING'].includes(
             mission.deviceAssignmentStatus ?? '',
-          ) && (
+          ) ||
+            ['RETURNING', 'POSTFLIGHT_CHECKING'].includes(backendStatus)) && (
             <a
-              className="odm-btn"
+              className="odm-btn odm-btn-p"
               href={operatorHref({
                 screen: 'postflight',
                 missionId: mission.id,

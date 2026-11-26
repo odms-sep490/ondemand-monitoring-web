@@ -51,6 +51,7 @@ export function OrderQueuePage() {
               financeApi.getManagerInvoice(order.id, signal),
               financeApi.getManagerMissionPaymentAllocations(order.id, signal).catch(() => null),
             ])
+            if (!invoice) return null
             const depositStatus = invoice.depositStatus ??
               (invoice.paidAmount >= invoice.depositAmount ? 'DEPOSIT_PAID' : 'WAITING_DEPOSIT')
             return {

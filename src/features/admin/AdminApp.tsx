@@ -43,6 +43,11 @@ const RefundManagementPage = lazy(() =>
 const AiOperationsPage = lazy(() =>
   import('./pages/AiOperations').then((m) => ({ default: m.AiOperationsPage })),
 )
+const ResourceLifecyclePage = lazy(() =>
+  import('../resource-lifecycle').then((m) => ({
+    default: m.ResourceLifecyclePage,
+  })),
+)
 
 function useHash(): string {
   const [hash, setHash] = useState(() => window.location.hash)
@@ -86,6 +91,8 @@ function renderScreen(route: AdminRoute, notFoundText: string) {
       return <AuditLogPage />
     case 'refunds':
       return <RefundManagementPage />
+    case 'resourceLifecycle':
+      return <ResourceLifecyclePage />
     case 'aiOps':
       return <AiOperationsPage initialTab={route.tab} />
     default:

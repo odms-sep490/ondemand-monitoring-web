@@ -143,10 +143,12 @@ export function ChatbotWidget() {
         className="lp-bot-fab"
         ref={openButton}
         type="button"
+        aria-label={t.fabAriaLabel}
+        title={t.fabAriaLabel}
         onClick={() => setOpen(true)}
       >
-        <img src="/images/logo-new.png" alt={t.fabAriaLabel} />
-        <span className="lp-bot-dot" />
+        <img src="/images/logo-new.png" alt="" aria-hidden="true" />
+        <span className="lp-bot-dot" aria-hidden="true" />
       </button>
     </div>
   )

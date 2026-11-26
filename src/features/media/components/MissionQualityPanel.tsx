@@ -201,6 +201,12 @@ function Panel({
   }
 
   const completed = rows.filter(row => row.status === 'COMPLETED')
+  const passCount = completed.filter(row => row.decision === 'PASS').length
+  const reviewCount = completed.filter(row => row.decision === 'REVIEW_REQUIRED').length
+  const failCount = completed.filter(row => row.decision === 'FAIL').length
+  const errorCount = rows.filter(row => row.status === 'FAILED').length
+  const uncheckedCount = rows.filter(row => !row.status).length
+
   const matching = rows.filter(
     row => filter === 'ALL' || (filter === 'UNCHECKED' ? !row.status : filter === 'FAILED' ? row.status === 'FAILED' : row.status === 'COMPLETED' && row.decision === filter)
   )
@@ -211,45 +217,99 @@ function Panel({
   if (canReview !== true) return null
 
   return (
-    <Card className="mission-quality-panel" size="small" title="Hỗ trợ kiểm duyệt chất lượng ảnh" extra={
+    <Card className="mission-quality-panel" size="small" title="Kiểm duyệt chất lượng ảnh" extra={
       <Button size="small" aria-expanded={open} onClick={() => setOpen(value => !value)}>
         {open ? 'Thu gọn' : 'Mở kiểm tra chất lượng AI'}
       </Button>
     }>
       {open && (
         <div className="mission-quality-content">
-          <div className="mission-quality-summary">
-            <span>{`Tổng ảnh: ${rows.length}`}</span>
-            <span>{`Đã kiểm tra: ${completed.length}`}</span>
-            <span className="mission-quality-summary__pass">{`Đạt: ${completed.filter(row => row.decision === 'PASS').length}`}</span>
-            <span className="mission-quality-summary__review">{`Cần xem lại: ${completed.filter(row => row.decision === 'REVIEW_REQUIRED').length}`}</span>
-            <span className="mission-quality-summary__fail">{`Không đạt: ${completed.filter(row => row.decision === 'FAIL').length}`}</span>
-            <span>{`Lỗi xử lý: ${rows.filter(row => row.status === 'FAILED').length}`}</span>
-            <span>{`Chưa kiểm tra: ${rows.filter(row => !row.status).length}`}</span>
+          <div className="mission-quality-toolbar">
+            <div className="mission-quality-summary" role="group" aria-label="Tóm tắt chất lượng ảnh">
+              <button
+                type="button"
+                className={`mq-stat-pill${filter === 'ALL' ? ' is-active' : ''}`}
+                onClick={() => setFilter('ALL')}
+              >
+                {`Tổng ảnh: ${rows.length}`}
+              </button>
+              {passCount > 0 && (
+                <button
+                  type="button"
+                  className={`mq-stat-pill is-pass${filter === 'PASS' ? ' is-active' : ''}`}
+                  onClick={() => setFilter(filter === 'PASS' ? 'ALL' : 'PASS')}
+                >
+                  {`Đạt: ${passCount}`}
+                </button>
+              )}
+              {reviewCount > 0 && (
+                <button
+                  type="button"
+                  className={`mq-stat-pill is-review${filter === 'REVIEW_REQUIRED' ? ' is-active' : ''}`}
+                  onClick={() => setFilter(filter === 'REVIEW_REQUIRED' ? 'ALL' : 'REVIEW_REQUIRED')}
+                >
+                  {`Xem lại: ${reviewCount}`}
+                </button>
+              )}
+              {failCount > 0 && (
+                <button
+                  type="button"
+                  className={`mq-stat-pill is-fail${filter === 'FAIL' ? ' is-active' : ''}`}
+                  onClick={() => setFilter(filter === 'FAIL' ? 'ALL' : 'FAIL')}
+                >
+                  {`Không đạt: ${failCount}`}
+                </button>
+              )}
+              {errorCount > 0 && (
+                <button
+                  type="button"
+                  className={`mq-stat-pill is-error${filter === 'FAILED' ? ' is-active' : ''}`}
+                  onClick={() => setFilter(filter === 'FAILED' ? 'ALL' : 'FAILED')}
+                >
+                  {`Lỗi: ${errorCount}`}
+                </button>
+              )}
+              {uncheckedCount > 0 && (
+                <button
+                  type="button"
+                  className={`mq-stat-pill${filter === 'UNCHECKED' ? ' is-active' : ''}`}
+                  onClick={() => setFilter(filter === 'UNCHECKED' ? 'ALL' : 'UNCHECKED')}
+                >
+                  {`Chờ: ${uncheckedCount}`}
+                </button>
+              )}
+            </div>
+
+            <div className="image-quality-actions">
+              <Button type="primary" size="small" loading={busy} onClick={() => void batch()}>
+                Kiểm tra tất cả
+              </Button>
+              <Button size="small" onClick={() => void load()}>Tải lại</Button>
+              <Select
+                size="small"
+                aria-label="Lọc chất lượng ảnh"
+                value={filter}
+                onChange={setFilter}
+                options={[
+                  ['ALL', 'Tất cả'],
+                  ['FAILED', 'Lỗi xử lý'],
+                  ['PASS', 'Đạt'],
+                  ['REVIEW_REQUIRED', 'Cần xem lại'],
+                  ['FAIL', 'Không đạt'],
+                  ['UNCHECKED', 'Chưa kiểm tra'],
+                ].map(([value, label]) => ({ value, label }))}
+              />
+            </div>
           </div>
 
-          {rows.some(row => row.status === 'FAILED') && <Alert type="warning" showIcon
-            message={`Chưa kiểm tra được ${rows.filter(row => row.status === 'FAILED').length} ảnh`}
-            description="Dịch vụ xử lý chưa trả được kết quả. Mở từng ảnh để xem chi tiết hoặc thử kiểm tra lại." />}
-          <div className="image-quality-actions">
-            <Button type="primary" loading={busy} onClick={() => void batch()}>
-              Kiểm tra tất cả ảnh
-            </Button>
-            <Button onClick={() => void load()}>Tải lại</Button>
-            <Select
-              aria-label="Lọc chất lượng ảnh"
-              value={filter}
-              onChange={setFilter}
-              options={[
-                ['ALL', 'Tất cả'],
-                ['FAILED', 'Lỗi xử lý'],
-                ['PASS', 'Đạt'],
-                ['REVIEW_REQUIRED', 'Cần xem lại'],
-                ['FAIL', 'Không đạt'],
-                ['UNCHECKED', 'Chưa kiểm tra'],
-              ].map(([value, label]) => ({ value, label }))}
+          {errorCount > 0 && (
+            <Alert
+              className="mission-quality-compact-alert"
+              type="warning"
+              showIcon
+              message={`Chưa kiểm tra được ${errorCount} ảnh — Thử kiểm tra lại hoặc mở từng ảnh.`}
             />
-          </div>
+          )}
 
           {error && <Alert type="error" message={error} />}
           {!error && rows.length === 0 && <p>Chưa có ảnh bản gốc hợp lệ để kiểm tra.</p>}

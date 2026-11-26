@@ -160,7 +160,7 @@ const ROOM_BUSINESS_INFO: Record<Room['id'], { vi: string; en: string; roles?: s
   technical: {
     vi: 'Khu bảo trì, gắn với vai trò Bảo trì trên các phân công mission đang hoạt động.',
     en: 'Maintenance area, mapped to Maintainer on active mission assignments.',
-    roles: ['MAINTAINER'],
+    roles: ['MAINTAINER', 'TECHNICAL'],
   },
   inspection: {
     vi: 'Khu kiểm tra thiết bị, gắn với vai trò Nghiệm thu trên phân công mission.',
@@ -1475,7 +1475,8 @@ function roleLabel(role: string, isEnglish: boolean) {
     STAFF: { vi: 'Nhân sự', en: 'Staff' },
     PILOT: { vi: 'Phi công', en: 'Pilot' },
     OPERATOR: { vi: 'Vận hành', en: 'Operator' },
-    MAINTAINER: { vi: 'Bảo trì', en: 'Maintenance' },
+    MAINTAINER: { vi: 'Kiểm tra sau bay', en: 'Postflight' },
+    TECHNICAL: { vi: 'Kỹ thuật bảo trì', en: 'Maintenance Tech' },
     INSPECTOR: { vi: 'Nghiệm thu', en: 'Inspector' },
   }
   const label = labels[role]

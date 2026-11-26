@@ -45,7 +45,7 @@ export type BackendMission = {
     staffEmail?: string | null
     staffPhone?: string | null
     assignedRole?:
-      'PILOT' | 'OPERATOR' | 'MAINTAINER' | 'INSPECTOR' | string | null
+      'PILOT' | 'OPERATOR' | 'MAINTAINER' | 'INSPECTOR' | 'TECHNICAL' | string | null
     responseStatus?: 'PENDING' | 'ACCEPTED' | 'REJECTED' | string | null
   }>
   deviceAssignments?: Array<{
@@ -313,10 +313,14 @@ export function toOperatorMission(
     flightStartedAt: source.actualStartAt ?? source.startedAt ?? undefined,
     actualEndAt: source.actualEndAt ?? undefined,
     completedAt: source.completedAt ?? undefined,
+    // Technicians work maintenance from their own queue and are not flight crew.
     acceptedStaffCount: staffAssignments?.filter(
-      (assignment) => assignment.responseStatus === 'ACCEPTED',
+      (assignment) =>
+        assignment.assignedRole !== 'TECHNICAL' && assignment.responseStatus === 'ACCEPTED',
     ).length,
-    assignedStaffCount: staffAssignments?.length,
+    assignedStaffCount: staffAssignments?.filter(
+      (assignment) => assignment.assignedRole !== 'TECHNICAL',
+    ).length,
     rejectReason: source.rejectionReason ?? undefined,
     radiusMeters: source.radiusM ?? source.radiusMeters ?? undefined,
     coverageArea: source.coverageArea ?? null,

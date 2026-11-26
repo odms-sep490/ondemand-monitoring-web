@@ -5,6 +5,13 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup, configure } from '@testing-library/react'
 import { afterEach } from 'vitest'
 
+// Unit tests must provide a mock transport. Never let an unmocked effect
+// send fixture IDs or unauthenticated requests to a running backend.
+globalThis.fetch = async (input) => {
+  const url = input instanceof Request ? input.url : String(input)
+  throw new Error(`Unmocked network request in unit test: ${url}`)
+}
+
 // findBy*/waitFor default to 1s, which flakes when the full suite runs in
 // parallel on a busy CI runner. Give async queries more headroom.
 configure({ asyncUtilTimeout: 5000 })

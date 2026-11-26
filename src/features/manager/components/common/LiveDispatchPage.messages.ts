@@ -64,18 +64,20 @@ export const liveDispatchPageMessages = defineMessages({
       `Nhiệm vụ đã được gán: thiết bị ${drone}, nhân sự ${operator}.`,
     step1: 'Phân công nhân sự',
     roleHelp:
-      'Chọn đủ 4 vai trò để có người phụ trách từng bước. Một nhân sự có thể kiêm nhiều vai trò nếu cần.',
+      'Chọn đủ 5 vai trò để có người phụ trách từng bước. Một nhân sự có thể kiêm nhiều vai trò nếu cần.',
     roles: {
       PILOT: 'Phi công',
       OPERATOR: 'Vận hành',
-      MAINTAINER: 'Bảo trì',
+      MAINTAINER: 'Kiểm tra sau bay',
       INSPECTOR: 'Nghiệm thu',
+      TECHNICAL: 'Kỹ thuật bảo trì',
     },
     roleDescriptions: {
       PILOT: 'Điều khiển bay',
       OPERATOR: 'Kết nối thiết bị và kiểm tra trước bay',
       MAINTAINER: 'Kiểm tra thiết bị sau bay',
       INSPECTOR: 'Nghiệm thu kết quả và tệp ghi nhận',
+      TECHNICAL: 'Nhận bàn giao và xử lý bảo trì thiết bị',
     },
     chooseStaff: 'Chọn nhân sự',
     changeStaff: 'Thêm nhân sự',
@@ -84,7 +86,7 @@ export const liveDispatchPageMessages = defineMessages({
     availableFilter: 'Sẵn sàng',
     noStaffFound: 'Không tìm thấy nhân sự phù hợp',
     selectedStaff: 'Nhân sự đã chọn',
-    staffCountSummary: (count: number) => `${count} nhân sự / 4 vai trò`,
+    staffCountSummary: (count: number) => `${count} nhân sự / 5 vai trò`,
     clearAll: 'Xóa tất cả',
     step2: 'Phân công thiết bị',
     deviceHelp:
@@ -206,18 +208,20 @@ export const liveDispatchPageMessages = defineMessages({
       `Mission already assigned: device ${drone}, staff ${operator}.`,
     step1: 'Staff assignment',
     roleHelp:
-      'Assign all 4 duties. One staff member can cover multiple roles when needed.',
+      'Assign all 5 duties. One staff member can cover multiple roles when needed.',
     roles: {
       PILOT: 'Pilot',
       OPERATOR: 'Operator',
-      MAINTAINER: 'Maintainer',
+      MAINTAINER: 'Postflight Check',
       INSPECTOR: 'Inspector',
+      TECHNICAL: 'Maintenance Tech',
     },
     roleDescriptions: {
       PILOT: 'Flight control',
       OPERATOR: 'Device connection and preflight',
       MAINTAINER: 'Postflight device check',
       INSPECTOR: 'Result/media review',
+      TECHNICAL: 'Receive handovers and execute device maintenance',
     },
     chooseStaff: 'Choose staff',
     changeStaff: 'Add staff',
@@ -226,7 +230,7 @@ export const liveDispatchPageMessages = defineMessages({
     availableFilter: 'Available',
     noStaffFound: 'No matching staff found',
     selectedStaff: 'Selected staff',
-    staffCountSummary: (count: number) => `${count} staff / 4 roles`,
+    staffCountSummary: (count: number) => `${count} staff / 5 roles`,
     clearAll: 'Clear all',
     step2: 'Device assignment',
     deviceHelp:

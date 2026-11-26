@@ -105,13 +105,14 @@ export const missionGridCardMessages = defineMessages({
     staffRoleAlreadyAssigned: 'Vai trò đã được phân công cho nhiệm vụ này.',
     staffRoleAlreadyAssignedShort: 'Đã gán',
     staffAllRolesAssigned: 'Đã đủ 4 vai trò',
-    staffAssignAllRoles: 'Chọn cả 4 vai trò',
+    staffAssignAllRoles: 'Chọn cả 5 vai trò',
     staffAssignRemainingRoles: 'Chọn vai trò còn lại',
     staffRoles: {
       PILOT: 'Phi công',
       OPERATOR: 'Vận hành',
-      MAINTAINER: 'Bảo trì',
+      MAINTAINER: 'Kiểm tra sau bay',
       INSPECTOR: 'Nghiệm thu',
+      TECHNICAL: 'Kỹ thuật bảo trì',
     },
     assignStaff: (people: number, roles: number) =>
       `Gán ${people} người · ${roles} vai trò`,
@@ -293,13 +294,14 @@ export const missionGridCardMessages = defineMessages({
     staffRoleAlreadyAssigned: 'This role is already assigned to this mission.',
     staffRoleAlreadyAssignedShort: 'Assigned',
     staffAllRolesAssigned: 'All 4 roles assigned',
-    staffAssignAllRoles: 'Select all 4 roles',
+    staffAssignAllRoles: 'Select all 5 roles',
     staffAssignRemainingRoles: 'Select remaining roles',
     staffRoles: {
       PILOT: 'Pilot',
       OPERATOR: 'Operator',
-      MAINTAINER: 'Maintenance',
+      MAINTAINER: 'Postflight',
       INSPECTOR: 'Acceptance',
+      TECHNICAL: 'Maintenance Tech',
     },
     assignStaff: (people: number, roles: number) =>
       `Assign ${people} people · ${roles} roles`,

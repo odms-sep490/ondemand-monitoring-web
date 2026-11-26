@@ -18,6 +18,8 @@ export function AssessmentProgress({
   total?: number
 }) {
   const { t } = useI18n(postflightPageMessages)
+  const assessedCount = summary.nOk + failItems.length
+  const pct = total > 0 ? Math.min(100, Math.round((assessedCount / total) * 100)) : 0
   return (
     <div className={`postflight-progress${failItems.length ? ' has-failures' : ''}`}>
       <div className="postflight-progress-copy">
@@ -26,7 +28,7 @@ export function AssessmentProgress({
         </div>
         <div className="postflight-progress-count">
           <span>
-            {t.itemsAssessed(summary.nOk + failItems.length, total)}
+            {t.itemsAssessed(assessedCount, total)}
           </span>
           {allAssessed && (
             <span
@@ -37,6 +39,12 @@ export function AssessmentProgress({
                 : t.allPassed}
             </span>
           )}
+        </div>
+        <div className="postflight-progress-track" aria-hidden="true">
+          <span
+            className={`postflight-progress-fill${failItems.length ? ' is-fail' : allAssessed ? ' is-pass' : ''}`}
+            style={{ width: `${pct}%` }}
+          />
         </div>
       </div>
 

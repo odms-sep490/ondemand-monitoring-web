@@ -2,39 +2,44 @@ import { useMemo, useState } from 'react'
 
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { useI18n } from '../../../../shared/i18n'
-import { getDroneStatusLabel } from '../../../../shared/lib/statusTone'
-import type { DroneStatus } from '../../../../shared/types/domain'
 import { authSession } from '../../../auth/api/authApi'
+import { maintenanceWorkflowApi } from '../../../maintenance-workflow/api/maintenanceWorkflowApi'
+import { MaintenanceWorkflowDrawer } from '../../../maintenance-workflow/components/MaintenanceWorkflowDrawer'
+import { maintenanceWorkflowMessages } from '../../../maintenance-workflow/messages'
 import {
   maintenanceTicketApi,
   type MaintenanceTicketDto,
 } from '../../api/maintenanceTicketApi'
-import { maintenancePageMessages } from './MaintenancePage.messages'
-import { maintenanceDeviceLabel } from './maintenanceHelpers'
 import { MaintenanceHeader } from './components/MaintenanceHeader'
 import { SuccessBanner } from './components/SuccessBanner'
 import { MaintenanceTabs } from './components/MaintenanceTabs'
 import { MaintenanceEmpty } from './components/MaintenanceEmpty'
 import { TicketCard } from './components/TicketCard'
-import { ResolveModal } from './components/ResolveModal'
 
 export function MaintenancePage() {
-  const { t, lang } = useI18n(maintenancePageMessages)
+  const { t: wf } = useI18n(maintenanceWorkflowMessages)
   const user = authSession.getUser()
   const [activeTab, setActiveTab] = useState<
     'MY_TICKETS' | 'ALL_ACTIVE' | 'RESOLVED'
   >('MY_TICKETS')
-  const [selectedTicket, setSelectedTicket] =
-    useState<MaintenanceTicketDto | null>(null)
-  const [notes, setNotes] = useState('')
-  const [targetDroneStatus, setTargetDroneStatus] = useState('AVAILABLE')
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [workflowTicketId, setWorkflowTicketId] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
   const query = useApiQuery(
     (signal) =>
       maintenanceTicketApi.listTickets(undefined, undefined, undefined, signal),
+    [],
+  )
+  const techQueue = useApiQuery(
+    (signal) =>
+      maintenanceWorkflowApi.listTechnicalQueue('ALL', signal).catch(() => []),
+    [],
+  )
+
+  // Unclaimed tickets any qualified Technical can take, most severe first (ordered by the backend).
+  const sharedPool = useApiQuery(
+    (signal) =>
+      maintenanceWorkflowApi.listTechnicalQueue('POOL', signal).catch(() => []),
     [],
   )
 
@@ -66,37 +71,18 @@ export function MaintenancePage() {
       (t.status === 'OPEN' || t.status === 'IN_PROGRESS'),
   ).length
 
-  async function handleResolveSubmit() {
-    if (!selectedTicket) return
-    if (!notes.trim()) {
-      setError(t.notesRequiredError)
-      return
-    }
-
-    setSaving(true)
-    setError(null)
-
-    try {
-      await maintenanceTicketApi.resolveTicket(selectedTicket.id, {
-        resolutionNotes: notes,
-        newDeviceStatus: targetDroneStatus,
-      })
-
-      setSuccessMsg(
-        t.resolveSuccess(
-          selectedTicket.ticketCode,
-          maintenanceDeviceLabel(selectedTicket),
-          getDroneStatusLabel(targetDroneStatus as DroneStatus, lang) ??
-            targetDroneStatus,
-        ),
-      )
-      setSelectedTicket(null)
-      setNotes('')
-      query.reload()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : t.resolveFailed)
-    } finally {
-      setSaving(false)
+  const handleOpenWorkflow = (
+    ticketOrUpdater:
+      | MaintenanceTicketDto
+      | null
+      | ((prev: MaintenanceTicketDto | null) => MaintenanceTicketDto | null),
+  ) => {
+    const resolved =
+      typeof ticketOrUpdater === 'function'
+        ? ticketOrUpdater(null)
+        : ticketOrUpdater
+    if (resolved?.id) {
+      setWorkflowTicketId(resolved.id)
     }
   }
 
@@ -104,6 +90,88 @@ export function MaintenancePage() {
     <div className="odm-opr-page">
       {/* Header Banner */}
       <MaintenanceHeader myOpenCount={myOpenCount} allTickets={allTickets} />
+
+      <section className="mw-queue-panel">
+        <div className="mw-queue-header">
+          <h3 className="mw-queue-title">
+            <span>{wf.queues.sharedPool}</span>
+            <span className="mw-sheet-count">
+              {sharedPool.data?.length ?? 0}
+            </span>
+          </h3>
+        </div>
+        {(sharedPool.data?.length ?? 0) === 0 ? (
+          <div className="mw-empty-state">{wf.queues.sharedPoolEmpty}</div>
+        ) : (
+          <div className="mw-queue-grid">
+            {sharedPool.data?.map((item) => {
+              const urgent =
+                item.severity === 'CRITICAL' || item.severity === 'HIGH'
+              return (
+                <button
+                  key={item.ticketId}
+                  type="button"
+                  className={`mw-queue-item${urgent ? ' mw-queue-item--urgent' : ''}`}
+                  onClick={() => setWorkflowTicketId(item.ticketId)}
+                >
+                  <div className="mw-queue-item-main">
+                    <div className="mw-queue-item-code">{item.ticketCode}</div>
+                    <div className="mw-queue-item-device">
+                      {item.device?.name ?? '—'}
+                    </div>
+                  </div>
+                  <span
+                    className={`mw-chip ${urgent ? 'mw-chip--crimson' : 'mw-chip--cobalt'}`}
+                  >
+                    {wf.severity[item.severity] ?? item.severity}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
+      {(techQueue.data?.length ?? 0) > 0 && (
+        <section className="mw-queue-panel">
+          <div className="mw-queue-header">
+            <h3 className="mw-queue-title">
+              <span>
+                {wf.queues.techAwaitingReceipt} / {wf.queues.techInProgress}
+              </span>
+              <span className="mw-sheet-count">
+                {techQueue.data?.length ?? 0}
+              </span>
+            </h3>
+          </div>
+          <div className="mw-queue-grid">
+            {techQueue.data?.map((item) => {
+              const awaitingReceipt =
+                item.stage === 'AWAITING_TECHNICAL_RECEIPT'
+              return (
+                <button
+                  key={item.ticketId}
+                  type="button"
+                  className="mw-queue-item"
+                  onClick={() => setWorkflowTicketId(item.ticketId)}
+                >
+                  <div className="mw-queue-item-main">
+                    <div className="mw-queue-item-code">{item.ticketCode}</div>
+                    <div className="mw-queue-item-device">
+                      {item.device?.name ?? '—'}
+                    </div>
+                  </div>
+                  <span
+                    className={`mw-chip ${awaitingReceipt ? 'mw-chip--amber' : 'mw-chip--cobalt'}`}
+                  >
+                    {wf.stages[item.stage] ?? item.stage}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       {successMsg && (
         <SuccessBanner successMsg={successMsg} setSuccessMsg={setSuccessMsg} />
@@ -140,27 +208,24 @@ export function MaintenancePage() {
             <TicketCard
               key={ticket.id}
               ticket={ticket}
-              setSelectedTicket={setSelectedTicket}
-              setError={setError}
+              setSelectedTicket={handleOpenWorkflow}
+              setError={() => undefined}
             />
           ))}
         </div>
       )}
 
-      {/* Resolution Modal */}
-      {selectedTicket && (
-        <ResolveModal
-          setSelectedTicket={setSelectedTicket}
-          selectedTicket={selectedTicket}
-          notes={notes}
-          setNotes={setNotes}
-          targetDroneStatus={targetDroneStatus}
-          setTargetDroneStatus={setTargetDroneStatus}
-          error={error}
-          saving={saving}
-          handleResolveSubmit={handleResolveSubmit}
-        />
-      )}
+      {/* Maintenance Workflow Drawer */}
+      <MaintenanceWorkflowDrawer
+        ticketId={workflowTicketId}
+        open={workflowTicketId !== null}
+        onClose={() => setWorkflowTicketId(null)}
+        onWorkflowChanged={() => {
+          query.reload()
+          techQueue.reload()
+          sharedPool.reload()
+        }}
+      />
     </div>
   )
 }

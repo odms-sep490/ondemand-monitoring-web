@@ -75,7 +75,7 @@ export const financeApi = {
       { method: 'POST' },
     ),
   getQuote: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<CustomerQuote>(
+    apiRequest<CustomerQuote | null>(
       `/api/orders/${encodeURIComponent(orderId)}/quote`,
       {
         signal,
@@ -89,7 +89,7 @@ export const financeApi = {
   getInvoicePayments: (invoiceId: string, signal?: AbortSignal) =>
     apiRequest<Payment[]>(`/api/invoices/${encodeURIComponent(invoiceId)}/payments`, { signal }),
   getInvoice: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<Invoice>(`/api/orders/${encodeURIComponent(orderId)}/invoice`, {
+    apiRequest<Invoice | null>(`/api/orders/${encodeURIComponent(orderId)}/invoice`, {
       signal,
     }),
   /** Re-checks the order's pending VNPAY payments with VNPAY itself and returns the current invoice. */
@@ -99,7 +99,7 @@ export const financeApi = {
       { method: 'POST' },
     ),
   getManagerInvoice: (orderId: string, signal?: AbortSignal) =>
-    apiRequest<Invoice>(
+    apiRequest<Invoice | null>(
       `/api/manager/orders/${encodeURIComponent(orderId)}/invoice`,
       { signal },
     ),

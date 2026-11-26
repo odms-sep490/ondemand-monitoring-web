@@ -1,55 +1,132 @@
+.mission-quality-panel {
+  border-radius: 14px;
+  border-color: #e2e8f0;
+  overflow: hidden;
+}
+
 .mission-quality-panel > .ant-card-head {
-  min-height: 56px;
+  min-height: 48px;
   padding: 0 18px;
+  background: #fafcff;
+  border-bottom-color: #edf2f7;
+}
+
+.mission-quality-panel > .ant-card-head .ant-card-head-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .mission-quality-panel > .ant-card-body {
-  padding: 16px 18px;
+  padding: 14px 18px 16px;
 }
 
 .mission-quality-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   min-width: 0;
+}
+
+.mission-quality-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
 }
 
 .mission-quality-panel .mission-quality-summary {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 24px;
-  padding: 14px 16px;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
   margin: 0;
-  background: var(--surface-muted, #f6f8fc);
-  border-radius: 10px;
-  font-size: 13px;
-  line-height: 1.6;
-  font-variant-numeric: tabular-nums;
+  background: transparent;
+  border-radius: 0;
 }
 
-.mission-quality-panel .mission-quality-summary__pass { color: #137743; }
-.mission-quality-panel .mission-quality-summary__review { color: #945700; }
-.mission-quality-panel .mission-quality-summary__fail { color: #b42318; }
+.mq-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+}
+
+.mq-stat-pill:hover {
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.mq-stat-pill.is-active {
+  border-color: #1565e8;
+  background: #eff6ff;
+  color: #1565e8;
+}
+
+.mq-stat-pill.is-pass {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.mq-stat-pill.is-review {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.mq-stat-pill.is-fail,
+.mq-stat-pill.is-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.mq-stat-pill:focus-visible {
+  outline: 2px solid #1565e8;
+  outline-offset: 2px;
+}
 
 .mission-quality-panel .image-quality-actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .mission-quality-panel .image-quality-actions .ant-select {
-  width: 200px;
-  margin-left: auto;
+  width: 148px;
+}
+
+.mission-quality-compact-alert {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
 }
 
 .mission-quality-panel .mission-quality-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
   border: 0;
   border-radius: 0;
-  max-height: 480px;
+  max-height: 460px;
   overflow-y: auto;
 }
 
@@ -57,56 +134,100 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   min-width: 0;
-  padding: 14px;
-  border: 1px solid var(--border-color, #e0e7f1);
-  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+  background: #ffffff;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.mission-quality-panel .mission-quality-row:hover {
+  border-color: #cbd5e1;
+  background: #fafcff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .mission-quality-panel .mission-quality-row:last-child {
-  border-bottom: 1px solid var(--border-color, #e0e7f1);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .mission-quality-panel .mission-quality-row--active {
   border-color: #1565e8;
   background: #f0f6ff;
+  box-shadow: 0 0 0 1px rgba(21, 101, 232, 0.12);
 }
 
 .mission-quality-panel .mission-quality-row__left {
   flex: 1;
   min-width: 0;
-  gap: 14px;
+  gap: 12px;
 }
 
-.mission-quality-panel .mission-quality-row__details { min-width: 0; }
+.mission-quality-panel .mission-quality-row__thumb-container {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.mission-quality-panel .mission-quality-row__details {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .mission-quality-panel .mission-quality-row__filename {
   display: block;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: inherit;
-  font-size: 12px;
+  font-family: var(--mono, 'JetBrains Mono', monospace);
+  font-size: 11.5px;
+  color: #64748b;
 }
 
-.mission-quality-panel .mission-quality-row > .ant-btn { flex-shrink: 0; }
+.mission-quality-panel .mission-quality-row > .ant-btn {
+  flex-shrink: 0;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
 .mission-quality-panel .mission-quality-footer {
-  padding: 12px 0 0;
+  padding: 10px 0 0;
   margin: 0;
-  border-top: 1px solid var(--border-color, #e0e7f1);
+  border-top: 1px solid #edf2f7;
   background: transparent;
   font-size: 12px;
+  color: #64748b;
 }
 
 @media (max-width: 1050px) {
-  .mission-quality-panel .mission-quality-list { grid-template-columns: minmax(0, 1fr); }
+  .mission-quality-panel .mission-quality-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
-@media (max-width: 560px) {
-  .mission-quality-panel > .ant-card-head { padding: 0 12px; }
-  .mission-quality-panel > .ant-card-body { padding: 12px; }
-  .mission-quality-panel .image-quality-actions .ant-select { width: 100%; margin-left: 0; }
-  .mission-quality-panel .mission-quality-row { gap: 10px; padding: 10px; }
-  .mission-quality-panel .mission-quality-summary { gap: 8px 16px; padding: 12px; }
+@media (max-width: 640px) {
+  .mission-quality-panel > .ant-card-head {
+    padding: 0 12px;
+  }
+  .mission-quality-panel > .ant-card-body {
+    padding: 12px;
+  }
+  .mission-quality-panel .image-quality-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+  .mission-quality-panel .image-quality-actions .ant-select {
+    flex: 1;
+    min-width: 120px;
+  }
+  .mission-quality-panel .mission-quality-row {
+    gap: 10px;
+    padding: 10px;
+  }
 }

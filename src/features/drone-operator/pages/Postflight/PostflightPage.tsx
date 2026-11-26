@@ -321,14 +321,24 @@ function PostflightDevicePage({ inspectionOnly, missionId, selectedDeviceId, sel
         <div className="postflight-stack">
           {error && <PostflightErrorBanner error={error} />}
 
-          <div className="postflight-selected-device"><strong>{deviceLabel}</strong><span>{t.deviceInspecting}</span></div>
           <div className="postflight-overview">
             <div className="postflight-manual-battery">
-              <label htmlFor="postflight-landing-battery">{t.landingBattery} (%) <span aria-hidden="true">*</span></label>
-              <InputNumber id="postflight-landing-battery" min={0} max={100} precision={1}
-                value={landingBattery} onChange={setLandingBattery} placeholder="0–100"
-                addonAfter="%" aria-required="true" style={{ width: 180 }} />
-              <small>{t.landingBatteryHint}</small>
+              <span className="postflight-device-pill">{deviceLabel}</span>
+              <label htmlFor="postflight-landing-battery">
+                {t.landingBattery} (%) <span aria-hidden="true">*</span>
+              </label>
+              <InputNumber
+                id="postflight-landing-battery"
+                min={0}
+                max={100}
+                precision={1}
+                value={landingBattery}
+                onChange={setLandingBattery}
+                placeholder="0–100"
+                addonAfter="%"
+                aria-required="true"
+                style={{ width: 132 }}
+              />
             </div>
             <AssessmentProgress
               failItems={failItems}

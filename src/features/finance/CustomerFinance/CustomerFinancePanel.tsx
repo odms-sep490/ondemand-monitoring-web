@@ -118,7 +118,8 @@ export function CustomerFinancePanel({
     if (invoiceResult.status === 'fulfilled') setInvoice(invoiceResult.value)
     else if (isNotFound(invoiceResult.reason)) setInvoice(null)
     else setError(messageOf(invoiceResult.reason, t))
-    if (invoiceResult.status === 'fulfilled') {
+    // A null invoice means the quote is not accepted yet, so there are no payment milestones either.
+    if (invoiceResult.status === 'fulfilled' && invoiceResult.value) {
       setMissionPaymentsLoading(true)
       setMissionPaymentsError(null)
       try {

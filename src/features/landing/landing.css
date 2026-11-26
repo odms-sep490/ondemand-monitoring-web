@@ -167,9 +167,17 @@
 }
 
 .lp-editorial .lpx-language.odm-lang-toggle button {
-  padding: 5px 9px;
-  color: rgb(255 255 255 / 70%);
+  min-width: 34px;
+  min-height: 34px;
+  padding: 6px 10px;
+  color: rgb(255 255 255 / 78%);
   font-family: var(--lp-font-mono);
+}
+
+.lp-editorial .lpx-language.odm-lang-toggle button:focus-visible,
+.lp-immersive .lp-bot-fab:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }
 
 .lp-editorial .lpx-language.odm-lang-toggle button[aria-pressed='true'] {
@@ -1079,8 +1087,10 @@
   }
 
   .lp-editorial .lpx-language.odm-lang-toggle button {
-    padding: 4px 6px;
-    font-size: 10px;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 5px 7px;
+    font-size: 11px;
   }
 
   .lp-editorial .lpx-nav-signin {

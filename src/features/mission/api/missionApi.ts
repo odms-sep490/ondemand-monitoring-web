@@ -221,6 +221,7 @@ export const missionApi = {
       'OPERATOR',
       'MAINTAINER',
       'INSPECTOR',
+      'TECHNICAL',
     ] as MissionStaffRole[]) {
       const roleStaff = assignments[assignedRole]
       const staffIds = Array.isArray(roleStaff)

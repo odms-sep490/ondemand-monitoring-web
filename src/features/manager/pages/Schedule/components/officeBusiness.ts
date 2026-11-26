@@ -9,7 +9,7 @@ export type OfficeAreaId =
 export function resolveOfficeArea(isManager: boolean, roles: readonly string[]): OfficeAreaId {
   if (isManager) return 'planning'
   if (roles.includes('PILOT') || roles.includes('OPERATOR')) return 'dispatch'
-  if (roles.includes('MAINTAINER')) return 'technical'
+  if (roles.includes('MAINTAINER') || roles.includes('TECHNICAL')) return 'technical'
   if (roles.includes('INSPECTOR')) return 'inspection'
   return 'shared'
 }

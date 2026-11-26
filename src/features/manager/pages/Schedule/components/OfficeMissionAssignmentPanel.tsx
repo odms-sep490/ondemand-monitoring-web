@@ -19,7 +19,12 @@ import './officeMissionAssignment.scss'
 
 type StaffRole = MissionStaffAssignmentResponse['assignedRole']
 
-const STAFF_ROLES: StaffRole[] = ['PILOT', 'OPERATOR', 'MAINTAINER', 'INSPECTOR']
+const STAFF_ROLES: StaffRole[] = [
+  'PILOT',
+  'OPERATOR',
+  'MAINTAINER',
+  'INSPECTOR',
+]
 const MAX_STAFF = 10
 
 const COPY = {
@@ -66,8 +71,9 @@ const COPY = {
     rolesLabel: {
       PILOT: 'Phi công',
       OPERATOR: 'Vận hành',
-      MAINTAINER: 'Bảo trì',
+      MAINTAINER: 'Kiểm tra sau bay',
       INSPECTOR: 'Nghiệm thu',
+      TECHNICAL: 'Kỹ thuật bảo trì',
     },
     verified: 'Đã nhận nhiệm vụ',
     pending: 'Chờ phản hồi',
@@ -117,8 +123,9 @@ const COPY = {
     rolesLabel: {
       PILOT: 'Pilot',
       OPERATOR: 'Operator',
-      MAINTAINER: 'Maintenance',
+      MAINTAINER: 'Postflight',
       INSPECTOR: 'Inspector',
+      TECHNICAL: 'Maintenance Tech',
     },
     verified: 'Accepted mission',
     pending: 'Awaiting response',

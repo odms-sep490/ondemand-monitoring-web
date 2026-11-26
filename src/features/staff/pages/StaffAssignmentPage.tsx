@@ -15,6 +15,7 @@ const missionRoles: MissionStaffRole[] = [
   'OPERATOR',
   'MAINTAINER',
   'INSPECTOR',
+  'TECHNICAL',
 ]
 
 type StaffPickerTarget = {

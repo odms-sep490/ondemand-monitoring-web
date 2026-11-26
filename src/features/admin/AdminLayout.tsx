@@ -35,6 +35,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'deviceCheckCriteria', icon: 'ticket', route: { screen: 'deviceCheckCriteria' } },
   { key: 'auditLog', icon: 'file-text', route: { screen: 'auditLog' } },
   { key: 'refunds', icon: 'file-text', route: { screen: 'refunds' } },
+  { key: 'resourceLifecycle', icon: 'shield', route: { screen: 'resourceLifecycle' } },
   { key: 'aiOps', icon: 'cpu', route: { screen: 'aiOps', tab: 'overview' } },
 ]
 
@@ -53,6 +54,7 @@ const activeNavKey: Record<AdminScreen, NavItemKey | null> = {
   deviceCheckCriteria: 'deviceCheckCriteria',
   auditLog: 'auditLog',
   refunds: 'refunds',
+  resourceLifecycle: 'resourceLifecycle',
   aiOps: 'aiOps',
   notFound: null,
 }

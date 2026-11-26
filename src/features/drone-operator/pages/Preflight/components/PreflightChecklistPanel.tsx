@@ -304,6 +304,24 @@ export function PreflightChecklistPanel({
     }
   }
 
+  // Re-sending is idempotent on the backend: it keeps the existing replacement request
+  // and opens (or reuses) the drone's maintenance ticket in the shared Technical queue.
+  const [maintenanceSent, setMaintenanceSent] = useState(false)
+  async function handleSendToMaintenance() {
+    if (!isFailed || failedItems.length === 0 || replacementRequesting) return
+    setReplacementRequestErrorState(null)
+    try {
+      const reason = failedItems.map((item) => item.label).join(', ').slice(0, 500)
+      await missionApi.requestDeviceReplacement(missionId, reason, deviceAssignmentId)
+      setMaintenanceSent(true)
+    } catch (cause) {
+      setReplacementRequestErrorState({
+        assignmentKey: replacementAssignmentKey,
+        message: cause instanceof Error ? cause.message : t.droneReplacementRequestFailed,
+      })
+    }
+  }
+
   useEffect(() => {
     if (canContinueToHandover) {
       setReplacementRequestState((current) =>
@@ -447,6 +465,7 @@ export function PreflightChecklistPanel({
             replacementRequested={replacementRequested}
             replacementRequestError={replacementRequestError}
             onRequestDroneReplacement={handleRequestDroneReplacement}
+            onSendToMaintenance={maintenanceSent ? undefined : handleSendToMaintenance}
           />
           <PreflightGroupList
             RUNTIME_GROUPS={RUNTIME_GROUPS}
