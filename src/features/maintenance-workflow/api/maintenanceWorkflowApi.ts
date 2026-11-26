@@ -310,4 +310,13 @@ export const maintenanceWorkflowApi = {
     `/api/maintenance-tickets/${encodeURIComponent(ticketId)}/report/pdf${
       revision != null ? `?revision=${revision}` : ''
     }`,
+
+  downloadReportPdf: (ticketId: string, revision?: number) =>
+    apiRequest<Blob>(
+      `/api/maintenance-tickets/${encodeURIComponent(ticketId)}/report/pdf`,
+      {
+        query: revision != null ? { revision: String(revision) } : undefined,
+        responseType: 'blob',
+      },
+    ),
 }

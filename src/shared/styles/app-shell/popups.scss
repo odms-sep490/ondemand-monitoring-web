@@ -46,3 +46,15 @@
     font-weight: 600;
   }
 }
+
+.mgr-range-picker-dropdown {
+  max-width: calc(100vw - 24px);
+}
+
+.mgr-range-picker-dropdown .ant-picker-panel-container {
+  border-radius: 12px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  box-shadow: 0 16px 40px rgb(15 23 42 / 14%);
+  max-width: calc(100vw - 24px);
+  overflow-x: auto;
+}

@@ -343,7 +343,7 @@ export function DroneLifecycleTab({
           loading={loading}
           dataSource={filteredDrones}
           scroll={{ x: 1100 }}
-          pagination={{ pageSize: 10 }}
+          pagination={{ pageSize: 10, locale: { items_per_page: '/ trang' } }}
           columns={[
             {
               title: 'Drone',
@@ -509,12 +509,12 @@ export function DroneLifecycleTab({
       )}
 
       <div>
-        <Typography.Title level={5}>Chu kỳ bảo trì & Checkpoint ({cycles.length})</Typography.Title>
+        <Typography.Title level={5}>Chu kỳ bảo trì & Kiểm tra ({cycles.length})</Typography.Title>
         <Table<MaintenanceCycleResponse>
           rowKey="id"
           size="small"
           dataSource={cycles}
-          pagination={{ pageSize: 6 }}
+          pagination={{ pageSize: 6, locale: { items_per_page: '/ trang' } }}
           columns={[
             {
               title: 'Drone / Chu kỳ',
@@ -573,6 +573,8 @@ export function DroneLifecycleTab({
       <Modal
         open={Boolean(usageTarget)}
         title={`Ghi nhận sử dụng — ${usageTarget?.deviceName ?? ''}`}
+        okText="Lưu ghi nhận"
+        cancelText="Hủy"
         onCancel={() => setUsageTarget(null)}
         onOk={() => void handleRecordUsage()}
         confirmLoading={submitting}
@@ -585,7 +587,7 @@ export function DroneLifecycleTab({
           >
             <InputNumber min={1} style={{ width: '100%' }} placeholder="Ví dụ: 10800 (3 giờ)" />
           </Form.Item>
-          <Form.Item name="cycles" label="Số chu kỳ bay (cycles)">
+          <Form.Item name="cycles" label="Số chu kỳ bay">
             <InputNumber min={0} style={{ width: '100%' }} placeholder="1" />
           </Form.Item>
           <Form.Item name="distanceM" label="Quãng đường đo được (m, tùy chọn)">
@@ -611,6 +613,8 @@ export function DroneLifecycleTab({
       <Modal
         open={Boolean(workTarget)}
         title={`Nộp công việc bảo trì — ${workTarget?.deviceName ?? ''}`}
+        okText="Nộp báo cáo"
+        cancelText="Hủy"
         onCancel={() => setWorkTarget(null)}
         onOk={() => void handleSubmitWork()}
         confirmLoading={submitting}
@@ -623,7 +627,7 @@ export function DroneLifecycleTab({
           >
             <Input.TextArea rows={3} />
           </Form.Item>
-          <Form.Item name="checklist" label="Checklist kiểm tra (mỗi dòng 1 mục)">
+          <Form.Item name="checklist" label="Danh mục kiểm tra (mỗi dòng 1 mục)">
             <Input.TextArea rows={2} placeholder="Kiểm tra motor&#10;Cân bằng cánh quạt" />
           </Form.Item>
           <Form.Item name="components" label="Linh kiện thay thế (mỗi dòng 1 mục)">
@@ -661,7 +665,7 @@ export function DroneLifecycleTab({
             loading={submitting}
             onClick={() => void handleInspect(true)}
           >
-            Đạt & Tạo Checkpoint
+            Đạt & Đặt lại chu kỳ
           </Button>,
         ]}
       >
@@ -669,7 +673,7 @@ export function DroneLifecycleTab({
           type="info"
           showIcon
           style={{ marginBottom: 12 }}
-          message="Chỉ khi đạt kiểm tra sau bảo trì mới tạo checkpoint reset bộ đếm chu kỳ (giữ nguyên lifetime)."
+          message="Chỉ khi đạt kiểm tra sau bảo trì mới đặt lại bộ đếm chu kỳ bảo trì (vẫn giữ nguyên tổng giờ bay tích lũy)."
         />
         <Form form={inspectForm} layout="vertical">
           <Form.Item

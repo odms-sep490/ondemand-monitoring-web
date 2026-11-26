@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import {
   AuditOutlined,
+  FilePdfOutlined,
   FileTextOutlined,
   LockOutlined,
   SendOutlined,
@@ -42,10 +43,14 @@ export function ReportAndAcceptanceSection({
   detail,
   managers,
   onUpdated,
+  onExportPdf,
+  exportingPdf,
 }: {
   detail: MaintenanceWorkflowDetail
   managers: ActorSummary[]
   onUpdated: (next: MaintenanceWorkflowDetail) => void
+  onExportPdf?: (revision: number) => void
+  exportingPdf?: boolean
 }) {
   const { t } = useI18n(maintenanceWorkflowMessages)
   const latestReport = detail.reportVersions[0]
@@ -604,12 +609,24 @@ export function ReportAndAcceptanceSection({
                         {t.reportStatus[rev.status] ?? rev.status}
                       </span>
                     </div>
-                    {rev.locked && (
-                      <span className="mw-chip">
-                        <LockOutlined />
-                        <span>{t.locked}</span>
-                      </span>
-                    )}
+                    <div className="mw-ledger-badges">
+                      {rev.locked && (
+                        <span className="mw-chip">
+                          <LockOutlined />
+                          <span>{t.locked}</span>
+                        </span>
+                      )}
+                      {onExportPdf && (
+                        <Button
+                          size="small"
+                          icon={<FilePdfOutlined />}
+                          loading={exportingPdf}
+                          onClick={() => onExportPdf(rev.revision)}
+                        >
+                          {t.exportPdf}
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   <div style={{ fontWeight: 600, fontSize: 13.5 }}>

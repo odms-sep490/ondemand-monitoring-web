@@ -16,4 +16,6 @@ export type MaintenanceTicket = {
   openedAt: string
   resolvedAt: string | null
   closedAt: string | null
+  /** Backend workflow stage, e.g. DRAFT_HANDOVER, AWAITING_TECHNICAL_RECEIPT, IN_MAINTENANCE. */
+  workflowStage: string
 }

@@ -72,6 +72,7 @@ function KpiLink({
   route,
   title,
   value,
+  hint,
   available,
   unavailableLabel,
   icon,
@@ -80,6 +81,7 @@ function KpiLink({
   route: ManagerRoute
   title: string
   value: number
+  hint: string
   available: boolean
   unavailableLabel: string
   icon: ReactNode
@@ -89,18 +91,21 @@ function KpiLink({
 
   return (
     <a
-      className={`mgr-dash-kpi is-accent-${accent}`}
+      className={`mgr-dash-kpi mgr-deck-tile is-accent-${accent}`}
       href={managerHref(route)}
       aria-label={`${title}: ${available ? value.toLocaleString() : unavailableLabel}`}
     >
-      <span className={`mgr-kpi-icon is-${accent}`} aria-hidden="true">
-        {icon}
-      </span>
-      <span className="mgr-kpi-copy">
+      <span className="mgr-deck-tile-head">
         <span className="mgr-kpi-label">{title}</span>
-        <strong className="mgr-kpi-value" aria-hidden="true">
-          {available ? animated.toLocaleString() : '—'}
-        </strong>
+        <span className={`mgr-kpi-icon is-${accent}`} aria-hidden="true">
+          {icon}
+        </span>
+      </span>
+      <strong className="mgr-kpi-value" aria-hidden="true">
+        {available ? animated.toLocaleString() : '—'}
+      </strong>
+      <span className="mgr-deck-tile-foot">
+        <span className={`mgr-deck-pill is-${accent}`}>{hint}</span>
       </span>
     </a>
   )
@@ -113,7 +118,8 @@ export function KpiRow({
   data: ManagerDashboardData
   availability: DashboardKpiAvailability
 }) {
-  const { t } = useI18n(dashboardPageMessages)
+  const { t, lang } = useI18n(dashboardPageMessages)
+  const vi = lang === 'vi'
   const s = data.summary
   const p = data.pricingPipeline
   const completed = data.missionTrend.reduce(
@@ -129,6 +135,7 @@ export function KpiRow({
         route={queue}
         title={t.kpi.pendingReview}
         value={s.pendingOrderCount}
+        hint={vi ? 'Đơn cần duyệt' : 'Orders to review'}
         available={availability.pendingReview}
         unavailableLabel={t.kpi.unavailable}
         icon={<ClockCircleOutlined />}
@@ -138,6 +145,7 @@ export function KpiRow({
         route={queue}
         title={t.kpi.waitingQuote}
         value={p.pricingReviewCount + p.quoteReadyCount}
+        hint={vi ? 'Đang xử lý báo giá' : 'Pricing pipeline'}
         available={availability.waitingQuote}
         unavailableLabel={t.kpi.unavailable}
         icon={<FileTextOutlined />}
@@ -147,6 +155,7 @@ export function KpiRow({
         route={queue}
         title={t.kpi.waitingDeposit}
         value={s.waitingDepositCount}
+        hint={vi ? 'Chờ thanh toán cọc' : 'Awaiting deposit'}
         available={availability.waitingDeposit}
         unavailableLabel={t.kpi.unavailable}
         icon={<WalletOutlined />}
@@ -156,6 +165,7 @@ export function KpiRow({
         route={missions}
         title={t.kpi.activeMissions}
         value={s.activeMissionCount}
+        hint={vi ? 'Nhiệm vụ đang chạy' : 'Active flights'}
         available={availability.activeMissions}
         unavailableLabel={t.kpi.unavailable}
         icon={<RocketOutlined />}
@@ -165,6 +175,7 @@ export function KpiRow({
         route={missions}
         title={t.kpi.completed}
         value={completed}
+        hint={vi ? 'Hoàn tất trong kỳ' : 'Completed in range'}
         available={availability.completed}
         unavailableLabel={t.kpi.unavailable}
         icon={<CheckCircleOutlined />}

@@ -100,8 +100,36 @@ export function MaintenanceWorkflowDrawer({
   const [technicals, setTechnicals] = useState<QualifiedTechnicalOption[]>([])
   const [managers, setManagers] = useState<ActorSummary[]>([])
   const [loading, setLoading] = useState(false)
+  const [exportingPdf, setExportingPdf] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<TabKey>('handover')
+
+  async function handleExportPdf(revision?: number) {
+    if (!detail) return
+    setExportingPdf(true)
+    setError(null)
+    try {
+      const targetRev = revision ?? detail.reportVersions[0]?.revision
+      const blob = await maintenanceWorkflowApi.downloadReportPdf(
+        detail.ticketId,
+        targetRev,
+      )
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `bao-cao-bao-tri-${detail.ticketCode}${
+        targetRev != null ? `-ban-${targetRev}` : ''
+      }.pdf`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.setTimeout(() => URL.revokeObjectURL(url), 10_000)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t.loadError)
+    } finally {
+      setExportingPdf(false)
+    }
+  }
 
   const loadAll = useCallback(async () => {
     if (!ticketId) return
@@ -214,18 +242,17 @@ export function MaintenanceWorkflowDrawer({
 
             <div className="mw-masthead-actions">
               {detail && detail.reportVersions.length > 0 && (
-                <a
+                <button
+                  type="button"
                   className="mw-icon-btn"
-                  href={maintenanceWorkflowApi.getReportPdfUrl(
-                    detail.ticketId,
-                    detail.reportVersions[0].revision,
-                  )}
-                  target="_blank"
-                  rel="noreferrer"
+                  disabled={exportingPdf}
+                  onClick={() =>
+                    void handleExportPdf(detail.reportVersions[0].revision)
+                  }
                 >
                   <FilePdfOutlined />
                   <span>{t.exportPdf}</span>
-                </a>
+                </button>
               )}
               {detail && (
                 <button
@@ -369,6 +396,8 @@ export function MaintenanceWorkflowDrawer({
                   detail={detail}
                   managers={managers}
                   onUpdated={handleUpdated}
+                  onExportPdf={(rev) => void handleExportPdf(rev)}
+                  exportingPdf={exportingPdf}
                 />
               )}
               {activeTab === 'timeline' && (

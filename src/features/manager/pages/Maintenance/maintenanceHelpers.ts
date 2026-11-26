@@ -2,6 +2,7 @@ import type {
   TicketStatus,
   TicketSeverity,
 } from '../../../../shared/types/domain'
+import type { MaintenanceTicket } from '../../types/maintenance'
 import { maintenancePageMessages } from './MaintenancePage.messages'
 
 export const COLUMNS: TicketStatus[] = [
@@ -33,4 +34,14 @@ export const SEVERITIES: TicketSeverity[] = [
 /** Locale-aware date and time, e.g. "13 thg 9, 2026 16:05" / "Sep 13, 2026, 4:05 PM". */
 export function formatStamp(iso: string, locale: string): string {
   return new Date(iso).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' })
+}
+
+/** Where the ticket stands in the handover flow: manager sends it, a Technical claims it. */
+export type HandoverState = 'NEEDS_HANDOVER' | 'AWAITING_CLAIM' | 'CLAIMED' | 'OTHER'
+
+export function handoverState(ticket: MaintenanceTicket): HandoverState {
+  if (ticket.workflowStage === 'DRAFT_HANDOVER' || ticket.workflowStage === 'RECEIPT_REJECTED')
+    return 'NEEDS_HANDOVER'
+  if (ticket.workflowStage === 'AWAITING_TECHNICAL_RECEIPT') return 'AWAITING_CLAIM'
+  return ticket.assignedTo ? 'CLAIMED' : 'OTHER'
 }

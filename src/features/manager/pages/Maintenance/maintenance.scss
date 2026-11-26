@@ -1,6 +1,302 @@
-/* Maintenance tickets (MNG-10) in the Manager look: status board card + detail drawer. */
+/* Maintenance tickets (MNG-10) synchronized with Manager Dashboard & Telemetry Command Deck. */
 :root .mgr-layout {
   .mgr-maintenance {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    /* Compact PageHeader so it doesn't leave dead whitespace above Bento KPIs */
+    .mgr-page-header {
+      padding: 16px 20px;
+      border-radius: 16px;
+    }
+
+    /* Asymmetric Bento Telemetry Strip */
+    .mgr-maint-bento {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .mgr-maint-hero {
+      position: relative;
+      overflow: hidden;
+      padding: 18px 20px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #0f172a 0%, #172554 100%);
+      color: #f8fafc;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .mgr-maint-hero-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .mgr-maint-hero-eyebrow {
+      font-size: 12px;
+      font-weight: 500;
+      color: #93c5fd;
+      margin-bottom: 4px;
+    }
+
+    .mgr-maint-hero-metric {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .mgr-maint-hero-pct {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      color: #ffffff;
+    }
+
+    .mgr-maint-hero-sub {
+      font-size: 12.5px;
+      color: #cbd5e1;
+    }
+
+    .mgr-maint-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.18);
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      color: #bfdbfe;
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .mgr-maint-spectrum {
+      display: flex;
+      height: 7px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(148, 163, 184, 0.2);
+      gap: 2px;
+    }
+
+    .mgr-maint-spectrum-seg {
+      height: 100%;
+      transition: width 240ms ease;
+    }
+
+    .mgr-maint-hero-foot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .mgr-maint-hero-dot-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mgr-maint-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .mgr-maint-tile {
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: var(--mgr-card);
+      border: 1px solid var(--mgr-border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+
+      &:hover {
+        border-color: var(--pl-blue-ac);
+        box-shadow: var(--mgr-shadow-hover);
+      }
+    }
+
+    .mgr-maint-tile-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .mgr-maint-tile-label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--mgr-muted);
+    }
+
+    .mgr-maint-tile-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+
+      &.is-amber {
+        background: #fef3c7;
+        color: #b45309;
+      }
+
+      &.is-red {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      &.is-green {
+        background: #dcfce7;
+        color: #15803d;
+      }
+    }
+
+    .mgr-maint-tile-val {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--mgr-text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mgr-maint-tile-foot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mgr-maint-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+
+      &.is-amber {
+        background: #fffbeb;
+        color: #b45309;
+      }
+
+      &.is-red {
+        background: #fef2f2;
+        color: #b91c1c;
+      }
+
+      &.is-green {
+        background: #ecfdf5;
+        color: #047857;
+      }
+    }
+
+    /* Manager Acceptance Queue Spotlight Banner */
+    .mgr-maint-accept-banner {
+      background: var(--mgr-card);
+      border: 1px solid #fcd34d;
+      border-left: 4px solid #d97706;
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    .mgr-maint-accept-head {
+      margin-bottom: 10px;
+    }
+
+    .mgr-maint-accept-title {
+      margin: 0;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--mgr-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mgr-maint-accept-count {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .mgr-maint-accept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+    }
+
+    .mgr-maint-accept-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--mgr-border);
+      background: var(--mgr-card-2);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 150ms ease, background 150ms ease;
+
+      &:hover {
+        border-color: #d97706;
+        background: var(--mgr-card);
+      }
+    }
+
+    .mgr-maint-accept-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .mgr-maint-accept-code {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--mgr-text);
+    }
+
+    .mgr-maint-accept-device {
+      font-size: 12px;
+      color: var(--mgr-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mgr-maint-accept-round {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: #fef3c7;
+      color: #b45309;
+      flex-shrink: 0;
+    }
+
     .mgr-maint-selects {
       display: flex;
       flex-wrap: wrap;
@@ -20,12 +316,12 @@
       white-space: nowrap;
     }
 
-    /* Four status lanes side by side; each lane scrolls vertically on its own. */
+    /* Four equal-height status lanes side by side with semantic top accent bars */
     .mgr-maint-board {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      align-items: start;
+      gap: 14px;
+      align-items: stretch;
       min-width: 0;
     }
 
@@ -34,16 +330,37 @@
       flex-direction: column;
       gap: 10px;
       min-width: 0;
-      max-height: calc(100vh - 120px);
-      padding: 10px;
-      border-radius: var(--mgr-radius);
-      background: color-mix(in srgb, var(--mgr-muted) 10%, transparent);
+      min-height: 260px;
+      max-height: calc(100vh - 140px);
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--mgr-border);
+      border-top: 3px solid var(--mgr-border);
+      background: color-mix(in srgb, var(--mgr-card) 55%, var(--mgr-card-2));
+
+      &.mgr-maint-col--open {
+        border-top-color: #f59e0b;
+      }
+
+      &.mgr-maint-col--in_progress {
+        border-top-color: #2563eb;
+      }
+
+      &.mgr-maint-col--resolved {
+        border-top-color: #10b981;
+      }
+
+      &.mgr-maint-col--closed {
+        border-top-color: #64748b;
+      }
     }
 
     .mgr-maint-col-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding-bottom: 6px;
+      border-bottom: 1px solid color-mix(in srgb, var(--mgr-border) 75%, transparent);
     }
 
     .mgr-maint-col-count {
@@ -51,20 +368,22 @@
       align-items: center;
       justify-content: center;
       min-width: 24px;
-      height: 24px;
-      padding: 0 6px;
+      height: 22px;
+      padding: 0 7px;
       border-radius: 999px;
       background: var(--mgr-card);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--mgr-muted);
+      border: 1px solid var(--mgr-border);
+      font-family: var(--mono);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--mgr-text);
     }
 
     .mgr-maint-col-list {
       display: flex;
       flex: 1;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       min-width: 0;
       min-height: 0;
       overflow-y: auto;
@@ -75,32 +394,58 @@
     .mgr-maint-more {
       flex: none;
       align-self: center;
+      font-weight: 600;
     }
 
     .mgr-maint-col-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      min-height: 120px;
       padding: 24px 12px;
       border: 1px dashed var(--mgr-border);
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 12.5px;
       text-align: center;
       color: var(--mgr-muted);
+      background: color-mix(in srgb, var(--mgr-card) 45%, transparent);
     }
 
+    /* Priority-accented Ticket Card */
     .mgr-ticket-card {
       display: flex;
       flex: none;
       flex-direction: column;
       gap: 8px;
-      padding: 10px;
+      padding: 12px 12px 10px;
       border: 1px solid var(--mgr-border);
-      border-radius: 10px;
+      border-left: 3px solid var(--mgr-border);
+      border-radius: 11px;
       background: var(--mgr-card);
       cursor: pointer;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+
+      &.mgr-ticket-card--critical {
+        border-left-color: #dc2626;
+      }
+
+      &.mgr-ticket-card--high {
+        border-left-color: #f59e0b;
+      }
+
+      &.mgr-ticket-card--medium {
+        border-left-color: #2563eb;
+      }
+
+      &.mgr-ticket-card--low {
+        border-left-color: #94a3b8;
+      }
 
       &:hover {
         border-color: var(--pl-blue-ac);
-        box-shadow: var(--mgr-shadow-hover);
+        box-shadow: 0 6px 18px rgb(15 23 42 / 7%);
+        transform: translateY(-1px);
       }
 
       &:focus-visible {
@@ -110,22 +455,22 @@
 
       &.is-selected {
         border-color: var(--pl-blue-ac);
-        box-shadow: 0 0 0 1px var(--pl-blue-ac);
+        box-shadow: 0 0 0 2px rgb(37 99 235 / 18%);
       }
     }
 
     .mgr-ticket-card-top {
       display: flex;
       flex-wrap: wrap;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
-      gap: 0 8px;
+      gap: 4px 8px;
     }
 
     .mgr-ticket-card-code {
       flex: none;
-      overflow: visible;
-      font-size: 0.74rem;
+      font-family: var(--mono);
+      font-size: 11.5px;
       font-weight: 700;
       white-space: nowrap;
       color: var(--mgr-text);
@@ -133,7 +478,7 @@
 
     .mgr-ticket-card-age {
       flex: none;
-      font-size: 0.72rem;
+      font-size: 11px;
       color: var(--mgr-muted);
     }
 
@@ -142,7 +487,7 @@
       overflow: hidden;
       font-size: 13px;
       font-weight: 600;
-      line-height: 1.35;
+      line-height: 1.4;
       color: var(--mgr-text);
       overflow-wrap: anywhere;
       -webkit-box-orient: vertical;
@@ -154,7 +499,7 @@
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
 
       .ant-tag {
         margin-inline-end: 0;
@@ -164,19 +509,32 @@
       }
     }
 
+    .mgr-ticket-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 8px;
+      margin-top: 2px;
+      border-top: 1px dashed color-mix(in srgb, var(--mgr-border) 80%, transparent);
+    }
+
     .mgr-ticket-card-action {
       font-weight: 600;
-      height: 28px;
-      padding-block: 0;
-      font-size: 12.5px;
+      height: 26px;
+      padding: 0 10px;
+      font-size: 12px;
+      border-radius: 7px;
+      flex-shrink: 0;
     }
 
     .mgr-ticket-drone {
-      padding: 0 5px;
+      font-family: var(--mono);
+      padding: 0 6px;
       border-radius: 6px;
       background: var(--mgr-card-2);
       border: 1px solid var(--mgr-border);
-      font-size: 11px;
+      font-size: 10.5px;
       line-height: 18px;
       font-weight: 600;
       color: var(--mgr-muted);
@@ -186,6 +544,7 @@
       display: flex;
       align-items: center;
       min-width: 0;
+      flex: 1;
       gap: 6px;
       font-size: 11.5px;
       font-weight: 600;
@@ -212,6 +571,35 @@
       flex: none;
       border-radius: 50%;
       background: currentcolor;
+    }
+
+    @media (max-width: 1180px) {
+      .mgr-maint-bento {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mgr-maint-hero {
+        grid-column: 1 / -1;
+      }
+
+      .mgr-maint-board {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .mgr-maint-bento,
+      .mgr-maint-board {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mgr-ticket-card,
+      .mgr-maint-tile,
+      .mgr-maint-spectrum-seg {
+        transition: none;
+      }
     }
   }
 

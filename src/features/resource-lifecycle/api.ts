@@ -26,8 +26,10 @@ export const resourceLifecycleApi = {
   listDrones: (signal?: AbortSignal) =>
     apiRequest<DroneHealthResponse[]>(`${BASE}/drones`, { signal }),
 
-  listStaff: (signal?: AbortSignal) =>
-    apiRequest<StaffWorkloadResponse[]>(`${BASE}/staff`, { signal }),
+  listStaff: (signal?: AbortSignal, date?: string) => {
+    const suffix = date ? `?date=${encodeURIComponent(date)}` : ''
+    return apiRequest<StaffWorkloadResponse[]>(`${BASE}/staff${suffix}`, { signal })
+  },
 
   getMyWorkload: (signal?: AbortSignal) =>
     apiRequest<StaffWorkloadResponse>(`${BASE}/staff/me`, { signal }),

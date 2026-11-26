@@ -63,6 +63,8 @@ export interface StaffWorkloadResponse {
   weeklyEstimatedSeconds: number
   monthlyActualSeconds: number
   monthlyEstimatedSeconds: number
+  yearlyActualSeconds?: number
+  yearlyEstimatedSeconds?: number
   restSecondsBeforeNextMission: number | null
   workloadStatus: string
   maxUtilizationPercent: number | null

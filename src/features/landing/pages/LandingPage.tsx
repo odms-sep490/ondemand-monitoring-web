@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 
 import { Icon, type IconName } from '../../../shared/components/Icon'
 import { LanguageToggle } from '../../../shared/components/LanguageToggle'
@@ -6,11 +6,21 @@ import { useI18n } from '../../../shared/i18n'
 import { authSession } from '../../auth/api/authApi'
 import { ChatbotWidget } from '../components/ChatbotWidget'
 import { CinematicDroneHero } from '../components/CinematicDroneHero'
+import { InspectionComparisonSection } from '../components/InspectionComparisonSection'
 import { InteractiveServiceShowcase } from '../components/InteractiveServiceShowcase'
 import { LandingAIConsultantSection } from '../components/LandingAIConsultantSection'
+import { LandingFaqSection } from '../components/LandingFaqSection'
+import { MissionEvidencePreview } from '../components/MissionEvidencePreview'
+import { QuickMissionBuilderSection } from '../components/QuickMissionBuilderSection'
 import { resolveCreateRequestTarget } from '../resolveCreateRequestTarget'
 import { landingPageMessages } from './LandingPage.messages'
 import '../landing.css'
+
+const Interactive3DDroneStage = lazy(() =>
+  import('../components/Interactive3DDroneStage').then((m) => ({
+    default: m.Interactive3DDroneStage,
+  })),
+)
 
 const SERVICE_ICONS: readonly IconName[] = [
   'clipboard',
@@ -89,6 +99,21 @@ export function LandingPage() {
   const { lang, t } = useI18n(landingPageMessages)
   const servicesReveal = useRevealOnScroll<HTMLElement>()
   const aboutReveal = useRevealOnScroll<HTMLElement>()
+  const [headerScrolled, setHeaderScrolled] = useState(false)
+  const [scrollProgress, setScrollProgress] = useState(0)
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY
+      setHeaderScrolled(y > 36)
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight
+      setScrollProgress(docHeight > 0 ? Math.min(1, Math.max(0, y / docHeight)) : 0)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -121,7 +146,7 @@ export function LandingPage() {
         {t.skipLink}
       </a>
 
-      <header className="lpx-header">
+      <header className={`lpx-header${headerScrolled ? ' is-scrolled' : ''}`}>
         <div className="lpx-container lpx-header-inner">
           <BrandMark brandName={t.brandName} lang={lang} />
 
@@ -143,6 +168,11 @@ export function LandingPage() {
             </a>
           </div>
         </div>
+        <span
+          className="lp3-scroll-progress"
+          style={{ transform: `scaleX(${scrollProgress})` }}
+          aria-hidden="true"
+        />
       </header>
 
       <main id="main-content">
@@ -156,7 +186,33 @@ export function LandingPage() {
           seeHowItWorksLabel={t.seeHowItWorks}
           badgeLabel={t.heroBadge}
           scrollHintLabel={t.scrollHint}
+          sceneLabels={t.heroScenes}
+          proofItems={t.heroProofs}
         />
+
+        <div className="lp3-ticker" aria-hidden="true">
+          <div className="lp3-ticker-track">
+            {[...t.tickerItems, ...t.tickerItems].map((item, idx) => (
+              <span key={`${item}-${idx}`} className="lp3-ticker-item">
+                <span className="lp3-ticker-dot" />
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <Suspense fallback={null}>
+          <Interactive3DDroneStage
+            eyebrow={t.stage3dEyebrow}
+            heading={t.stage3dHeading}
+            subtitle={t.stage3dSubtitle}
+            dragHint={t.stage3dDragHint}
+            fallbackCaption={t.stage3dFallbackCaption}
+            presets={t.stage3dPresets}
+            ctaLabel={t.stage3dCta}
+            ctaHref={createRequestTarget}
+          />
+        </Suspense>
 
         <InteractiveServiceShowcase
           eyebrow={t.catalogEyebrow}
@@ -214,6 +270,54 @@ export function LandingPage() {
             </div>
           </div>
         </section>
+
+        <InspectionComparisonSection
+          eyebrow={t.compareEyebrow}
+          heading={t.compareHeading}
+          subtitle={t.compareSubtitle}
+          manualHeading={t.compareManualHeading}
+          odmHeading={t.compareOdmHeading}
+          rows={t.compareRows}
+          sliderLeftLabel={t.compareSliderLeftLabel}
+          sliderRightLabel={t.compareSliderRightLabel}
+          sliderHint={t.compareSliderHint}
+          sliderAriaLabel={t.compareSliderAriaLabel}
+          overlayZones={t.compareOverlayZones}
+          imageAlt={t.compareImageAlt}
+        />
+
+        <MissionEvidencePreview
+          eyebrow={t.evidenceEyebrow}
+          heading={t.evidenceHeading}
+          subtitle={t.evidenceSubtitle}
+          imageAlt={t.evidenceImageAlt}
+          frameLabel={t.evidenceFrameLabel}
+          hintLabel={t.evidenceHintLabel}
+          pins={t.evidencePins}
+          ctaLabel={t.evidenceCta}
+          ctaHref={createRequestTarget}
+        />
+
+        <QuickMissionBuilderSection
+          eyebrow={t.builderEyebrow}
+          heading={t.builderHeading}
+          subtitle={t.builderSubtitle}
+          serviceStepLabel={t.builderServiceStepLabel}
+          scaleStepLabel={t.builderScaleStepLabel}
+          deliverableStepLabel={t.builderDeliverableStepLabel}
+          services={t.builderServices}
+          scales={t.builderScales}
+          deliverables={t.builderDeliverables}
+          briefHeaderLabel={t.builderBriefHeaderLabel}
+          briefServiceLabel={t.builderBriefServiceLabel}
+          briefScaleLabel={t.builderBriefScaleLabel}
+          briefDeliverablesLabel={t.builderBriefDeliverablesLabel}
+          briefGatesLabel={t.builderBriefGatesLabel}
+          briefGates={t.builderBriefGates}
+          briefNote={t.builderBriefNote}
+          ctaLabel={t.builderCta}
+          ctaHref={createRequestTarget}
+        />
 
         <section
           id="about"
@@ -287,6 +391,17 @@ export function LandingPage() {
           ctaHref={createRequestTarget}
           ctaLabel={t.aiCta}
           statusBadge={t.aiStatusBadge}
+        />
+
+        <LandingFaqSection
+          eyebrow={t.faqEyebrow}
+          heading={t.faqHeading}
+          subtitle={t.faqSubtitle}
+          items={t.faqItems}
+          supportLabel={t.faqSupportLabel}
+          supportEmail={t.footerSupport}
+          ctaHref={createRequestTarget}
+          ctaLabel={t.createRequestCta}
         />
 
         <section className="lp2-final-cta" aria-labelledby="lp2-final-heading">

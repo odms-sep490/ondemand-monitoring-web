@@ -97,6 +97,9 @@ export function MissionTrendCard({
         <DatePicker.RangePicker
           size="small"
           allowClear
+          placement="bottomRight"
+          getPopupContainer={() => document.body}
+          classNames={{ popup: { root: 'mgr-range-picker-dropdown' } }}
           format="DD/MM/YYYY"
           placeholder={vi ? ['Từ ngày', 'Đến ngày'] : ['From', 'To']}
           onChange={(dates) =>
