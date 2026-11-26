@@ -20,6 +20,8 @@ describe('EditUserModal', () => {
     ).toBeGreaterThan(0)
     expect(screen.getByText('Quản trị viên')).toBeTruthy()
     expect(screen.getByText('Thời gian')).toBeTruthy()
+    expect(screen.queryByRole('textbox')).toBeNull()
+    expect(screen.queryByText(/PATCH \/api\/users\/me/)).toBeNull()
     // no customerProfile for an admin => no contact section
     expect(screen.queryByText('Liên hệ')).toBeNull()
   })
