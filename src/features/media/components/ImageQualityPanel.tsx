@@ -147,6 +147,12 @@ function Panel({
   const [decision, setDecision] = useState('REVIEW_REQUIRED')
   const [showDetails, setShowDetails] = useState(false)
   const requestKey = useRef<string | null>(null)
+  const reviewReady = job?.status === 'COMPLETED'
+  const reviewHint = pending(job)
+    ? 'Đang kiểm tra chất lượng ảnh. Bạn có thể lưu quyết định khi có kết quả.'
+    : job
+      ? 'Chọn Kiểm tra lại và chờ kết quả để lưu quyết định.'
+      : 'Chọn Kiểm tra chất lượng AI và chờ kết quả để lưu quyết định.'
 
   useEffect(() => {
     setDecision(job?.reviews?.[0]?.decision ?? 'REVIEW_REQUIRED')
@@ -219,7 +225,7 @@ function Panel({
   }
 
   async function review() {
-    if (!job) return
+    if (job?.status !== 'COMPLETED' || busy) return
     setBusy(true)
     setError('')
     try {
@@ -532,8 +538,12 @@ function Panel({
           </div>
 
           {/* Nút Lưu quyết định */}
+          <div className="iq-review-hint" role="status">
+            {!reviewReady && reviewHint}
+          </div>
           <Button
             type="primary"
+            disabled={!reviewReady || busy}
             loading={busy}
             onClick={() => void review()}
             className="iq-btn-submit-decision"

@@ -25,6 +25,53 @@ describe('ImageQualityPanel', () => {
     expect(await screen.findByText('Đang chờ')).toBeInTheDocument()
     expect(api).toHaveBeenLastCalledWith('/api/customer/media/image/quality-checks', expect.objectContaining({ method: 'POST', body: expect.objectContaining({ profile: 'PANORAMA' }) }))
   })
+  it('enables review after polling returns a completed check and saves the Inspector decision', async () => {
+    const job = { id: 'job', media_id: 'image', created_at: '2026-11-26T00:00:00Z' }
+    const completed = { ...job, status: 'COMPLETED', decision: 'REVIEW_REQUIRED' }
+    const onChanged = vi.fn()
+    api.mockResolvedValueOnce([])
+      .mockResolvedValueOnce({ ...job, status: 'PENDING' })
+      .mockResolvedValueOnce(completed)
+      .mockResolvedValueOnce({
+        ...completed,
+        reviews: [{ decision: 'PASS', note: 'Chi tiết cần kiểm tra vẫn rõ', reviewed_at: job.created_at }],
+      })
+
+    render(<ImageQualityPanel mediaId="image" onChanged={onChanged} />)
+    const save = screen.getByRole('button', { name: 'Lưu quyết định' })
+    await screen.findByText('Chưa kiểm tra ảnh này.')
+    expect(save).toBeDisabled()
+    expect(screen.getByText('Chọn Kiểm tra chất lượng AI và chờ kết quả để lưu quyết định.')).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Kiểm tra chất lượng AI' }))
+    expect(await screen.findByText('Đang kiểm tra chất lượng ảnh. Bạn có thể lưu quyết định khi có kết quả.')).toBeVisible()
+    expect(save).toBeDisabled()
+    expect(api).toHaveBeenCalledTimes(2)
+
+    await waitFor(() => expect(save).toBeEnabled(), { timeout: 4000 })
+    fireEvent.click(screen.getByRole('radio', { name: 'Đạt' }))
+    fireEvent.change(screen.getByRole('textbox', { name: 'Ghi chú kiểm duyệt' }), {
+      target: { value: 'Chi tiết cần kiểm tra vẫn rõ' },
+    })
+    fireEvent.click(save)
+    expect(api).toHaveBeenLastCalledWith('/api/image-quality/checks/job/reviews', {
+      method: 'POST',
+      body: { decision: 'PASS', note: 'Chi tiết cần kiểm tra vẫn rõ' },
+    })
+    expect(await screen.findByText('Chi tiết cần kiểm tra vẫn rõ')).toBeVisible()
+    expect(onChanged).toHaveBeenCalledTimes(2)
+  })
+
+  it.each(['FAILED', 'CANCELLED'])('asks the Inspector to retry a %s check', async (status) => {
+    const job = { id: 'job', media_id: 'image', created_at: '2026-11-26T00:00:00Z', status }
+    api.mockResolvedValueOnce([job]).mockResolvedValueOnce(job)
+    render(<ImageQualityPanel mediaId="image" />)
+
+    expect(await screen.findByText('Chọn Kiểm tra lại và chờ kết quả để lưu quyết định.')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Lưu quyết định' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Kiểm tra lại' })).toBeEnabled()
+  })
+
   it('does not display a fake result after forbidden request', async () => {
     api.mockRejectedValue(new Error('Forbidden'))
     render(<ImageQualityPanel mediaId="other" customer />)
