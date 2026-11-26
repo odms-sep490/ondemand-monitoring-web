@@ -197,7 +197,7 @@ describe('AI image assessment criteria', () => {
     )
   })
 
-  it('sends an empty array when switching to video only', async () => {
+  it('preserves criteria when switching to video only', async () => {
     vi.mocked(checklistsApi.list).mockResolvedValue(
       page([{ ...shared, imageAssessmentCriteria: ['Thấy toàn bộ mái'] }]),
     )
@@ -206,12 +206,35 @@ describe('AI image assessment criteria', () => {
     fireEvent.change(screen.getByLabelText('Số ảnh đã bao gồm'), {
       target: { value: '0' },
     })
-    expect(
-      screen.queryByRole('button', { name: 'Thêm tiêu chí' }),
-    ).not.toBeInTheDocument()
-    expect(await saveSharedChecklist()).toMatchObject({
-      imageAssessmentCriteria: [],
+    expect(screen.getByLabelText('Tiêu chí 1')).toHaveValue('Thấy toàn bộ mái')
+    expect(await saveSharedChecklist()).not.toHaveProperty(
+      'imageAssessmentCriteria',
+    )
+  })
+
+  it('switches AI off without removing criteria and restores the draft when switched on', async () => {
+    vi.mocked(checklistsApi.list).mockResolvedValue(
+      page([
+        {
+          ...shared,
+          imageAssessmentEnabled: true,
+          imageAssessmentCriteria: ['Thấy toàn bộ mái'],
+        },
+      ]),
+    )
+    await openEditor()
+    const toggle = screen.getByRole('switch', {
+      name: 'Bật AI đánh giá ảnh cho checklist',
     })
+    expect(toggle).toBeChecked()
+    fireEvent.click(toggle)
+    expect(screen.getByLabelText('Tiêu chí 1')).toHaveValue('Thấy toàn bộ mái')
+    fireEvent.click(toggle)
+    expect(screen.getByLabelText('Tiêu chí 1')).toHaveValue('Thấy toàn bộ mái')
+    fireEvent.click(toggle)
+    const payload = await saveSharedChecklist()
+    expect(payload).toHaveProperty('imageAssessmentEnabled', false)
+    expect(payload).not.toHaveProperty('imageAssessmentCriteria')
   })
 
   it('omits saved criteria when only other checklist settings change', async () => {

@@ -11,16 +11,21 @@ export const checklistMessages = defineMessages({
     sectionContent: 'Nội dung',
     sectionEvidence: 'Yêu cầu minh chứng',
     imageCriteriaTitle: 'Tiêu chí đánh giá ảnh bằng AI',
-    imageCriteriaHint: 'Mỗi tiêu chí mô tả một điều có thể quan sát trực tiếp trong ảnh. Xóa hết tiêu chí để tắt đánh giá AI cho checklist này.',
-    imageCriteriaDisabled: 'Đánh giá ảnh bằng AI cần ít nhất một ảnh trong định mức của checklist.',
-    imageCriteriaCleared: 'Lưu với định mức 0 ảnh sẽ tắt đánh giá AI và xóa tiêu chí đã lưu.',
+    imageCriteriaHint:
+      'Mỗi tiêu chí mô tả một điều có thể quan sát trực tiếp trong ảnh. Cần ít nhất một tiêu chí để đánh giá.',
+    imageAssessmentEnabled: 'Bật AI đánh giá ảnh cho checklist',
+    imageAssessmentEnabledHint:
+      'Áp dụng cho cả các đơn đã tạo. Tắt AI vẫn lưu các tiêu chí để dùng khi bật lại. Công tắc toàn hệ thống phải được bật.',
+    imageCriteriaDisabled:
+      'Đánh giá ảnh bằng AI cần ít nhất một ảnh trong định mức của checklist.',
     imageCriterionLabel: (number: number) => `Tiêu chí ${number}`,
     imageCriterionRemove: (number: number) => `Xóa tiêu chí ${number}`,
     imageCriteriaRemove: 'Xóa',
     imageCriteriaAdd: 'Thêm tiêu chí',
     imageCriteriaInvalid: (count: number, length: number) =>
       `Nhập tối đa ${count} tiêu chí. Mỗi tiêu chí phải có từ 1 đến ${length} ký tự.`,
-    evidenceConfigHint: 'Số ảnh và video là định mức minh chứng của checklist. Giá Base Checklist được cấu hình riêng trong mục Định giá.',
+    evidenceConfigHint:
+      'Số ảnh và video là định mức minh chứng của checklist. Giá Base Checklist được cấu hình riêng trong mục Định giá.',
     deviceTypesTitle: 'Loại thiết bị',
     deviceTypesHint: 'Các loại thiết bị được liên kết với checklist này.',
     deviceTypesEmpty: 'Checklist chưa có loại thiết bị.',
@@ -88,6 +93,7 @@ export const checklistMessages = defineMessages({
       inputRequirements: 'Đầu vào cần có',
       expectedOutputs: 'Đầu ra cần nộp',
       imageAssessmentCriteria: 'Tiêu chí đánh giá ảnh bằng AI',
+      imageAssessmentEnabled: 'AI đánh giá ảnh',
       includedImageCount: 'Số ảnh bao gồm',
       includedVideoCount: 'Số video bao gồm',
       basePrice: 'Giá Base Checklist',
@@ -127,7 +133,7 @@ export const checklistMessages = defineMessages({
     guidanceInvalid:
       'Mô tả tối đa 4000 ký tự; mỗi danh sách tối đa 30 dòng, mỗi dòng tối đa 500 ký tự.',
     future:
-      'Thay đổi chỉ áp dụng cho đơn hàng tương lai. Snapshot đơn hàng cũ không đổi.',
+      'Nội dung và tiêu chí được chụp snapshot khi tạo đơn. Công tắc AI áp dụng ngay cho cả các đơn đã tạo.',
     add: 'Thêm checklist',
     edit: 'Sửa checklist',
     content: 'Nội dung',
@@ -199,16 +205,21 @@ export const checklistMessages = defineMessages({
     sectionContent: 'Content',
     sectionEvidence: 'Evidence requirements',
     imageCriteriaTitle: 'AI image assessment criteria',
-    imageCriteriaHint: 'Describe one thing that can be seen directly in the image per criterion. Remove all criteria to disable AI assessment for this checklist.',
-    imageCriteriaDisabled: 'AI image assessment requires at least one image in the checklist allowance.',
-    imageCriteriaCleared: 'Saving with an image allowance of 0 disables AI assessment and clears the saved criteria.',
+    imageCriteriaHint:
+      'Describe one thing that can be seen directly in the image per criterion. At least one criterion is required for assessment.',
+    imageAssessmentEnabled: 'Enable AI image assessment for this checklist',
+    imageAssessmentEnabledHint:
+      'Applies to existing orders too. Turning AI off retains the criteria for reuse. The system-wide switch must also be enabled.',
+    imageCriteriaDisabled:
+      'AI image assessment requires at least one image in the checklist allowance.',
     imageCriterionLabel: (number: number) => `Criterion ${number}`,
     imageCriterionRemove: (number: number) => `Remove criterion ${number}`,
     imageCriteriaRemove: 'Remove',
     imageCriteriaAdd: 'Add criterion',
     imageCriteriaInvalid: (count: number, length: number) =>
       `Enter up to ${count} criteria. Each criterion must contain 1 to ${length} characters.`,
-    evidenceConfigHint: 'Image and video counts are evidence requirements for the checklist. Configure Base Checklist prices in the Pricing section.',
+    evidenceConfigHint:
+      'Image and video counts are evidence requirements for the checklist. Configure Base Checklist prices in the Pricing section.',
     deviceTypesTitle: 'Device types',
     deviceTypesHint: 'Device types associated with this checklist.',
     deviceTypesEmpty: 'No device type is associated with this checklist.',
@@ -278,6 +289,7 @@ export const checklistMessages = defineMessages({
       inputRequirements: 'Required inputs',
       expectedOutputs: 'Expected outputs',
       imageAssessmentCriteria: 'AI image assessment criteria',
+      imageAssessmentEnabled: 'AI image assessment',
       includedImageCount: 'Included images',
       includedVideoCount: 'Included videos',
       basePrice: 'Base Checklist price',
@@ -317,7 +329,7 @@ export const checklistMessages = defineMessages({
     guidanceInvalid:
       'Description up to 4000 characters; each list up to 30 lines of at most 500 characters.',
     future:
-      'Changes apply only to future orders. Existing order snapshots stay unchanged.',
+      'Content and criteria are captured when an order is created. The AI switch takes effect immediately for existing orders too.',
     add: 'Add checklist',
     edit: 'Edit checklist',
     content: 'Content',

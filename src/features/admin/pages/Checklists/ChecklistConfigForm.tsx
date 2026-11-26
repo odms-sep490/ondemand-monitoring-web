@@ -90,6 +90,9 @@ export function ChecklistConfigForm({
     (row?.imageAssessmentCriteria ?? []).map((value, id) => ({ id, value })),
   )
   const nextCriterionId = useRef(criteria.length)
+  const [imageAssessmentEnabled, setImageAssessmentEnabled] = useState(
+    row?.imageAssessmentEnabled ?? true,
+  )
   const [overrides, setOverrides] = useState<OverrideForm>({
     images: link?.includedImageCountOverride?.toString() ?? '',
     videos: link?.includedVideoCountOverride?.toString() ?? '',
@@ -132,29 +135,19 @@ export function ChecklistConfigForm({
   const sharedBy = row?.usedByServiceCount ?? 0
   const shared = sharedBy > 1
   const photoCapable = Number(evidence.includedImageCount) > 0
-  const lostPhotoAllowance = Boolean(
-    row && (row.includedImageCount ?? 0) > 0 && !photoCapable,
-  )
-  const becameVideoOnly = Boolean(
-    row &&
-    !photoCapable &&
-    Number(evidence.includedVideoCount) > 0 &&
-    (row.includedVideoCount ?? 0) === 0,
-  )
   const savedCriteria = row?.imageAssessmentCriteria ?? []
-  const imageAssessmentCriteria = photoCapable
-    ? criteria.map(({ value }) => value.trim())
-    : []
+  const imageAssessmentCriteria = criteria.map(({ value }) => value.trim())
   const criteriaChanged =
-    lostPhotoAllowance ||
-    becameVideoOnly ||
-    (photoCapable &&
-      (imageAssessmentCriteria.length !== savedCriteria.length ||
-        imageAssessmentCriteria.some(
-          (value, index) => value !== savedCriteria[index],
-        )))
+    imageAssessmentCriteria.length !== savedCriteria.length ||
+    imageAssessmentCriteria.some(
+      (value, index) => value !== savedCriteria[index],
+    )
+  const imageAssessmentEnabledChanged =
+    imageAssessmentEnabled !== (row?.imageAssessmentEnabled ?? true)
   const sharedDirty =
-    JSON.stringify([content, evidence]) !== initialShared || criteriaChanged
+    JSON.stringify([content, evidence]) !== initialShared ||
+    criteriaChanged ||
+    imageAssessmentEnabledChanged
   const overridesDirty = JSON.stringify(overrides) !== initialOverrides
   const needsAck = shared && sharedDirty && !acknowledged
 
@@ -232,6 +225,7 @@ export function ChecklistConfigForm({
           }),
       ...guidance,
       ...(criteriaChanged ? { imageAssessmentCriteria } : {}),
+      ...(imageAssessmentEnabledChanged ? { imageAssessmentEnabled } : {}),
     }
     return { text, definition, override }
   }
@@ -597,73 +591,84 @@ export function ChecklistConfigForm({
           disabled={busy}
         >
           <legend>{t.imageCriteriaTitle}</legend>
-          {!photoCapable ? (
+          <label className="checklist-field-meta is-block">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={imageAssessmentEnabled}
+              onChange={(event) =>
+                setImageAssessmentEnabled(event.target.checked)
+              }
+            />{' '}
+            {t.imageAssessmentEnabled}
+          </label>
+          <p className="checklist-field-meta is-block">
+            {t.imageAssessmentEnabledHint}
+          </p>
+          {!photoCapable && (
             <p className="checklist-field-meta is-block">
-              {criteriaChanged
-                ? t.imageCriteriaCleared
-                : t.imageCriteriaDisabled}
+              {t.imageCriteriaDisabled}
             </p>
-          ) : (
-            <>
-              <p className="checklist-field-meta is-block">
-                {t.imageCriteriaHint}
-              </p>
-              {criteria.map(({ id, value }, index) => (
-                <div key={id}>
-                  <FormField
-                    id={`checklist-image-criterion-${id}`}
-                    label={t.imageCriterionLabel(index + 1)}
-                  >
-                    <textarea
-                      id={`checklist-image-criterion-${id}`}
-                      className="odm-inp"
-                      rows={2}
-                      maxLength={MAX_IMAGE_CRITERION_LENGTH}
-                      value={value}
-                      onChange={(event) => {
-                        const value = event.target.value
-                        setCriteria((current) =>
-                          current.map((item) =>
-                            item.id === id ? { id, value } : item,
-                          ),
-                        )
-                      }}
-                    />
-                  </FormField>
-                  <div className="checklist-field-meta">
-                    <span>
-                      {value.length}/{MAX_IMAGE_CRITERION_LENGTH}
-                    </span>
-                    <button
-                      type="button"
-                      className="odm-btn odm-btn-gh odm-btn-sm"
-                      aria-label={t.imageCriterionRemove(index + 1)}
-                      onClick={() =>
-                        setCriteria((current) =>
-                          current.filter((item) => item.id !== id),
-                        )
-                      }
-                    >
-                      {t.imageCriteriaRemove}
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <div>
-                <button
-                  type="button"
-                  className="odm-btn odm-btn-sm"
-                  disabled={criteria.length >= MAX_IMAGE_CRITERIA}
-                  onClick={() => {
-                    const id = nextCriterionId.current++
-                    setCriteria((current) => [...current, { id, value: '' }])
-                  }}
-                >
-                  {t.imageCriteriaAdd}
-                </button>
-              </div>
-            </>
           )}
+          <>
+            <p className="checklist-field-meta is-block">
+              {t.imageCriteriaHint}
+            </p>
+            {criteria.map(({ id, value }, index) => (
+              <div key={id}>
+                <FormField
+                  id={`checklist-image-criterion-${id}`}
+                  label={t.imageCriterionLabel(index + 1)}
+                >
+                  <textarea
+                    id={`checklist-image-criterion-${id}`}
+                    className="odm-inp"
+                    rows={2}
+                    maxLength={MAX_IMAGE_CRITERION_LENGTH}
+                    value={value}
+                    onChange={(event) => {
+                      const value = event.target.value
+                      setCriteria((current) =>
+                        current.map((item) =>
+                          item.id === id ? { id, value } : item,
+                        ),
+                      )
+                    }}
+                  />
+                </FormField>
+                <div className="checklist-field-meta">
+                  <span>
+                    {value.length}/{MAX_IMAGE_CRITERION_LENGTH}
+                  </span>
+                  <button
+                    type="button"
+                    className="odm-btn odm-btn-gh odm-btn-sm"
+                    aria-label={t.imageCriterionRemove(index + 1)}
+                    onClick={() =>
+                      setCriteria((current) =>
+                        current.filter((item) => item.id !== id),
+                      )
+                    }
+                  >
+                    {t.imageCriteriaRemove}
+                  </button>
+                </div>
+              </div>
+            ))}
+            <div>
+              <button
+                type="button"
+                className="odm-btn odm-btn-sm"
+                disabled={criteria.length >= MAX_IMAGE_CRITERIA}
+                onClick={() => {
+                  const id = nextCriterionId.current++
+                  setCriteria((current) => [...current, { id, value: '' }])
+                }}
+              >
+                {t.imageCriteriaAdd}
+              </button>
+            </div>
+          </>
         </fieldset>
       </div>
 
