@@ -13,6 +13,7 @@ export const checklistMessages = defineMessages({
     none: 'Vui lòng chọn ít nhất một hạng mục giám sát hoặc thêm yêu cầu bổ sung.',
     add: 'Thêm nội dung',
     edit: 'Sửa',
+    detailsLabel: 'Chi tiết',
     selectAll: (n: number) => `Chọn tất cả (${n})`,
     deselectAll: 'Bỏ chọn',
     viewLabel: 'Kiểu hiển thị',
@@ -45,6 +46,20 @@ export const checklistMessages = defineMessages({
     restoreDefault: 'Thêm lại',
     select: (content: string) => `Chọn ${content}`,
     content: (n: number) => `Nội dung giám sát ${n}`,
+    deliverableRequirements: 'Yêu cầu ảnh / video bàn giao',
+    requestedQuantityHint:
+      'Nhập tổng số ảnh/video bạn muốn nhận, đã gồm số lượng trong dịch vụ.',
+    includedQuantityTitle: 'Đã bao gồm trong dịch vụ',
+    extraQuantityTitle: 'Bổ sung ngoài định mức',
+    mediaQuantity: (images: number, videos: number) =>
+      [
+        images > 0 ? `${images} ảnh` : null,
+        videos > 0 ? `${videos} video` : null,
+      ]
+        .filter(Boolean)
+        .join(' · ') || 'Không có',
+    acceptanceFor: (quantity: string) =>
+      `Điều kiện về số lượng khi nghiệm thu: bàn giao đủ ${quantity}.`,
     evidenceCountLabel: 'Số bằng chứng tối thiểu',
     evidenceTypeLabel: 'Loại bằng chứng',
     evidenceCount: (n: number) => `Số bằng chứng tối thiểu cho mục ${n}`,
@@ -168,6 +183,7 @@ export const checklistMessages = defineMessages({
     none: 'Select at least one monitoring item or add a custom requirement.',
     add: 'Add requirement',
     edit: 'Edit',
+    detailsLabel: 'Details',
     selectAll: (n: number) => `Select all (${n})`,
     deselectAll: 'Clear',
     viewLabel: 'Display mode',
@@ -200,6 +216,20 @@ export const checklistMessages = defineMessages({
     restoreDefault: 'Add back',
     select: (content: string) => `Select ${content}`,
     content: (n: number) => `Monitoring requirement ${n}`,
+    deliverableRequirements: 'Image / video deliverables',
+    requestedQuantityHint:
+      'Enter the total number of images/videos you want, including the service allowance.',
+    includedQuantityTitle: 'Included in the service',
+    extraQuantityTitle: 'Beyond the service allowance',
+    mediaQuantity: (images: number, videos: number) =>
+      [
+        images > 0 ? `${images} images` : null,
+        videos > 0 ? `${videos} videos` : null,
+      ]
+        .filter(Boolean)
+        .join(' · ') || 'None',
+    acceptanceFor: (quantity: string) =>
+      `Quantity requirement for acceptance: deliver all ${quantity}.`,
     evidenceCountLabel: 'Minimum evidence count',
     evidenceTypeLabel: 'Evidence type',
     evidenceCount: (n: number) => `Minimum evidence count for requirement ${n}`,

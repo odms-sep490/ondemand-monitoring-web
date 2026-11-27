@@ -1,0 +1,415 @@
+.checklist-config-shell {
+  --config-ink: #10234b;
+  --config-muted: #60749b;
+  --config-border: #dce7fb;
+  --config-soft: #edf3ff;
+}
+.checklist-config-shell .ui-modal {
+  overflow: hidden;
+  border-color: var(--config-border);
+  border-radius: 18px;
+}
+.checklist-config-shell .ui-modal-header {
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--config-border);
+  background:
+    radial-gradient(circle at 100% 0%, rgb(124 174 255 / 13%), transparent 34%),
+    linear-gradient(110deg, #f2f7ff, #edf4ff 54%, #f7faff);
+}
+.checklist-config-shell .ui-modal-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #36a0ff, #1264ea);
+  box-shadow: 0 5px 12px rgb(23 104 238 / 22%);
+  color: #fff;
+}
+.checklist-config-shell .ui-modal-title {
+  color: var(--config-ink);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+.checklist-config-shell .ui-modal-subtitle {
+  color: var(--config-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.checklist-config-shell .ui-modal-body {
+  min-width: 0;
+  padding: 12px 20px 0;
+  background: var(--ui-bg);
+}
+.checklist-config-shell .checklist-modal-tools {
+  margin: 0 0 10px;
+}
+.checklist-config-shell .checklist-modal-tools .ui-btn {
+  min-height: 30px;
+  border-color: var(--config-border);
+  border-radius: 8px;
+  background: var(--ui-surface);
+  color: var(--ui-primary-text);
+  font-size: 11px;
+}
+.checklist-config-shell .checklist-config-form {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 0;
+}
+.checklist-config-shell .checklist-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid var(--config-border);
+  border-radius: 11px;
+  background: var(--ui-surface);
+}
+.checklist-config-shell .checklist-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex: 1;
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--config-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.checklist-config-shell .checklist-tab.is-active {
+  border-color: var(--config-border);
+  background: var(--config-soft);
+  color: var(--ui-primary-text);
+}
+.checklist-config-shell .checklist-section {
+  min-width: 0;
+  margin: 0 0 12px;
+  padding: 12px 14px 14px;
+  gap: 8px;
+  border: 1px solid var(--config-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+}
+.checklist-config-shell .checklist-section > legend {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0 6px;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  color: var(--config-ink);
+  font-size: 12px;
+  font-weight: 750;
+}
+.checklist-config-shell .checklist-section > legend svg {
+  vertical-align: -2px;
+  color: var(--ui-primary-text);
+}
+.checklist-config-shell .ui-form-field {
+  min-width: 0;
+  margin: 0;
+}
+.checklist-config-shell .ui-form-label {
+  color: var(--config-ink);
+  font-size: 12px;
+  font-weight: 650;
+}
+.checklist-config-shell .checklist-config-form .odm-inp {
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--config-border);
+  border-radius: 9px;
+  background: var(--ui-surface);
+  color: var(--config-ink);
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.5;
+  box-shadow: inset 0 1px 2px rgb(36 68 119 / 3%);
+}
+.checklist-config-shell .checklist-section textarea.odm-inp {
+  resize: vertical;
+  min-height: 62px;
+}
+.checklist-config-shell .checklist-section textarea#checklist-content {
+  min-height: 62px;
+}
+.checklist-config-shell .checklist-section textarea#checklist-description {
+  min-height: 62px;
+}
+.checklist-config-shell .checklist-section textarea#checklist-steps {
+  min-height: 76px;
+}
+.checklist-config-shell .checklist-section textarea#checklist-inputs,
+.checklist-config-shell .checklist-section textarea#checklist-outputs {
+  min-height: 62px;
+}
+.checklist-config-shell .checklist-field-meta {
+  gap: 8px;
+  margin-top: 4px;
+  margin-bottom: 0;
+  color: var(--config-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.checklist-config-shell .checklist-field-meta > span + span {
+  flex-shrink: 0;
+}
+.checklist-config-shell .checklist-device-types {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--config-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+}
+.checklist-config-shell .checklist-device-types h3 {
+  margin: 0 0 4px;
+  color: var(--config-ink);
+  font-size: 13px;
+}
+.checklist-config-shell .checklist-device-types p {
+  margin: 0;
+  color: var(--config-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.checklist-config-shell .checklist-device-type-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+}
+.checklist-config-shell .checklist-device-type-list li {
+  gap: 10px;
+  padding: 4px 8px;
+  border-color: var(--config-border);
+  background: var(--config-soft);
+  font-size: 12px;
+}
+.checklist-config-shell .checklist-device-type-list li span {
+  flex-wrap: wrap;
+  gap: 3px 6px;
+}
+.checklist-config-shell .checklist-device-type-add {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.checklist-config-shell .checklist-price-grid {
+  grid-template-columns: minmax(160px, 1fr) minmax(110px, 180px);
+  gap: 8px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--config-border);
+  border-radius: 10px;
+  background: var(--ui-bg);
+}
+.checklist-config-shell .checklist-price-grid.has-service {
+  grid-template-columns: minmax(160px, 1fr) minmax(110px, 160px) minmax(
+      110px,
+      160px
+    );
+}
+.checklist-config-shell .checklist-price-head {
+  color: var(--config-muted);
+  opacity: 1;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.checklist-config-shell .checklist-price-label {
+  color: var(--config-ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+.checklist-config-shell .checklist-config-duration {
+  max-width: 320px;
+  padding-top: 4px;
+}
+.checklist-config-shell .checklist-config-ai {
+  gap: 10px;
+}
+.checklist-config-shell .checklist-ai-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--config-border);
+  border-radius: 10px;
+  background: var(--config-soft);
+  color: var(--config-ink);
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.checklist-config-shell .checklist-ai-switch input {
+  appearance: none;
+  position: relative;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 20px;
+  margin: 0;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 999px;
+  background: var(--ui-border-strong);
+  cursor: pointer;
+}
+.checklist-config-shell .checklist-ai-switch input::before {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 18%);
+  content: '';
+}
+.checklist-config-shell .checklist-ai-switch input:checked {
+  border-color: var(--ui-primary);
+  background: var(--ui-primary);
+}
+.checklist-config-shell .checklist-ai-switch input:checked::before {
+  transform: translateX(14px);
+}
+.checklist-config-shell .checklist-ai-switch input:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.checklist-config-shell .checklist-criteria-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.checklist-config-shell .checklist-criterion {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--config-border);
+  border-radius: 10px;
+  background: var(--ui-bg);
+}
+.checklist-config-shell .checklist-criterion .checklist-field-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.checklist-config-shell .checklist-criterion-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  padding: 2px 5px;
+  color: var(--ui-danger-text);
+  font-size: 11px;
+}
+.checklist-config-shell .checklist-banner {
+  margin: 0;
+  padding: 10px 12px;
+  border-color: var(--config-border);
+  border-radius: 10px;
+  background: var(--ui-surface);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.checklist-config-shell .checklist-banner.is-warning {
+  border-color: var(--ui-warning);
+  background: var(--ui-warning-soft);
+}
+.checklist-config-shell .checklist-config-form > [role='status'] {
+  border-color: var(--ui-success);
+  background: var(--ui-success-soft);
+  color: var(--ui-success-text);
+}
+.checklist-config-shell .checklist-config-form > .checklist-form-actions {
+  position: sticky;
+  z-index: 2;
+  bottom: 0;
+  margin: 0;
+  padding: 12px 0;
+  border-color: var(--config-border);
+  background: var(--ui-bg);
+}
+.checklist-config-shell .checklist-form-actions .ui-btn {
+  min-height: 38px;
+  padding-inline: 17px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.checklist-config-shell .checklist-form-actions .ui-btn.is-primary {
+  box-shadow: 0 5px 12px rgb(23 104 238 / 18%);
+}
+.checklist-config-shell button:focus-visible,
+.checklist-config-shell input:focus-visible,
+.checklist-config-shell textarea:focus-visible,
+.checklist-config-shell select:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 2px;
+}
+.checklist-config-shell .checklist-history > li {
+  border-color: var(--config-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+}
+:root[data-theme='dark'] .checklist-config-shell {
+  --config-ink: var(--ui-text);
+  --config-muted: var(--ui-text-3);
+  --config-border: var(--ui-border);
+  --config-soft: #172b48;
+}
+:root[data-theme='dark'] .checklist-config-shell .ui-modal-header {
+  background: linear-gradient(110deg, #14233a, #192d48);
+}
+@media (max-width: 640px) {
+  .checklist-config-shell .ui-modal-header {
+    padding: 16px;
+  }
+  .checklist-config-shell .ui-modal-body {
+    padding: 10px 14px 0;
+  }
+  .checklist-config-shell .ui-modal-title {
+    font-size: 17px;
+  }
+  .checklist-config-shell .checklist-section {
+    padding: 10px 12px 12px;
+  }
+  .checklist-config-shell .checklist-tab {
+    padding-inline: 6px;
+    gap: 5px;
+    font-size: 11px;
+  }
+  .checklist-config-shell .checklist-criteria-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .checklist-config-shell .checklist-price-grid {
+    grid-template-columns: minmax(130px, 1fr) minmax(70px, 100px);
+    gap: 8px;
+    padding: 8px;
+  }
+  .checklist-config-shell .checklist-price-grid.has-service {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .checklist-config-shell .checklist-price-grid.has-service > [aria-hidden],
+  .checklist-config-shell
+    .checklist-price-grid.has-service
+    .checklist-price-label {
+    grid-column: 1 / -1;
+  }
+  .checklist-config-shell .checklist-price-grid.has-service > [aria-hidden] {
+    display: none;
+  }
+  .checklist-config-shell .checklist-device-type-add {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

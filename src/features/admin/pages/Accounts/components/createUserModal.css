@@ -1,0 +1,163 @@
+.accounts-create-dialog .ui-modal {
+  border: 1px solid var(--ui-border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.accounts-create-dialog .ui-modal-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--ui-border);
+  background: linear-gradient(110deg, var(--ui-primary-soft), var(--ui-surface));
+}
+.accounts-create-dialog .ui-modal-title {
+  font-size: 17px;
+}
+.accounts-create-dialog .ui-modal-subtitle {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.accounts-create-dialog .ui-modal-body {
+  padding: 20px 22px;
+}
+.accounts-create-form {
+  display: grid;
+  gap: 20px;
+}
+.accounts-create-section {
+  min-width: 0;
+}
+.accounts-create-section h3 {
+  margin: 0 0 12px;
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+.accounts-create-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.accounts-create-form .adm-form-field {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  min-width: 0;
+  margin: 0;
+}
+.accounts-create-form .adm-label {
+  margin: 0;
+  color: var(--ui-text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.accounts-create-dialog .accounts-create-form .odm-inp {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 9px;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-size: 13px;
+  outline: none;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+.accounts-create-form .odm-inp:focus-visible {
+  border-color: var(--ui-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 12%, transparent);
+}
+.accounts-create-dialog .odm-inp[aria-invalid='true'] {
+  border-color: var(--ui-danger);
+}
+.accounts-create-dialog .adm-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.accounts-create-dialog .adm-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  text-align: left;
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease;
+}
+.accounts-create-dialog .adm-choice:hover:not(:disabled) {
+  border-color: var(--ui-primary);
+}
+.accounts-create-dialog .adm-choice.is-selected {
+  border-color: var(--ui-primary);
+  background: color-mix(in srgb, var(--ui-primary) 6%, var(--ui-surface));
+}
+.accounts-create-dialog .adm-choice:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 3px;
+}
+.accounts-create-dialog .adm-choice-radio {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.accounts-create-dialog .adm-choice-text {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.accounts-create-dialog .adm-choice-text small {
+  color: var(--ui-text-3);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.accounts-create-invitation {
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px solid var(--ui-border);
+  border-radius: 9px;
+  background: var(--ui-bg);
+  color: var(--ui-text-2);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.accounts-create-dialog .ui-modal-footer {
+  gap: 10px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--ui-border);
+  background: var(--ui-surface);
+}
+.accounts-create-dialog .ui-modal-footer .odm-btn {
+  min-height: 38px;
+  border-radius: 9px;
+}
+.accounts-create-dialog button:disabled {
+  cursor: not-allowed;
+}
+@media (max-width: 520px) {
+  .accounts-create-fields,
+  .accounts-create-dialog .adm-choice-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .accounts-create-dialog .ui-modal-header,
+  .accounts-create-dialog .ui-modal-body {
+    padding: 18px;
+  }
+  .accounts-create-dialog .ui-modal-footer {
+    padding: 14px 18px;
+  }
+}
+
+.accounts-create-dialog .ui-modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--ui-primary);
+  color: var(--ui-on-primary);
+}

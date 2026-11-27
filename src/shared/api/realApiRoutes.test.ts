@@ -18,6 +18,9 @@ describe('parseRealApiRoutes', () => {
 })
 
 describe('matchesRealApiRoute', () => {
+  it('uses historical trace routes in hybrid mode', () => {
+    expect(matchesRealApiRoute(env.realApiRoutes, 'GET', '/api/admin/ai-ops/traces/AI-123')).toBe(true)
+  })
   it('matches trailing wildcard for collection and detail', () => {
     expect(matchesRealApiRoute(routes, 'GET', '/api/admin/users')).toBe(true)
     expect(matchesRealApiRoute(routes, 'GET', '/api/admin/users/u1')).toBe(true)
@@ -91,5 +94,16 @@ describe('matchesRealApiRoute', () => {
     expect(
       matchesRealApiRoute(env.realApiRoutes, 'GET', '/api/notifications'),
     ).toBe(true)
+  })
+  it('sends AI settings reads and writes to the real backend', () => {
+    for (const method of ['GET', 'PUT']) {
+      expect(
+        matchesRealApiRoute(
+          env.realApiRoutes,
+          method,
+          '/api/admin/config/checklist-image-ai',
+        ),
+      ).toBe(true)
+    }
   })
 })

@@ -7,6 +7,12 @@ export type VariableSpec = {
   description: string
 }
 
+export type PromptRuntimeModel = {
+  provider: string | null
+  model: string | null
+  configured: boolean
+}
+
 export type PromptSummaryView = {
   id: string
   promptKey: string
@@ -15,6 +21,7 @@ export type PromptSummaryView = {
   feature: string
   promptType: string
   modelBinding: string
+  runtimeModel?: PromptRuntimeModel | null
   languages: string
   variableSchema: VariableSpec[]
   activeVersionId: string | null

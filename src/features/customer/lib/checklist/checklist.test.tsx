@@ -84,14 +84,14 @@ describe('Order checklist state and editor', () => {
 
     render(<Editor />)
     await screen.findByText('First')
-    expect(screen.queryByRole('region', { name: 'First' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('region', { name: 'First' }),
+    ).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Mở chi tiết: First' }))
     const details = await screen.findByRole('region', { name: 'First' })
     expect(within(details).getByText('First description')).toBeInTheDocument()
-    const evidenceCount = screen.getByLabelText(
-      'Số bằng chứng tối thiểu 1',
-    )
+    const evidenceCount = screen.getByLabelText('Số ảnh yêu cầu 1')
     fireEvent.change(evidenceCount, { target: { value: '2' } })
     expect(evidenceCount).toHaveValue(2)
 
@@ -100,8 +100,12 @@ describe('Order checklist state and editor', () => {
       await screen.findByText('1/2 nội dung được chọn'),
     ).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Đóng chi tiết: First' }))
-    expect(screen.queryByRole('region', { name: 'First' })).not.toBeInTheDocument()
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Đóng chi tiết: First' }),
+    )
+    expect(
+      screen.queryByRole('region', { name: 'First' }),
+    ).not.toBeInTheDocument()
   })
 
   it('blocks saving an empty edited checklist and allows a custom-only item', () => {
@@ -378,8 +382,12 @@ describe('Order checklist state and editor', () => {
     expect(custom).toHaveValue('Edited custom')
     expect(screen.getByText(/Tải lại sẽ bỏ toàn bộ/)).toBeInTheDocument()
     expect(load).toHaveBeenCalledTimes(1)
-    fireEvent.click(screen.getByRole('button', { name: 'Tải lại danh sách (bỏ chỉnh sửa)' }))
-    await waitFor(() => expect(screen.queryByLabelText('Nội dung giám sát 3')).toBeNull())
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Tải lại danh sách (bỏ chỉnh sửa)' }),
+    )
+    await waitFor(() =>
+      expect(screen.queryByLabelText('Nội dung giám sát 3')).toBeNull(),
+    )
     expect(load).toHaveBeenCalledTimes(2)
   })
 
@@ -396,14 +404,24 @@ describe('Order checklist state and editor', () => {
       ),
     ).toBeInTheDocument()
     expect(screen.getAllByText(/Mặc định của dịch vụ/)).toHaveLength(2)
-    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveTextContent('First')
+    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveTextContent(
+      'First',
+    )
     fireEvent.click(
       screen.getAllByRole('button', { name: 'Bỏ khỏi yêu cầu' })[0],
     )
-    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveAttribute('aria-readonly', 'true')
-    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveTextContent('First')
+    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveAttribute(
+      'aria-readonly',
+      'true',
+    )
+    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveTextContent(
+      'First',
+    )
     fireEvent.click(screen.getByRole('button', { name: 'Thêm lại' }))
-    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveAttribute('aria-readonly', 'true')
+    expect(screen.getByLabelText('Nội dung giám sát 1')).toHaveAttribute(
+      'aria-readonly',
+      'true',
+    )
     fireEvent.click(screen.getByRole('button', { name: '+ Thêm nội dung' }))
     fireEvent.change(screen.getByLabelText('Nội dung giám sát 3'), {
       target: { value: 'Custom' },
@@ -455,9 +473,7 @@ describe('Order checklist state and editor', () => {
     expect(content).toHaveAttribute('aria-readonly', 'true')
     fireEvent.click(screen.getByRole('button', { name: 'Xong' }))
 
-    expect(
-      screen.getByRole('button', { name: 'Sửa: First' }),
-    ).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'Sửa: First' })).toHaveFocus()
     fireEvent.click(screen.getByRole('button', { name: 'Dạng nhóm' }))
     expect(screen.getByText('First')).toBeInTheDocument()
     expect(
@@ -717,4 +733,41 @@ it('order detail renders stored snapshot in order, read only, without loading cu
   expect(within(region).queryByRole('textbox')).not.toBeInTheDocument()
   expect(within(region).queryByRole('button')).not.toBeInTheDocument()
   expect(load).not.toHaveBeenCalled()
+})
+
+it('explains total requested videos, the included allowance and additional quantity separately', async () => {
+  vi.spyOn(customerApi, 'getServiceChecklist').mockResolvedValue([
+    { ...template()[0], includedImageCount: 0, includedVideoCount: 1 },
+  ])
+  vi.spyOn(customerApi, 'getChecklistCatalog').mockResolvedValue([])
+  function Editor() {
+    const checklist = useOrderChecklist('A')
+    return <ChecklistEditor checklist={checklist} />
+  }
+  render(<Editor />)
+  const quantity = await screen.findByLabelText('Số video yêu cầu 1')
+  const panel = quantity.closest(
+    '.checklist-evidence-requirements',
+  ) as HTMLElement
+  expect(
+    within(panel).getByText('Đã bao gồm trong dịch vụ').nextElementSibling,
+  ).toHaveTextContent('1 video')
+  expect(
+    within(panel).getByText('Bổ sung ngoài định mức').nextElementSibling,
+  ).toHaveTextContent('Không có')
+  expect(
+    within(panel).getByText(
+      'Điều kiện về số lượng khi nghiệm thu: bàn giao đủ 1 video.',
+    ),
+  ).toBeInTheDocument()
+  fireEvent.change(quantity, { target: { value: '3' } })
+  expect(
+    within(panel).getByText('Bổ sung ngoài định mức').nextElementSibling,
+  ).toHaveTextContent('2 video')
+  expect(
+    within(panel).getByText(
+      'Điều kiện về số lượng khi nghiệm thu: bàn giao đủ 3 video.',
+    ),
+  ).toBeInTheDocument()
+  expect(within(panel).queryByText(/0 ảnh/)).not.toBeInTheDocument()
 })

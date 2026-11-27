@@ -210,11 +210,18 @@ export function ManagerPricingPanel({
     status: ChecklistReviewStatus,
     managerNote = item.managerNote ?? '',
   ) {
+    const note = managerNote.trim() || null
+    if (
+      accepted ||
+      (status === item.reviewStatus &&
+        note === (item.managerNote?.trim() || null))
+    )
+      return
     setError(null)
     try {
       await financeApi.reviewChecklist(orderId, item.id, {
         status,
-        managerNote: managerNote.trim() || null,
+        managerNote: note,
         expectedChecklistRevision: query.data?.checklistRevision ?? null,
       })
       toast.success(fb.reviewSaved)

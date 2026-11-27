@@ -16,6 +16,8 @@ import { ServiceModal } from './ServiceModal'
 import { ServicesTable } from './ServicesTable'
 import { servicesTabMessages } from './ServicesTab.messages'
 import { Toolbar } from './Toolbar'
+import { useCatalogFilter } from './useCatalogFilter'
+import { CatalogNoResults } from './CatalogNoResults'
 
 type Dialog =
   | { type: 'form'; service?: AdminService }
@@ -29,6 +31,11 @@ export function ServicesTab() {
     (signal) => catalogApi.listServices(signal).then((r) => r.map(mapService)),
     [],
   )
+  const { rows, controls } = useCatalogFilter(
+    data,
+    (item) => `${item.name} ${item.description}`,
+    (item) => item.isActive,
+  )
 
   function done() {
     setDialog(null)
@@ -36,19 +43,32 @@ export function ServicesTab() {
   }
 
   return (
-    <div>
-      <Toolbar createLabel={t.add} onCreate={() => setDialog({ type: 'form' })} />
+    <div className="catalog-tab-content">
+      <Toolbar
+        createLabel={t.add}
+        onCreate={() => setDialog({ type: 'form' })}
+        filters={controls}
+        total={error === undefined ? data?.length : undefined}
+        visible={rows.length}
+        loading={loading}
+        onReload={reload}
+      />
       {loading && !data && <LoadingState />}
       {!loading && (error !== undefined || !data) && (
         <ErrorState error={error} onRetry={reload} />
       )}
-      {data && data.length === 0 && (
+      {data && data.length === 0 && !loading && error === undefined && (
         <EmptyState title={t.emptyTitle} description={t.emptyDescription} />
       )}
-      {data && data.length > 0 && (
+      {data &&
+        data.length > 0 &&
+        rows.length === 0 &&
+        !loading &&
+        error === undefined && <CatalogNoResults reset={controls.reset} />}
+      {data && rows.length > 0 && error === undefined && (
         <TableCard>
           <ServicesTable
-            items={data}
+            items={rows}
             onEdit={(service) => setDialog({ type: 'form', service })}
             onDelete={(service) => setDialog({ type: 'delete', service })}
           />
@@ -64,6 +84,7 @@ export function ServicesTab() {
       {dialog?.type === 'delete' && (
         <DeleteConfirmModal
           title={t.deleteTitle}
+          description={t.deleteDescription}
           name={dialog.service.name}
           onConfirm={() => catalogApi.deleteService(dialog.service.id)}
           onClose={() => setDialog(null)}

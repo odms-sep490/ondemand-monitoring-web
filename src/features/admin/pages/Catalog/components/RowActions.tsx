@@ -24,7 +24,7 @@ export function RowActions({
       {onDelete && (
         <button
           type="button"
-          className="odm-btn odm-btn-gh odm-btn-sm"
+          className="odm-btn odm-btn-gh odm-btn-sm catalog-delete-action"
           onClick={onDelete}
           aria-label={`${t.remove} ${label}`}
         >

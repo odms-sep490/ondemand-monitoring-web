@@ -406,8 +406,6 @@ function Routes() {
       </RouteContent>
     )
   if (hash === '#auth/login') {
-    if (status === 'loading' || status === 'unavailable')
-      return <SessionFeedback />
     return (
       <RouteContent>
         <AuthPage key="login" initialMode="login" />

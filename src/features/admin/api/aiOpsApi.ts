@@ -143,6 +143,9 @@ export type TraceSpan = {
   name: string
   durationMs: number
   status: string
+  versionId?: string | null
+  contentHash?: string | null
+  staleCacheUsed?: boolean | null
 }
 
 export type AiTraceView = {
@@ -305,7 +308,19 @@ export type AiOverviewView = {
 
 const BASE = '/api/admin/ai-ops'
 
+export type ChecklistVisionResult = {
+  findings: Array<{ code: string; verdict: string; observation: string }>
+}
+
 export const aiOpsApi = {
+  runChecklistVision: (image: File, promptVersionId: string, criteria: string[], language: string) => {
+    const body = new FormData()
+    body.append('image', image)
+    body.append('promptVersionId', promptVersionId)
+    body.append('criteria', JSON.stringify(criteria))
+    body.append('language', language)
+    return apiRequest<ChecklistVisionResult>(`${BASE}/checklist-vision/playground`, { method: 'POST', body })
+  },
   getOverview: (signal?: AbortSignal) =>
     apiRequest<AiOverviewView>(`${BASE}/overview`, { signal }),
   listModels: (signal?: AbortSignal) =>
@@ -329,6 +344,8 @@ export const aiOpsApi = {
     apiRequest<ServiceHealthView[]>(`${BASE}/services`, { signal }),
   listTraces: (limit = 80, signal?: AbortSignal) =>
     apiRequest<AiTraceView[]>(`${BASE}/traces?limit=${limit}`, { signal }),
+  getTrace: (traceId: string) =>
+    apiRequest<AiTraceView>(`${BASE}/traces/${encodeURIComponent(traceId)}`),
   listEvaluations: (signal?: AbortSignal) =>
     apiRequest<AiEvaluationView[]>(`${BASE}/evaluations`, { signal }),
   syncEvaluations: () =>

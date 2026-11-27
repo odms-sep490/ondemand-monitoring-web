@@ -6,11 +6,13 @@ export function Pager({
   totalPages,
   totalItems,
   onPage,
+  disabled = false,
 }: {
   page: number
   totalPages: number
   totalItems: number
   onPage: (page: number) => void
+  disabled?: boolean
 }) {
   const { t } = useI18n(pagerMessages)
   return (
@@ -22,7 +24,7 @@ export function Pager({
         <button
           type="button"
           className="odm-btn odm-btn-gh odm-btn-sm"
-          disabled={page <= 0}
+          disabled={disabled || page <= 0}
           onClick={() => onPage(page - 1)}
         >
           {t.prev}
@@ -33,7 +35,7 @@ export function Pager({
         <button
           type="button"
           className="odm-btn odm-btn-gh odm-btn-sm"
-          disabled={page + 1 >= totalPages}
+          disabled={disabled || page + 1 >= totalPages}
           onClick={() => onPage(page + 1)}
         >
           {t.next}

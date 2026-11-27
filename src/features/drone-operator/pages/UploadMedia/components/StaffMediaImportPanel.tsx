@@ -1,3 +1,4 @@
+import { Icon } from '../../../../../shared/components/Icon'
 import { createStaffUploadIntent } from '../../../../media/upload/staffUploadIntent'
 import './StaffMediaImportPanel.css'
 import { useEffect, useRef, useState } from 'react'
@@ -198,6 +199,9 @@ export function StaffMediaImportPanel({
                 className={`staff-media-import__badge${ready[index] ? ' is-ready' : ''}`}
               >
                 {ready[index] ? t.ready : t.review}
+              </span>
+              <span className="staff-media-import__expand" aria-hidden="true">
+                <Icon name="chevron-down" width={16} height={16} />
               </span>
             </summary>
             <div className="staff-media-import__fields">

@@ -331,6 +331,7 @@ async function request<T>(path: string, options: RequestOptions = {}) {
   } catch {
     throw new AuthApiError(
       'Unable to reach the authentication service. Please try again.',
+      'AUTH_SERVICE_UNAVAILABLE',
     )
   }
 

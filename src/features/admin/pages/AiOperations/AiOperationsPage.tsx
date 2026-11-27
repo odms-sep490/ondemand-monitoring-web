@@ -42,6 +42,7 @@ import {
 } from '../../api/aiOpsApi'
 import { adminHref } from '../../routes'
 import { PromptManagementWorkspace } from './PromptManagementWorkspace'
+import { IncidentTraceLinks } from './IncidentTraceLinks'
 import './aiOperations.css'
 
 const TABS: Array<{ id: AiOpsTab; label: string }> = [
@@ -62,6 +63,7 @@ const STATUS_META: Record<string, { label: string; color: string }> = {
   DEGRADED: { label: 'Suy giảm', color: 'orange' },
   OFFLINE: { label: 'Ngoại tuyến', color: 'red' },
   IDLE: { label: 'Sẵn sàng', color: 'blue' },
+  UNCONFIGURED: { label: 'Chưa cấu hình', color: 'orange' },
   LOADING: { label: 'Đang tải', color: 'gold' },
   DISABLED: { label: 'Đã tắt', color: 'default' },
 }
@@ -223,6 +225,23 @@ export function AiOperationsPage({
     const targetHash = adminHref({ screen: 'aiOps', tab: next })
     if (window.location.hash !== targetHash) {
       window.history.replaceState(null, '', targetHash)
+    }
+  }
+
+  const openIncidentTrace = async (traceId: string) => {
+    setError('')
+    try {
+      let trace = traces.find(item => item.traceId === traceId)
+      if (!trace) {
+        trace = await aiOpsApi.getTrace(traceId)
+        if (trace.traceId !== traceId) throw new Error('Máy chủ trả về mã truy vết không khớp.')
+        const linkedTrace = trace
+        setTraces(current => [linkedTrace, ...current.filter(item => item.id !== linkedTrace.id)])
+      }
+      setSelectedTraceId(trace.id)
+      switchTab('tracing')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Không thể tải truy vết liên kết.')
     }
   }
 
@@ -489,7 +508,8 @@ export function AiOperationsPage({
     const q = auditSearch.trim().toLowerCase()
     if (!q) return traces
     return traces.filter((t) =>
-      [t.traceId, t.modelCode, t.feature, t.userRole, t.resourceId, t.validationStatus]
+      [t.traceId, t.modelCode, t.feature, t.userRole, t.resourceId, t.inputRef, t.outputRef,
+        t.validationStatus, t.securityDecision, ...t.spans.map(sp => sp.versionId)]
         .join(' ')
         .toLowerCase()
         .includes(q),
@@ -731,6 +751,7 @@ export function AiOperationsPage({
                         <strong>{inc.title}</strong>
                       </Space>
                       <p>{inc.summary}</p>
+                      <IncidentTraceLinks text={`${inc.summary}\n${inc.recommendedAction ?? ''}`} onOpen={id => void openIncidentTrace(id)} />
                       {inc.recommendedAction && (
                         <small>Khuyến nghị: {inc.recommendedAction}</small>
                       )}
@@ -784,7 +805,8 @@ export function AiOperationsPage({
                       <td>
                         <strong>{m.name}</strong>
                         <div className="aiops-cell-sub">
-                          {m.code} · {m.version} · {m.modelSize}
+                          {m.code}
+                          {m.code !== 'checklist-image-vision' && <> · {m.version} · {m.modelSize}</>}
                         </div>
                       </td>
                       <td>
@@ -794,13 +816,13 @@ export function AiOperationsPage({
                       <td>
                         <div>{m.runtime}</div>
                         <div className="aiops-cell-sub">
-                          {m.device} · {m.endpoint}
+                          {m.device && <>{m.device} · </>}{m.endpoint}
                         </div>
                       </td>
                       <td>
                         <div>{m.source}</div>
                         <div className="aiops-cell-sub">
-                          {m.license} · SHA: {m.checksumSha256}
+                          {m.license}{m.code !== 'checklist-image-vision' && <> · SHA: {m.checksumSha256}</>}
                         </div>
                       </td>
                       <td>
@@ -830,7 +852,9 @@ export function AiOperationsPage({
                             icon={<SettingOutlined />}
                             onClick={() => {
                               setConfigTarget(m)
-                              setConfigDraft(JSON.stringify(m.config ?? {}, null, 2))
+                              setConfigDraft(JSON.stringify(m.code === 'checklist-image-vision'
+                                ? { ...(m.source === 'Ollama' ? { temperature: 0 } : {}), timeoutSec: m.source === 'Ollama' ? 90 : 25, ...m.config }
+                                : m.config ?? {}, null, 2))
                             }}
                           >
                             Cấu hình
@@ -907,6 +931,7 @@ export function AiOperationsPage({
                   >
                     <div className="aiops-trace-item-top">
                       <strong>{tr.traceId}</strong>
+                      {tr.securityDecision === 'BLOCK' && <Tag color="red">Đã chặn</Tag>}
                       <Tag color={tr.httpStatus < 400 ? 'green' : 'red'}>
                         HTTP {tr.httpStatus}
                       </Tag>
@@ -938,6 +963,10 @@ export function AiOperationsPage({
                 </div>
 
                 <dl className="aiops-kv-grid">
+                  <div><dt>Mã tương quan</dt><dd><code>{selectedTrace.traceId}</code></dd></div>
+                  <div><dt>Rào chắn</dt><dd><Tag color={selectedTrace.securityDecision === 'BLOCK' ? 'red' : 'default'}>{SECURITY_DECISION_LABEL[selectedTrace.securityDecision] ?? selectedTrace.securityDecision}</Tag></dd></div>
+                  <div><dt>Tham chiếu đầu vào</dt><dd>{selectedTrace.inputRef || '—'}</dd></div>
+                  <div><dt>Tham chiếu đầu ra</dt><dd>{selectedTrace.outputRef || '—'}</dd></div>
                   <div>
                     <dt>Mô hình</dt>
                     <dd>{selectedTrace.modelCode} ({selectedTrace.modelVersion || 'v1'})</dd>
@@ -976,11 +1005,15 @@ export function AiOperationsPage({
                         <div key={`${sp.name}-${i}`} className="aiops-span-row">
                           <div className="aiops-span-head">
                             <span>{sp.name}</span>
+                            <Tag color={['ERROR', 'BLOCKED', 'BLOCK'].includes(sp.status) ? 'red' : 'default'}>{sp.status}</Tag>
                             <strong>{sp.durationMs} ms</strong>
                           </div>
+                          {sp.versionId && <div className="aiops-cell-sub">Mã ngữ cảnh Prompt: <code>{sp.versionId}</code></div>}
+                          {sp.contentHash && <div className="aiops-cell-sub">Mã băm nội dung: <code>{sp.contentHash}</code></div>}
+                          {sp.staleCacheUsed != null && <div className="aiops-cell-sub">Bộ nhớ đệm cũ: {sp.staleCacheUsed ? 'Có' : 'Không'}</div>}
                           <div className="aiops-track">
                             <span
-                              className={sp.status === 'ERROR' ? 'is-danger' : ''}
+                              className={['ERROR', 'BLOCKED', 'BLOCK'].includes(sp.status) ? 'is-danger' : ''}
                               style={{ width: `${pct}%` }}
                             />
                           </div>
@@ -1741,7 +1774,8 @@ export function AiOperationsPage({
               <table className="aiops-table">
                 <thead>
                   <tr>
-                    <th>Mã truy vết</th>
+                    <th>Mã truy vết / tương quan</th>
+                    <th>Ngữ cảnh / tham chiếu</th>
                     <th>Mô hình</th>
                     <th>Tính năng</th>
                     <th>Vai trò</th>
@@ -1754,7 +1788,15 @@ export function AiOperationsPage({
                 <tbody>
                   {filteredAudits.map((a) => (
                     <tr key={a.id}>
-                      <td><code>{a.traceId}</code></td>
+                      <td><code>{a.traceId}</code><div className="aiops-cell-sub">HTTP {a.httpStatus}</div>
+                        {a.spans.filter(sp => ['ERROR', 'BLOCKED', 'BLOCK'].includes(sp.status)).map((sp, i) => <Tag color="red" key={i}>{sp.status}</Tag>)}
+                      </td>
+                      <td>
+                        {a.spans.filter(sp => sp.versionId).map((sp, i) => <div key={i}><code>{sp.versionId}</code></div>)}
+                        <div className="aiops-cell-sub">Tài nguyên: {a.resourceId || '—'}</div>
+                        <div className="aiops-cell-sub">Đầu vào: {a.inputRef || '—'}</div>
+                        <div className="aiops-cell-sub">Đầu ra: {a.outputRef || '—'}</div>
+                      </td>
                       <td><strong>{a.modelCode}</strong></td>
                       <td>{a.feature}</td>
                       <td><Tag>{a.userRole}</Tag></td>
@@ -1824,6 +1866,7 @@ export function AiOperationsPage({
                       {inc.modelCode && <Tag color="blue">{inc.modelCode}</Tag>}
                     </Space>
                     <p>{inc.summary}</p>
+                    <IncidentTraceLinks text={`${inc.summary}\n${inc.recommendedAction ?? ''}`} onOpen={id => void openIncidentTrace(id)} />
                     {inc.recommendedAction && (
                       <small>Hướng xử lý: {inc.recommendedAction}</small>
                     )}
@@ -1859,9 +1902,13 @@ export function AiOperationsPage({
         confirmLoading={busyKey.startsWith('config:')}
       >
         <p className="aiops-modal-hint">
-          Chỉ cho phép các tham số an toàn: <code>temperature</code>, <code>timeoutSec</code>,{' '}
-          <code>maxTokens</code>, <code>threshold</code>, <code>blurThreshold</code>,{' '}
-          <code>language</code>, <code>sampleRate</code>.
+          {configTarget?.code === 'checklist-image-vision' ? <>
+            Nhiệt độ sinh kết quả (<code>temperature</code>): 0–2. Thời gian chờ (<code>timeoutSec</code>):
+            1–{configTarget.source === 'Ollama' ? 90 : 25} giây. Giới hạn token (<code>maxTokens</code>): 1–4096.
+            Khi bỏ maxTokens, Ollama tự tính theo số tiêu chí, OpenRouter dùng 4096 token.
+          </> : <>Chỉ cho phép các tham số an toàn: <code>temperature</code>, <code>timeoutSec</code>,{' '}
+            <code>maxTokens</code>, <code>threshold</code>, <code>blurThreshold</code>,{' '}
+            <code>language</code>, <code>sampleRate</code>.</>}
         </p>
         <Input.TextArea
           rows={8}

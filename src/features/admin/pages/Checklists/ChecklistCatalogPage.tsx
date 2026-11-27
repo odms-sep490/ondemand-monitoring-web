@@ -4,7 +4,7 @@ import { useI18n } from '../../../../shared/i18n'
 import { LoadingState } from '../../../../shared/components/odm/StateView'
 import {
   Modal,
-  PageHeader,
+  Button,
   Card,
   EmptyState,
   StatusBadge,
@@ -19,6 +19,8 @@ import { checklistError } from './checklistError'
 import { Icon } from '../../../../shared/components/Icon'
 import { ChecklistPagination, ChecklistLoadError } from './ChecklistUi'
 import { ChecklistConfigModal } from './ChecklistConfigModal'
+import { fmtDateTime } from '../../lib/accountStatus'
+import './checklistLibrary.css'
 
 export function ChecklistCatalogPage() {
   const { t, lang } = useI18n(checklistMessages)
@@ -51,58 +53,96 @@ export function ChecklistCatalogPage() {
       setBusy(false)
     }
   }
+  function clearFilters() {
+    setSearch('')
+    setActive('')
+    setPage(0)
+  }
   return (
-    <div className="checklist-page">
-      <PageHeader
-        title={t.title}
-        subtitle={t.catalogSubtitle}
-        actions={
-          <button
-            className="odm-btn odm-btn-p"
-            onClick={() => setEditor('new')}
-          >
-            <Icon name="plus" width={16} height={16} aria-hidden="true" />
-            {t.add}
-          </button>
-        }
-      />
-      <Card flush>
-        <div className="checklist-toolbar">
-          <div className="checklist-search">
-            <Icon name="search" width={16} height={16} aria-hidden="true" />
-            <input
+    <div className="checklist-page checklist-library">
+      <header className="checklist-library-header">
+        <span className="checklist-library-icon" aria-hidden="true">
+          <Icon name="clipboard" width={26} height={26} />
+        </span>
+        <div>
+          <h1>{t.title}</h1>
+          <p>{t.catalogSubtitle}</p>
+        </div>
+        <Button variant="primary" icon="plus" onClick={() => setEditor('new')}>
+          {t.add}
+        </Button>
+      </header>
+      <div className="checklist-library-toolbar">
+        <div className="checklist-library-filters">
+          <label className="checklist-library-filter checklist-library-search">
+            <span>{t.librarySearchLabel}</span>
+            <span className="checklist-library-search-input">
+              <Icon name="search" width={16} height={16} aria-hidden="true" />
+              <input
+                className="odm-inp"
+                type="search"
+                aria-label={t.search}
+                placeholder={t.search}
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value)
+                  setPage(0)
+                }}
+              />
+            </span>
+          </label>
+          <label className="checklist-library-filter">
+            <span>{t.filter}</span>
+            <select
               className="odm-inp"
-              type="search"
-              aria-label={t.search}
-              placeholder={t.search}
-              value={search}
+              aria-label={t.filter}
+              value={active}
               onChange={(e) => {
-                setSearch(e.target.value)
+                setActive(e.target.value)
                 setPage(0)
               }}
-            />
-          </div>
-          <select
-            className="odm-inp"
-            aria-label={t.filter}
-            value={active}
-            onChange={(e) => {
-              setActive(e.target.value)
-              setPage(0)
-            }}
+            >
+              <option value="">{t.all}</option>
+              <option value="true">{t.active}</option>
+              <option value="false">{t.inactive}</option>
+            </select>
+          </label>
+          <Button
+            variant="ghost"
+            icon="x"
+            size="sm"
+            disabled={!search && !active}
+            onClick={clearFilters}
           >
-            <option value="">{t.all}</option>
-            <option value="true">{t.active}</option>
-            <option value="false">{t.inactive}</option>
-          </select>
-          <a
-            className="odm-btn"
+            {t.libraryClear}
+          </Button>
+        </div>
+        <div className="checklist-library-toolbar-actions">
+          <Button
+            icon="activity"
+            onClick={query.reload}
+            disabled={query.loading || busy}
+          >
+            {t.libraryRefresh}
+          </Button>
+          <Button
+            icon="clipboard"
             href={adminHref({ screen: 'serviceChecklists' })}
           >
-            <Icon name="clipboard" width={16} height={16} aria-hidden="true" />
             {t.template}
-          </a>
+          </Button>
         </div>
+      </div>
+      <div className="checklist-library-summary" role="status">
+        {query.loading
+          ? t.libraryLoading
+          : query.error !== undefined
+            ? t.catalogLoadError
+            : query.data
+              ? t.libraryResults(query.data.totalItems)
+              : ''}
+      </div>
+      <Card className="checklist-library-card" flush>
         {error && (
           <p className="checklist-banner is-error" role="alert">
             {error}
@@ -122,19 +162,29 @@ export function ChecklistCatalogPage() {
               <table className="odm-adm-table checklist-table">
                 <thead>
                   <tr>
-                    <th>{t.content}</th>
-                    <th>{t.filter}</th>
-                    <th>{t.evidenceColumn}</th>
-                    <th>{t.usage}</th>
-                    <th>{t.updated}</th>
-                    <th>{t.actions}</th>
+                    <th scope="col">{t.content}</th>
+                    <th scope="col">{t.filter}</th>
+                    <th scope="col">{t.evidenceColumn}</th>
+                    <th scope="col">{t.usage}</th>
+                    <th scope="col">{t.updated}</th>
+                    <th scope="col">{t.actions}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {query.data.items.map((row) => (
                     <tr key={row.id}>
                       <td className="adm-wrap checklist-content-cell">
-                        {row.content}
+                        <span className="checklist-library-content">
+                          {row.content}
+                        </span>
+                        {row.description && (
+                          <span
+                            className="checklist-library-description"
+                            title={row.description}
+                          >
+                            {row.description}
+                          </span>
+                        )}
                       </td>
                       <td>
                         <StatusBadge
@@ -143,13 +193,31 @@ export function ChecklistCatalogPage() {
                           {row.isActive ? t.active : t.inactive}
                         </StatusBadge>
                       </td>
-                      <td className="adm-cell-mono">
-                        {row.includedImageCount ?? 0} {t.imagesShort} ·{' '}
-                        {row.includedVideoCount ?? 0} {t.videosShort}
+                      <td>
+                        <div className="checklist-library-evidence">
+                          <span>
+                            <Icon
+                              name="camera"
+                              width={14}
+                              height={14}
+                              aria-hidden="true"
+                            />
+                            {row.includedImageCount ?? 0} {t.imagesShort}
+                          </span>
+                          <span>
+                            <Icon
+                              name="file-text"
+                              width={14}
+                              height={14}
+                              aria-hidden="true"
+                            />
+                            {row.includedVideoCount ?? 0} {t.videosShort}
+                          </span>
+                        </div>
                       </td>
                       <td>
                         <button
-                          className="odm-btn odm-btn-gh odm-btn-sm"
+                          className="odm-btn odm-btn-gh odm-btn-sm checklist-library-usage"
                           onClick={() => setUsageId(row.id)}
                         >
                           {t.usedBy(
@@ -159,14 +227,14 @@ export function ChecklistCatalogPage() {
                         </button>
                       </td>
                       <td className="adm-cell-mono">
-                        {new Date(
-                          row.updatedAt ?? row.createdAt,
-                        ).toLocaleString(lang === 'vi' ? 'vi-VN' : 'en-US')}
+                        {fmtDateTime(row.updatedAt ?? row.createdAt, lang)}
                       </td>
                       <td>
                         <div className="checklist-actions">
                           <button
-                            className="odm-btn odm-btn-gh odm-btn-sm"
+                            className="odm-btn odm-btn-gh odm-btn-sm checklist-library-configure"
+                            aria-label={t.edit}
+                            title={t.edit}
                             disabled={busy}
                             onClick={() => setEditor(row)}
                           >
@@ -176,14 +244,18 @@ export function ChecklistCatalogPage() {
                               height={15}
                               aria-hidden="true"
                             />
-                            {t.edit}
+                            {t.configure}
                           </button>{' '}
                           <button
                             className={
-                              'odm-btn odm-btn-gh odm-btn-sm' +
+                              'odm-btn odm-btn-gh odm-btn-sm checklist-library-toggle' +
                               (row.isActive ? ' checklist-danger' : '')
                             }
                             disabled={busy}
+                            aria-label={
+                              row.isActive ? t.deactivate : t.reactivate
+                            }
+                            title={row.isActive ? t.deactivate : t.reactivate}
                             onClick={() => void toggle(row)}
                           >
                             {row.isActive ? t.deactivate : t.reactivate}
@@ -195,24 +267,37 @@ export function ChecklistCatalogPage() {
                 </tbody>
               </table>
             </div>
-            {!query.data.items.length && <EmptyState title={t.empty} />}
+            {!query.data.items.length && (
+              <EmptyState
+                title={t.empty}
+                action={
+                  search || active ? (
+                    <Button onClick={clearFilters}>{t.libraryClear}</Button>
+                  ) : undefined
+                }
+              />
+            )}
             <ChecklistPagination
               page={page}
               totalPages={query.data.totalPages}
               first={query.data.first}
               last={query.data.last}
               change={setPage}
+              busy={busy}
             />
           </>
         )}
       </Card>
-      <p className="checklist-banner">{t.future}</p>
+      <p className="checklist-library-hint">
+        <Icon name="shield" width={15} height={15} aria-hidden="true" />
+        <span>{t.future}</span>
+      </p>
       {editor && (
         <ChecklistConfigModal
           checklist={editor === 'new' ? undefined : editor}
           close={() => setEditor(null)}
-          saved={() => {
-            setEditor(null)
+          saved={(updated) => {
+            setEditor(updated ?? null)
             query.reload()
           }}
         />

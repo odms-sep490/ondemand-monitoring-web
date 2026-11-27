@@ -31,15 +31,35 @@
 }
 .service-action-disclosure {
   grid-column: 1 / -1;
+  justify-self: end;
   display: flex;
-  justify-content: flex-end;
-  padding: 6px;
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  background: var(--sf);
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
-.odm-btn.service-action-delete {
-  color: var(--red-solid, #c93838);
+.odm-adm .service-row-actions .service-action-disclosure .service-action-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 6px 14px;
+  border: 1px solid color-mix(in srgb, var(--ui-danger) 22%, var(--ui-border));
+  border-radius: 8px;
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger-text);
+  box-shadow: none;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.odm-adm .service-row-actions .service-action-delete:hover {
+  border-color: var(--ui-danger);
+  background: color-mix(in srgb, var(--ui-danger) 12%, var(--ui-surface));
+}
+.odm-adm .service-row-actions .service-action-delete:focus-visible {
+  outline: 2px solid var(--ui-danger);
+  outline-offset: 2px;
 }
 .service-row-actions a {
   text-decoration: none;

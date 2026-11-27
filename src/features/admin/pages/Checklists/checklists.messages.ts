@@ -4,13 +4,33 @@ export const checklistMessages = defineMessages({
   vi: {
     // Unified configuration
     title: 'Thư viện checklist',
+    librarySearchLabel: 'Tìm kiếm checklist',
+    libraryClear: 'Xóa bộ lọc',
+    libraryRefresh: 'Làm mới',
+    libraryLoading: 'Đang cập nhật danh sách…',
+    libraryResults: (count: number) => `${count} checklist trong danh sách`,
     configTitle: 'Cấu hình checklist',
     configure: 'Cấu hình',
     tabHistory: 'Lịch sử thay đổi',
     historyBack: 'Quay lại cấu hình',
     sectionContent: 'Nội dung',
     sectionEvidence: 'Yêu cầu minh chứng',
-    evidenceConfigHint: 'Số ảnh và video là định mức minh chứng của checklist. Giá Base Checklist được cấu hình riêng trong mục Định giá.',
+    imageCriteriaTitle: 'Tiêu chí đánh giá ảnh bằng AI',
+    imageCriteriaHint:
+      'Mỗi tiêu chí mô tả một điều có thể quan sát trực tiếp trong ảnh. Cần ít nhất một tiêu chí để đánh giá.',
+    imageAssessmentEnabled: 'Bật AI đánh giá ảnh cho checklist',
+    imageAssessmentEnabledHint:
+      'Áp dụng cho cả các đơn đã tạo. Tắt AI vẫn lưu các tiêu chí để dùng khi bật lại. Công tắc toàn hệ thống phải được bật.',
+    imageCriteriaDisabled:
+      'Đánh giá ảnh bằng AI cần ít nhất một ảnh trong định mức của checklist.',
+    imageCriterionLabel: (number: number) => `Tiêu chí ${number}`,
+    imageCriterionRemove: (number: number) => `Xóa tiêu chí ${number}`,
+    imageCriteriaRemove: 'Xóa',
+    imageCriteriaAdd: 'Thêm tiêu chí',
+    imageCriteriaInvalid: (count: number, length: number) =>
+      `Nhập tối đa ${count} tiêu chí. Mỗi tiêu chí phải có từ 1 đến ${length} ký tự.`,
+    evidenceConfigHint:
+      'Số ảnh và video là định mức minh chứng của checklist. Giá Base Checklist được cấu hình riêng trong mục Định giá.',
     deviceTypesTitle: 'Loại thiết bị',
     deviceTypesHint: 'Các loại thiết bị được liên kết với checklist này.',
     deviceTypesEmpty: 'Checklist chưa có loại thiết bị.',
@@ -41,7 +61,7 @@ export const checklistMessages = defineMessages({
     columnService: 'Riêng cho dịch vụ này',
     inheritPlaceholder: 'Dùng mức mặc định',
     sharedWarning: (n: number) =>
-      `Checklist này đang dùng ở ${n} dịch vụ. Sửa nội dung, mô tả hoặc yêu cầu minh chứng sẽ áp dụng cho tất cả các dịch vụ đó. Đơn đã tạo không bị ảnh hưởng.`,
+      `Checklist này đang dùng ở ${n} dịch vụ. Thay đổi nội dung, yêu cầu minh chứng hoặc tiêu chí AI sẽ áp dụng cho đơn mới của các dịch vụ đó.`,
     sharedAck: (n: number) => `Tôi hiểu thay đổi này áp dụng cho ${n} dịch vụ`,
     sharedBadge: (n: number) => `Dùng ở ${n} dịch vụ`,
     usedBy: (services: number, orders: number) =>
@@ -77,6 +97,8 @@ export const checklistMessages = defineMessages({
       executionSteps: 'Các bước thực hiện',
       inputRequirements: 'Đầu vào cần có',
       expectedOutputs: 'Đầu ra cần nộp',
+      imageAssessmentCriteria: 'Tiêu chí đánh giá ảnh bằng AI',
+      imageAssessmentEnabled: 'AI đánh giá ảnh',
       includedImageCount: 'Số ảnh bao gồm',
       includedVideoCount: 'Số video bao gồm',
       basePrice: 'Giá Base Checklist',
@@ -116,7 +138,7 @@ export const checklistMessages = defineMessages({
     guidanceInvalid:
       'Mô tả tối đa 4000 ký tự; mỗi danh sách tối đa 30 dòng, mỗi dòng tối đa 500 ký tự.',
     future:
-      'Thay đổi chỉ áp dụng cho đơn hàng tương lai. Snapshot đơn hàng cũ không đổi.',
+      'Nội dung và tiêu chí được chụp snapshot khi tạo đơn. Công tắc AI áp dụng ngay cho cả các đơn đã tạo.',
     add: 'Thêm checklist',
     edit: 'Sửa checklist',
     content: 'Nội dung',
@@ -154,18 +176,26 @@ export const checklistMessages = defineMessages({
     up: 'Di chuyển lên',
     down: 'Di chuyển xuống',
     pick: 'Thêm checklist vào dịch vụ',
+    addSelected: (count: number) => `Thêm ${count} checklist`,
+    selectedChecklists: (count: number) => `Đã chọn ${count} checklist`,
+    selectPage: 'Chọn tất cả trên trang',
+    unselectPage: 'Bỏ chọn trên trang',
+    clearSelection: 'Bỏ chọn tất cả',
+    partialAssignment: (done: number, total: number) =>
+      `Đã gắn ${done}/${total} checklist. Các mục chưa gắn vẫn được giữ để thử lại.`,
     assign: 'Gán checklist',
     close: 'Đóng',
     noneUsed: 'Chưa có dịch vụ sử dụng.',
     emptyTemplate: 'Chưa có checklist mặc định',
     saving: 'Đang lưu...',
+    configSaved: 'Đã lưu cấu hình checklist.',
     imagesShort: 'ảnh',
     videosShort: 'video',
     includedImages: 'Số ảnh đã bao gồm',
     includedVideos: 'Số video đã bao gồm',
     videoDuration: 'Thời lượng video tiêu chuẩn (giây)',
     invalidPricing:
-      'Evidence allowances must be whole numbers: max 500 images/videos and video duration from 1 to 7200 seconds.',
+      'Số ảnh/video phải là số nguyên, tối đa 500 mỗi loại. Thời lượng video từ 1 đến 7200 giây.',
     evidenceColumn: 'Ảnh / video bao gồm',
     inheritedValue: 'Kế thừa',
     overrideValue: 'Ghi đè',
@@ -181,13 +211,33 @@ export const checklistMessages = defineMessages({
   en: {
     // Unified configuration
     title: 'Checklist library',
+    librarySearchLabel: 'Find a checklist',
+    libraryClear: 'Clear filters',
+    libraryRefresh: 'Refresh',
+    libraryLoading: 'Updating checklists…',
+    libraryResults: (count: number) => `${count} checklists in this list`,
     configTitle: 'Checklist configuration',
     configure: 'Configure',
     tabHistory: 'Change history',
     historyBack: 'Back to configuration',
     sectionContent: 'Content',
     sectionEvidence: 'Evidence requirements',
-    evidenceConfigHint: 'Image and video counts are evidence requirements for the checklist. Configure Base Checklist prices in the Pricing section.',
+    imageCriteriaTitle: 'AI image assessment criteria',
+    imageCriteriaHint:
+      'Describe one thing that can be seen directly in the image per criterion. At least one criterion is required for assessment.',
+    imageAssessmentEnabled: 'Enable AI image assessment for this checklist',
+    imageAssessmentEnabledHint:
+      'Applies to existing orders too. Turning AI off retains the criteria for reuse. The system-wide switch must also be enabled.',
+    imageCriteriaDisabled:
+      'AI image assessment requires at least one image in the checklist allowance.',
+    imageCriterionLabel: (number: number) => `Criterion ${number}`,
+    imageCriterionRemove: (number: number) => `Remove criterion ${number}`,
+    imageCriteriaRemove: 'Remove',
+    imageCriteriaAdd: 'Add criterion',
+    imageCriteriaInvalid: (count: number, length: number) =>
+      `Enter up to ${count} criteria. Each criterion must contain 1 to ${length} characters.`,
+    evidenceConfigHint:
+      'Image and video counts are evidence requirements for the checklist. Configure Base Checklist prices in the Pricing section.',
     deviceTypesTitle: 'Device types',
     deviceTypesHint: 'Device types associated with this checklist.',
     deviceTypesEmpty: 'No device type is associated with this checklist.',
@@ -219,7 +269,7 @@ export const checklistMessages = defineMessages({
     columnService: 'This service only',
     inheritPlaceholder: 'Use default allowance',
     sharedWarning: (n: number) =>
-      `This checklist is used by ${n} services. Changing its content, description or evidence requirements changes all of them. Existing orders are not affected.`,
+      `This checklist is used by ${n} services. Changes to its content, evidence requirements or AI criteria apply to new orders for those services.`,
     sharedAck: (n: number) =>
       `I understand this change applies to ${n} services`,
     sharedBadge: (n: number) => `Used by ${n} services`,
@@ -256,6 +306,8 @@ export const checklistMessages = defineMessages({
       executionSteps: 'Execution steps',
       inputRequirements: 'Required inputs',
       expectedOutputs: 'Expected outputs',
+      imageAssessmentCriteria: 'AI image assessment criteria',
+      imageAssessmentEnabled: 'AI image assessment',
       includedImageCount: 'Included images',
       includedVideoCount: 'Included videos',
       basePrice: 'Base Checklist price',
@@ -295,7 +347,7 @@ export const checklistMessages = defineMessages({
     guidanceInvalid:
       'Description up to 4000 characters; each list up to 30 lines of at most 500 characters.',
     future:
-      'Changes apply only to future orders. Existing order snapshots stay unchanged.',
+      'Content and criteria are captured when an order is created. The AI switch takes effect immediately for existing orders too.',
     add: 'Add checklist',
     edit: 'Edit checklist',
     content: 'Content',
@@ -332,11 +384,19 @@ export const checklistMessages = defineMessages({
     up: 'Move up',
     down: 'Move down',
     pick: 'Add checklist to service',
+    addSelected: (count: number) => `Add ${count} checklists`,
+    selectedChecklists: (count: number) => `${count} checklists selected`,
+    selectPage: 'Select all on this page',
+    unselectPage: 'Deselect this page',
+    clearSelection: 'Clear selection',
+    partialAssignment: (done: number, total: number) =>
+      `${done}/${total} checklists linked. Remaining selections are kept for retry.`,
     assign: 'Assign checklist',
     close: 'Close',
     noneUsed: 'Not used by any service.',
     emptyTemplate: 'No checklist assigned.',
     saving: 'Saving...',
+    configSaved: 'Checklist configuration saved.',
     imagesShort: 'images',
     videosShort: 'videos',
     includedImages: 'Included images',

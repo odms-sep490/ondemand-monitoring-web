@@ -1,13 +1,8 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import {
   CalendarOutlined,
-  CheckCircleFilled,
-  CopyOutlined,
   EditOutlined,
-  GoogleOutlined,
   ClockCircleOutlined,
-  EnvironmentOutlined,
-  IdcardOutlined,
   LockOutlined,
   MailOutlined,
   PhoneOutlined,
@@ -28,17 +23,6 @@ import { PasswordField } from '../../auth/components/PasswordField'
 import { getRoleHomePath } from '../../auth/routing'
 import { StaffLicensesSection } from '../../staff/components/StaffLicensesSection'
 import './UserProfilePage.css'
-
-function roleLabel(role: string | undefined, vi: boolean): string {
-  const labels: Record<string, [string, string]> = {
-    CUSTOMER: ['Khách hàng', 'Customer'],
-    STAFF: ['Nhân viên vận hành', 'Operations staff'],
-    ADMIN: ['Quản trị viên', 'Administrator'],
-    MANAGER: ['Quản lý', 'Manager'],
-  }
-  const pair = role ? labels[role] : undefined
-  return pair ? pair[vi ? 0 : 1] : (role ?? '')
-}
 
 function formatDate(value: string | undefined, vi: boolean): string {
   if (!value) return ''
@@ -160,7 +144,9 @@ function ContactRow({
       </span>
       <div>
         <span className="up-contact-label">{label}</span>
-        <span className={value ? 'up-contact-value' : 'up-contact-value is-empty'}>
+        <span
+          className={value ? 'up-contact-value' : 'up-contact-value is-empty'}
+        >
           {value || empty}
         </span>
       </div>
@@ -190,9 +176,12 @@ function validateForm(
 ): Partial<Record<keyof UserProfileForm, string>> {
   const errors: Partial<Record<keyof UserProfileForm, string>> = {}
   const name = form.fullName.trim()
-  if (!name) errors.fullName = vi ? 'Vui lòng nhập họ tên.' : 'Full name is required.'
+  if (!name)
+    errors.fullName = vi ? 'Vui lòng nhập họ tên.' : 'Full name is required.'
   else if (name.length > 100)
-    errors.fullName = vi ? 'Họ tên tối đa 100 ký tự.' : 'Full name must be at most 100 characters.'
+    errors.fullName = vi
+      ? 'Họ tên tối đa 100 ký tự.'
+      : 'Full name must be at most 100 characters.'
   if (!isCustomer) return errors
   const phone = form.phoneNumber.trim()
   if (phone && !/^[0-9+() .-]{8,20}$/.test(phone))
@@ -200,42 +189,24 @@ function validateForm(
       ? 'Số điện thoại gồm 8-20 ký tự số, khoảng trắng hoặc + ( ) . -'
       : 'Phone must be 8-20 characters: digits, spaces or + ( ) . -'
   if (form.address.trim().length > 500)
-    errors.address = vi ? 'Địa chỉ tối đa 500 ký tự.' : 'Address must be at most 500 characters.'
+    errors.address = vi
+      ? 'Địa chỉ tối đa 500 ký tự.'
+      : 'Address must be at most 500 characters.'
   if (form.companyName.trim().length > 200)
-    errors.companyName = vi ? 'Tên công ty tối đa 200 ký tự.' : 'Company name must be at most 200 characters.'
+    errors.companyName = vi
+      ? 'Tên công ty tối đa 200 ký tự.'
+      : 'Company name must be at most 200 characters.'
   const cccd = form.citizenIdentificationNumber.trim()
   if (cccd && !/^[0-9]{12}$/.test(cccd))
-    errors.citizenIdentificationNumber = vi ? 'Số CCCD gồm đúng 12 chữ số.' : 'Citizen ID must be exactly 12 digits.'
+    errors.citizenIdentificationNumber = vi
+      ? 'Số CCCD gồm đúng 12 chữ số.'
+      : 'Citizen ID must be exactly 12 digits.'
   const tax = form.companyTaxCode.trim()
   if (tax && !/^[0-9]{10}(-[0-9]{3})?$/.test(tax))
     errors.companyTaxCode = vi
       ? 'Mã số thuế gồm 10 chữ số, có thể kèm -XXX.'
       : 'Tax code must be 10 digits, optionally followed by -XXX.'
   return errors
-}
-
-function completeness(data: CurrentUserProfile, vi: boolean) {
-  const f = toForm(data)
-  const items: Array<[string, boolean]> =
-    data.role === 'CUSTOMER'
-      ? [
-          [vi ? 'Họ tên' : 'Full name', Boolean(f.fullName.trim())],
-          [vi ? 'Số điện thoại' : 'Phone', Boolean(f.phoneNumber)],
-          [vi ? 'Địa chỉ' : 'Address', Boolean(f.address)],
-          [vi ? 'Công ty' : 'Company', Boolean(f.companyName)],
-          [vi ? 'Số CCCD' : 'Citizen ID', Boolean(f.citizenIdentificationNumber)],
-          [vi ? 'Mã số thuế' : 'Tax code', Boolean(f.companyTaxCode)],
-        ]
-      : [
-          [vi ? 'Họ tên' : 'Full name', Boolean(f.fullName.trim())],
-          [vi ? 'Ảnh đại diện' : 'Avatar', Boolean(data.avatarUrl)],
-          [vi ? 'Email đã xác minh' : 'Verified email', Boolean(data.emailVerified)],
-        ]
-  const missing = items.filter(([, done]) => !done).map(([label]) => label)
-  return {
-    percent: Math.round(((items.length - missing.length) / items.length) * 100),
-    missing,
-  }
 }
 
 function Avatar({ data }: { data: CurrentUserProfile }) {
@@ -275,7 +246,6 @@ export function UserProfilePage() {
   >({})
   const [saveError, setSaveError] = useState('')
   const [saving, setSaving] = useState(false)
-  const [copied, setCopied] = useState(false)
 
   function startEdit() {
     if (!profile.data) return
@@ -334,17 +304,6 @@ export function UserProfilePage() {
     }
   }
 
-  async function copyId(id: string) {
-    try {
-      await navigator.clipboard.writeText(id)
-      setCopied(true)
-      toast.success(vi ? 'Đã sao chép mã tài khoản.' : 'Account ID copied.')
-      setTimeout(() => setCopied(false), 1800)
-    } catch {
-      toast.error(vi ? 'Không sao chép được.' : 'Unable to copy.')
-    }
-  }
-
   async function submit(event: FormEvent) {
     event.preventDefault()
     if (!canSetLocalPassword(profile.data) || busy || linked) return
@@ -397,19 +356,33 @@ export function UserProfilePage() {
   const data = profile.data
   const isCustomer = data?.role === 'CUSTOMER'
   const phone = data?.customerProfile?.phoneNumber || data?.phoneNumber
-  const progress = data ? completeness(data, vi) : { percent: 0, missing: [] }
-  const edit = (name: keyof UserProfileForm, extra?: Partial<EditSpec>): EditSpec | undefined =>
+  const edit = (
+    name: keyof UserProfileForm,
+    extra?: Partial<EditSpec>,
+  ): EditSpec | undefined =>
     editing && form
-      ? { name, value: form[name], error: formErrors[name], onChange: changeField, ...extra }
+      ? {
+          name,
+          value: form[name],
+          error: formErrors[name],
+          onChange: changeField,
+          ...extra,
+        }
       : undefined
-  const shortId = data?.id ? (data.id.length > 13 ? `${data.id.slice(0, 8)}…${data.id.slice(-4)}` : data.id) : ''
 
   return (
     <main className="user-profile-page">
       <a className="user-profile-back" href={getRoleHomePath(data?.role)}>
         ← {vi ? 'Về trang chính' : 'Back to workspace'}
       </a>
-      <h1 className="up-title">{vi ? 'Hồ sơ cá nhân' : 'My profile'}</h1>
+      <header className="up-page-heading">
+        <h1 className="up-title">{vi ? 'Hồ sơ cá nhân' : 'My profile'}</h1>
+        <p>
+          {vi
+            ? 'Quản lý thông tin cá nhân và thông tin liên hệ của bạn.'
+            : 'Manage your personal details and contact information.'}
+        </p>
+      </header>
 
       {data && (
         <>
@@ -417,7 +390,6 @@ export function UserProfilePage() {
             className="up-hero"
             aria-label={vi ? 'Tổng quan tài khoản' : 'Account overview'}
           >
-            <div className="up-cover" aria-hidden="true" />
             <div className="up-identity">
               <Avatar data={data} />
               <div className="up-identity-text">
@@ -425,24 +397,26 @@ export function UserProfilePage() {
                 <p>{data.email}</p>
               </div>
               <div className="up-badges">
-                <span className="up-badge is-role">{roleLabel(data.role, vi)}</span>
-                {data.active !== undefined && (
-                  <span className={`up-badge ${data.active ? 'is-ok' : 'is-off'}`}>
-                    {data.active
-                      ? vi ? 'Đang hoạt động' : 'Active'
-                      : vi ? 'Đã khóa' : 'Inactive'}
-                  </span>
-                )}
                 {data.emailVerified !== undefined && (
-                  <span className={`up-badge ${data.emailVerified ? 'is-ok' : 'is-warn'}`}>
+                  <span
+                    className={`up-badge ${data.emailVerified ? 'is-ok' : 'is-warn'}`}
+                  >
                     {data.emailVerified
-                      ? vi ? 'Email đã xác minh' : 'Email verified'
-                      : vi ? 'Email chưa xác minh' : 'Email not verified'}
+                      ? vi
+                        ? 'Email đã xác minh'
+                        : 'Email verified'
+                      : vi
+                        ? 'Email chưa xác minh'
+                        : 'Email not verified'}
                   </span>
                 )}
               </div>
               {!editing && (
-                <button type="button" className="up-edit-btn" onClick={startEdit}>
+                <button
+                  type="button"
+                  className="up-edit-btn"
+                  onClick={startEdit}
+                >
                   <EditOutlined /> {vi ? 'Chỉnh sửa hồ sơ' : 'Edit profile'}
                 </button>
               )}
@@ -451,50 +425,19 @@ export function UserProfilePage() {
 
           <div className="up-layout">
             <aside className="up-card up-summary">
-              <div className="up-progress">
-                <div className="up-progress-head">
-                  <h3 className="up-summary-title">
-                    {vi ? 'Độ hoàn thiện hồ sơ' : 'Profile completeness'}
-                  </h3>
-                  <strong>{progress.percent}%</strong>
-                </div>
-                <div
-                  className="up-progress-bar"
-                  role="progressbar"
-                  aria-valuenow={progress.percent}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                >
-                  <span style={{ width: `${progress.percent}%` }} />
-                </div>
-                <p className="up-progress-hint">
-                  {progress.missing.length === 0 ? (
-                    <>
-                      <CheckCircleFilled /> {vi ? 'Hồ sơ đã đầy đủ.' : 'Your profile is complete.'}
-                    </>
-                  ) : (
-                    <>
-                      {vi ? 'Còn thiếu: ' : 'Missing: '}
-                      {progress.missing.join(', ')}
-                    </>
-                  )}
-                </p>
-              </div>
-              <div className="up-summary-divider" />
               <h3 className="up-summary-title">{vi ? 'Liên hệ' : 'Contact'}</h3>
               <ul className="up-contact">
-                <ContactRow icon={<MailOutlined />} label="Email" value={data.email} empty={empty} />
                 <ContactRow
-                  icon={<PhoneOutlined />}
-                  label={vi ? 'Số điện thoại' : 'Phone number'}
-                  value={phone}
+                  icon={<MailOutlined />}
+                  label="Email"
+                  value={data.email}
                   empty={empty}
                 />
-                {isCustomer && (
+                {!isCustomer && (
                   <ContactRow
-                    icon={<EnvironmentOutlined />}
-                    label={vi ? 'Địa chỉ liên hệ' : 'Contact address'}
-                    value={data.customerProfile?.address}
+                    icon={<PhoneOutlined />}
+                    label={vi ? 'Số điện thoại' : 'Phone number'}
+                    value={phone}
                     empty={empty}
                   />
                 )}
@@ -516,121 +459,103 @@ export function UserProfilePage() {
               </ul>
             </aside>
 
-            <form className="up-main" onSubmit={saveProfile} noValidate>
-              <SectionCard
-                icon={<UserOutlined />}
-                title={vi ? 'Thông tin cá nhân' : 'Personal information'}
-              >
-                <Field
-                  label={vi ? 'Họ và tên' : 'Full name'}
-                  value={data.fullName}
-                  empty={empty}
-                  wide={!isCustomer || editing}
-                  edit={edit('fullName', { maxLength: 100 })}
-                />
-                {isCustomer && (
-                  <Field
-                    label={vi ? 'Số điện thoại' : 'Phone number'}
-                    value={phone}
-                    empty={empty}
-                    edit={edit('phoneNumber', { maxLength: 20, inputMode: 'tel' })}
-                  />
-                )}
-                {isCustomer && (
-                  <Field
-                    label={vi ? 'Số CCCD' : 'Citizen ID number'}
-                    value={data.customerProfile?.citizenIdentificationNumber}
-                    empty={empty}
-                    edit={edit('citizenIdentificationNumber', { maxLength: 12, inputMode: 'numeric' })}
-                  />
-                )}
-                {isCustomer && (
-                  <Field
-                    label={vi ? 'Địa chỉ liên hệ' : 'Contact address'}
-                    value={data.customerProfile?.address}
-                    empty={empty}
-                    wide
-                    edit={edit('address', { maxLength: 500 })}
-                  />
-                )}
-                {!editing && (
-                  <Field label={vi ? 'Vai trò' : 'Role'} value={roleLabel(data.role, vi)} empty={empty} />
-                )}
-              </SectionCard>
-
-              {isCustomer && (
+            <div className="up-main">
+              <form className="up-edit-form" onSubmit={saveProfile} noValidate>
                 <SectionCard
-                  icon={<ShopOutlined />}
-                  title={vi ? 'Công ty / tổ chức' : 'Company / organization'}
+                  icon={<UserOutlined />}
+                  title={vi ? 'Thông tin cá nhân' : 'Personal information'}
                 >
                   <Field
-                    label={vi ? 'Tên công ty' : 'Company name'}
-                    value={data.customerProfile?.companyName}
+                    label={vi ? 'Họ và tên' : 'Full name'}
+                    value={data.fullName}
                     empty={empty}
-                    edit={edit('companyName', { maxLength: 200 })}
+                    wide={!isCustomer || editing}
+                    edit={edit('fullName', { maxLength: 100 })}
                   />
-                  <Field
-                    label={vi ? 'Mã số thuế' : 'Tax code'}
-                    value={data.customerProfile?.companyTaxCode}
-                    empty={empty}
-                    edit={edit('companyTaxCode', { maxLength: 14 })}
-                  />
-                </SectionCard>
-              )}
-
-              {editing && (
-                <div className="up-actionbar">
-                  {saveError && (
-                    <p className="user-profile-error" role="alert">
-                      {saveError}
-                    </p>
+                  {isCustomer && (
+                    <Field
+                      label={vi ? 'Số điện thoại' : 'Phone number'}
+                      value={phone}
+                      empty={empty}
+                      edit={edit('phoneNumber', {
+                        maxLength: 20,
+                        inputMode: 'tel',
+                      })}
+                    />
                   )}
-                  <button type="button" className="up-btn-ghost" onClick={cancelEdit} disabled={saving}>
-                    {vi ? 'Hủy' : 'Cancel'}
-                  </button>
-                  <button type="submit" className="user-profile-button" disabled={saving}>
-                    {saving ? (vi ? 'Đang lưu…' : 'Saving…') : vi ? 'Lưu thay đổi' : 'Save changes'}
-                  </button>
-                </div>
-              )}
+                  {isCustomer && (
+                    <Field
+                      label={vi ? 'Số CCCD' : 'Citizen ID number'}
+                      value={data.customerProfile?.citizenIdentificationNumber}
+                      empty={empty}
+                      edit={edit('citizenIdentificationNumber', {
+                        maxLength: 12,
+                        inputMode: 'numeric',
+                      })}
+                    />
+                  )}
+                  {isCustomer && (
+                    <Field
+                      label={vi ? 'Địa chỉ liên hệ' : 'Contact address'}
+                      value={data.customerProfile?.address}
+                      empty={empty}
+                      wide
+                      edit={edit('address', { maxLength: 500 })}
+                    />
+                  )}
+                </SectionCard>
 
-              <SectionCard
-                icon={<IdcardOutlined />}
-                title={vi ? 'Tài khoản & bảo mật' : 'Account & security'}
-              >
-                <div className="up-field">
-                  <dt>{vi ? 'Mã tài khoản' : 'Account ID'}</dt>
-                  <dd>
+                {isCustomer && (
+                  <SectionCard
+                    icon={<ShopOutlined />}
+                    title={vi ? 'Công ty / tổ chức' : 'Company / organization'}
+                  >
+                    <Field
+                      label={vi ? 'Tên công ty' : 'Company name'}
+                      value={data.customerProfile?.companyName}
+                      empty={empty}
+                      edit={edit('companyName', { maxLength: 200 })}
+                    />
+                    <Field
+                      label={vi ? 'Mã số thuế' : 'Tax code'}
+                      value={data.customerProfile?.companyTaxCode}
+                      empty={empty}
+                      edit={edit('companyTaxCode', { maxLength: 14 })}
+                    />
+                  </SectionCard>
+                )}
+
+                {editing && (
+                  <div className="up-actionbar">
+                    {saveError && (
+                      <p className="user-profile-error" role="alert">
+                        {saveError}
+                      </p>
+                    )}
                     <button
                       type="button"
-                      className="up-copy"
-                      onClick={() => copyId(data.id)}
-                      title={data.id}
-                      aria-label={vi ? 'Sao chép mã tài khoản' : 'Copy account ID'}
+                      className="up-btn-ghost"
+                      onClick={cancelEdit}
+                      disabled={saving}
                     >
-                      <code>{shortId}</code>
-                      {copied ? <CheckCircleFilled /> : <CopyOutlined />}
+                      {vi ? 'Hủy' : 'Cancel'}
                     </button>
-                  </dd>
-                </div>
-                <div className="up-field">
-                  <dt>{vi ? 'Phương thức đăng nhập' : 'Sign-in methods'}</dt>
-                  <dd>
-                    {(data.linkedProviders ?? []).length === 0 ? (
-                      <span className="is-empty">{empty}</span>
-                    ) : (
-                      <span className="up-chips">
-                        {data.linkedProviders.map((p) => (
-                          <span key={p} className={`up-chip is-${p.toLowerCase()}`}>
-                            {p === 'GOOGLE' ? <GoogleOutlined /> : <MailOutlined />}
-                            {p === 'GOOGLE' ? 'Google' : vi ? 'Email và mật khẩu' : 'Email and password'}
-                          </span>
-                        ))}
-                      </span>
-                    )}
-                  </dd>
-                </div>
-              </SectionCard>
+                    <button
+                      type="submit"
+                      className="user-profile-button"
+                      disabled={saving}
+                    >
+                      {saving
+                        ? vi
+                          ? 'Đang lưu…'
+                          : 'Saving…'
+                        : vi
+                          ? 'Lưu thay đổi'
+                          : 'Save changes'}
+                    </button>
+                  </div>
+                )}
+              </form>
 
               {data.role === 'STAFF' && data.id ? (
                 <div className="up-card up-licenses">
@@ -679,15 +604,23 @@ export function UserProfilePage() {
                         {error}
                       </p>
                     )}
-                    <button className="user-profile-button" type="submit" disabled={busy}>
+                    <button
+                      className="user-profile-button"
+                      type="submit"
+                      disabled={busy}
+                    >
                       {busy
-                        ? vi ? 'Đang lưu…' : 'Saving…'
-                        : vi ? 'Đặt mật khẩu' : 'Set password'}
+                        ? vi
+                          ? 'Đang lưu…'
+                          : 'Saving…'
+                        : vi
+                          ? 'Đặt mật khẩu'
+                          : 'Set password'}
                     </button>
                   </form>
                 </section>
               )}
-            </form>
+            </div>
           </div>
         </>
       )}

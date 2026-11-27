@@ -1,7 +1,12 @@
 import { useI18n } from '../../../../../shared/i18n'
 import { RoleBadge } from '../../../components/common/RoleBadge'
 import { StatusBadge, toUiTone } from '../../../../../shared/components/ui'
-import { fmtDateTime, getAccountStatusMeta } from '../../../lib/accountStatus'
+import {
+  fmtDate,
+  fmtDateTime,
+  getAccountStatusMeta,
+} from '../../../lib/accountStatus'
+import { Icon } from '../../../../../shared/components/Icon'
 import type { AdminAccountItem } from '../../../types/accounts'
 import { AccountActions } from './AccountActions'
 import { accountsTableMessages } from './AccountsTable.messages'
@@ -20,23 +25,23 @@ export function AccountsTable({
   items,
   onEdit,
   onLock,
-  onResetPassword,
 }: {
   items: AdminAccountItem[]
   onEdit: (a: AdminAccountItem) => void
   onLock: (a: AdminAccountItem) => void
-  onResetPassword: (a: AdminAccountItem) => void
 }) {
   const { t, lang } = useI18n(accountsTableMessages)
   return (
-    <table className="odm-adm-table">
+    <table className="odm-adm-table accounts-table" aria-label={t.tableLabel}>
       <thead>
         <tr>
-          <th>{t.columnUser}</th>
-          <th>{t.columnRole}</th>
-          <th>{t.columnStatus}</th>
-          <th>{t.columnLastLogin}</th>
-          <th className="adm-text-right">{t.columnActions}</th>
+          <th scope="col">{t.columnUser}</th>
+          <th scope="col">{t.columnRole}</th>
+          <th scope="col">{t.columnStatus}</th>
+          <th scope="col">{t.columnLastLogin}</th>
+          <th scope="col" className="adm-text-right">
+            {t.columnActions}
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -46,10 +51,13 @@ export function AccountsTable({
             <tr key={acc.id}>
               <td>
                 <div className="adm-cell-user">
-                  <span className="odm-adm-avatar" aria-hidden="true">
+                  <span
+                    className={`accounts-avatar is-${acc.role.toLowerCase()}`}
+                    aria-hidden="true"
+                  >
                     {initials(acc.fullName)}
                   </span>
-                  <div>
+                  <div className="accounts-identity">
                     <button
                       type="button"
                       className="adm-list-link"
@@ -68,21 +76,39 @@ export function AccountsTable({
                 <StatusBadge tone={toUiTone(meta.tone)}>
                   {meta.label}
                 </StatusBadge>
-                {!acc.emailVerified && (
-                  <div className="odm-adm-subnote odm-adm-subnote-warn">
-                    {t.unverifiedEmail}
-                  </div>
-                )}
+                <div
+                  className={`accounts-verification ${acc.emailVerified ? 'is-verified' : 'is-unverified'}`}
+                >
+                  <Icon
+                    name={acc.emailVerified ? 'check' : 'mail'}
+                    width={13}
+                    height={13}
+                    aria-hidden="true"
+                  />
+                  {acc.emailVerified ? t.verifiedEmail : t.unverifiedEmail}
+                </div>
               </td>
               <td className="adm-cell-mono">
-                {acc.lastLoginAt ? fmtDateTime(acc.lastLoginAt, lang) : '—'}
+                <span
+                  className={
+                    acc.lastLoginAt
+                      ? 'accounts-last-login'
+                      : 'accounts-never-login'
+                  }
+                >
+                  {acc.lastLoginAt
+                    ? fmtDateTime(acc.lastLoginAt, lang)
+                    : t.neverLoggedIn}
+                </span>
+                <div className="accounts-created-at">
+                  {t.createdAt(fmtDate(acc.createdAt, lang))}
+                </div>
               </td>
               <td>
                 <AccountActions
                   account={acc}
                   onEdit={() => onEdit(acc)}
                   onLock={() => onLock(acc)}
-                  onResetPassword={() => onResetPassword(acc)}
                 />
               </td>
             </tr>

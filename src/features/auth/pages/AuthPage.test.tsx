@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { resetMockDb } from '../../../mocks/db'
 import { setLanguage } from '../../../shared/i18n'
-import { authSession } from '../api/authApi'
+import { authSession, authApi, AuthApiError } from '../api/authApi'
 import { AuthPage } from './AuthPage'
 
 function fillLoginForm(email: string, password: string) {
@@ -152,4 +152,91 @@ describe('AuthPage - language', () => {
     expect(screen.getByLabelText('Password')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Log in' })).toBeInTheDocument()
   })
+})
+
+describe('AuthPage - localized service errors', () => {
+  afterEach(() => setLanguage('vi'))
+
+  it.each([
+    [
+      'vi',
+      'login',
+      'Không thể kết nối đến dịch vụ xác thực. Vui lòng thử lại.',
+    ],
+    [
+      'en',
+      'login',
+      'Unable to reach the authentication service. Please try again.',
+    ],
+    [
+      'vi',
+      'register',
+      'Không thể kết nối đến dịch vụ xác thực. Vui lòng thử lại.',
+    ],
+    [
+      'en',
+      'register',
+      'Unable to reach the authentication service. Please try again.',
+    ],
+  ] as const)(
+    'localizes %s / %s connection failures',
+    async (language, mode, message) => {
+      setLanguage(language)
+      vi.spyOn(authApi, mode).mockRejectedValue(
+        new AuthApiError(
+          'Unable to reach the authentication service. Please try again.',
+          'AUTH_SERVICE_UNAVAILABLE',
+        ),
+      )
+      render(<AuthPage initialMode={mode} />)
+      fireEvent.change(screen.getByLabelText('Email'), {
+        target: { value: 'test@example.com' },
+      })
+      fireEvent.change(
+        screen.getByLabelText(language === 'vi' ? 'Mật khẩu' : 'Password'),
+        { target: { value: 'Password@123' } },
+      )
+      if (mode === 'register') {
+        fireEvent.change(
+          screen.getByLabelText(language === 'vi' ? 'Họ và tên' : 'Full name'),
+          { target: { value: 'Test Customer' } },
+        )
+        fireEvent.change(
+          screen.getByLabelText(
+            language === 'vi' ? 'Xác nhận mật khẩu' : 'Confirm password',
+          ),
+          { target: { value: 'Password@123' } },
+        )
+      }
+      fireEvent.submit(screen.getByLabelText('Email').closest('form')!)
+      expect(await screen.findByRole('status')).toHaveTextContent(message)
+      expect(screen.getByLabelText('Email')).toBeEnabled()
+    },
+  )
+
+  it.each([
+    new AuthApiError(
+      'Internal authentication provider details',
+      'INTERNAL_SERVER_ERROR',
+      undefined,
+      503,
+    ),
+    new AuthApiError(
+      'Unable to initialize CSRF protection.',
+      'CSRF_TOKEN_UNAVAILABLE',
+    ),
+  ])(
+    'does not expose English infrastructure errors in Vietnamese',
+    async (failure) => {
+      setLanguage('vi')
+      vi.spyOn(authApi, 'login').mockRejectedValue(failure)
+      render(<AuthPage initialMode="login" />)
+      fillLoginForm('test@example.com', 'Password@123')
+      fireEvent.submit(screen.getByLabelText('Email').closest('form')!)
+      expect(await screen.findByRole('status')).toHaveTextContent(
+        'Không thể kết nối đến dịch vụ xác thực. Vui lòng thử lại.',
+      )
+      expect(screen.queryByText(failure.message)).not.toBeInTheDocument()
+    },
+  )
 })

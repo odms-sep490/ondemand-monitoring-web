@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Alert, Button } from 'antd'
+import { Alert, Button, Tag } from 'antd'
+import { PictureOutlined, RobotOutlined } from '@ant-design/icons'
 import { ApiError } from '../../../shared/api/httpClient'
 import type { Language } from '../../../shared/i18n'
 import { checklistEvidenceApi } from '../api/checklistEvidenceApi'
@@ -12,6 +13,10 @@ import type {
 
 const messages = {
   en: {
+    title: 'AI checklist image assessment',
+    hint: 'Choose an image to compare with the checklist criteria.',
+    assessmentDisabled:
+      'AI image assessment has been turned off. You can still select evidence manually.',
     image: 'Image to assess',
     choose: 'Choose an image',
     preview: (fileName: string) => 'Selected image preview for ' + fileName,
@@ -20,6 +25,8 @@ const messages = {
       'The selected image preview is sent to the configured AI provider. The result is advisory. Review the image and make your own assessment.',
     error:
       'Could not assess this image. You can still select evidence manually.',
+    providerUnavailable:
+      'AI image assessment is temporarily unavailable. Try again later or select evidence manually.',
     rateLimited: 'Too many assessment requests. Try again later.',
     stale:
       'The assessment no longer matches this suggestion. Get new image suggestions before trying again.',
@@ -31,6 +38,10 @@ const messages = {
     verdicts: { MATCH: 'Match', MISMATCH: 'Mismatch', UNCERTAIN: 'Uncertain' },
   },
   vi: {
+    title: 'AI đánh giá ảnh theo checklist',
+    hint: 'Chọn ảnh để đối chiếu với các tiêu chí của checklist.',
+    assessmentDisabled:
+      'AI đánh giá ảnh đã được tắt. Bạn vẫn có thể tự chọn bằng chứng.',
     image: 'Ảnh cần đánh giá',
     choose: 'Chọn một ảnh',
     preview: (fileName: string) => 'Bản xem trước của ảnh đã chọn ' + fileName,
@@ -38,6 +49,8 @@ const messages = {
     advisory:
       'Bản xem trước của ảnh đã chọn sẽ được gửi đến nhà cung cấp AI đã cấu hình. Kết quả chỉ để tham khảo. Hãy xem ảnh và tự đưa ra đánh giá.',
     error: 'Không thể đánh giá ảnh này. Bạn vẫn có thể tự chọn bằng chứng.',
+    providerUnavailable:
+      'AI đánh giá ảnh hiện không khả dụng. Hãy thử lại sau hoặc tự chọn bằng chứng.',
     rateLimited: 'Có quá nhiều yêu cầu đánh giá. Hãy thử lại sau.',
     stale:
       'Đánh giá không còn khớp với gợi ý hiện tại. Hãy lấy gợi ý ảnh mới trước khi thử lại.',
@@ -141,7 +154,13 @@ function AssessmentForm({
   const [imageId, setImageId] = useState('')
   const [result, setResult] = useState<ContentAssessment | null>(null)
   const [error, setError] = useState<
-    'error' | 'stale' | 'previewNotReady' | 'rateLimited' | null
+    | 'error'
+    | 'stale'
+    | 'previewNotReady'
+    | 'rateLimited'
+    | 'providerUnavailable'
+    | 'assessmentDisabled'
+    | null
   >(null)
   const selectedImage = images.find(({ evidenceId }) => evidenceId === imageId)
   const locked = busy || disabled || error === 'stale'
@@ -167,8 +186,12 @@ function AssessmentForm({
     } catch (cause) {
       const code = cause instanceof ApiError ? cause.code : undefined
       if (code === 'CONCURRENT_UPDATE') setError('stale')
+      else if (code === 'CHECKLIST_IMAGE_ASSESSMENT_DISABLED')
+        setError('assessmentDisabled')
       else if (code === 'MEDIA_DERIVATIVE_UNAVAILABLE')
         setError('previewNotReady')
+      else if (code === 'AI_PROVIDER_UNAVAILABLE')
+        setError('providerUnavailable')
       else if (cause instanceof ApiError && cause.status === 429)
         setError('rateLimited')
       else setError('error')
@@ -177,19 +200,30 @@ function AssessmentForm({
 
   return (
     <div className="image-content-assessment">
-      <p id={id} className="customer-evidence-selection__metric-label">
-        {t.advisory}
-      </p>
-      <div className="customer-evidence-selection__actions">
-        {selectedImage && (
-          <div className="image-content-assessment__thumbnail">
+      <div className="image-content-assessment__header">
+        <span className="image-content-assessment__icon" aria-hidden="true">
+          <RobotOutlined />
+        </span>
+        <div>
+          <h4>{t.title}</h4>
+          <p>{t.hint}</p>
+        </div>
+      </div>
+      <div className="image-content-assessment__controls">
+        <div
+          className="image-content-assessment__thumbnail"
+          aria-hidden={selectedImage ? undefined : true}
+        >
+          {selectedImage ? (
             <EvidenceThumbnail
               key={imageId}
               link={selectedImage}
               alt={t.preview(selectedImage.fileName)}
             />
-          </div>
-        )}
+          ) : (
+            <PictureOutlined />
+          )}
+        </div>
         <label className="image-content-assessment__choice">
           {t.image}
           <select
@@ -210,7 +244,8 @@ function AssessmentForm({
           </select>
         </label>
         <Button
-          size="small"
+          type="primary"
+          icon={<RobotOutlined />}
           disabled={locked || !imageId}
           loading={busy}
           aria-label={t.assess}
@@ -221,13 +256,27 @@ function AssessmentForm({
           {t.assess}
         </Button>
       </div>
+      <p id={id} className="image-content-assessment__advisory">
+        {t.advisory}
+      </p>
       {error && <Alert type="warning" showIcon message={t[error]} />}
-      <div aria-live="polite">
+      <div aria-live="polite" className="image-content-assessment__feedback">
         {result && (
           <div className="image-content-assessment__result">
-            <strong>
-              {t.verdict} · {t.verdicts[result.verdict]}
-            </strong>
+            <div className="image-content-assessment__verdict">
+              <strong>{t.verdict}</strong>
+              <Tag
+                color={
+                  result.verdict === 'MATCH'
+                    ? 'success'
+                    : result.verdict === 'MISMATCH'
+                      ? 'error'
+                      : 'warning'
+                }
+              >
+                {t.verdicts[result.verdict]}
+              </Tag>
+            </div>
             {result.criteria.length ? (
               <ul>
                 {result.criteria.map(

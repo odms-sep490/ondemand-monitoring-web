@@ -1,0 +1,229 @@
+.catalog-service-dialog .ui-modal {
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  border-radius: 16px;
+}
+.catalog-service-dialog .ui-modal-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--ui-border);
+  background: linear-gradient(
+    110deg,
+    var(--ui-primary-soft),
+    var(--ui-surface)
+  );
+}
+.catalog-service-dialog .ui-modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--ui-primary);
+  color: var(--ui-on-primary);
+}
+.catalog-service-dialog .ui-modal-title {
+  font-size: 17px;
+}
+.catalog-service-dialog .ui-modal-subtitle {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.catalog-service-dialog .ui-modal-body {
+  padding: 20px 22px;
+}
+.catalog-service-form {
+  display: grid;
+  gap: 18px;
+}
+.catalog-service-form .ui-form-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  margin: 0;
+}
+.catalog-service-form .ui-label {
+  margin: 0;
+  color: var(--ui-text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.catalog-service-dialog .catalog-service-form .odm-inp {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 9px;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-size: 13px;
+  line-height: 1.5;
+  outline: none;
+}
+.catalog-service-form .odm-inp:focus-visible {
+  border-color: var(--ui-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 12%, transparent);
+}
+.catalog-service-dialog .odm-inp[aria-invalid='true'] {
+  border-color: var(--ui-danger);
+}
+.catalog-service-dialog .catalog-service-form textarea.odm-inp {
+  min-height: 84px;
+  resize: vertical;
+}
+.catalog-service-dialog .adm-service-price-check {
+  display: grid;
+  gap: 8px;
+  padding: 13px 14px;
+  border: 1px solid color-mix(in srgb, var(--ui-primary) 15%, var(--ui-border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ui-primary) 4%, var(--ui-surface));
+}
+.catalog-service-dialog .adm-service-price-check > strong {
+  color: var(--ui-primary-text);
+  font-size: 12px;
+}
+.catalog-service-dialog .adm-service-price-check > small {
+  color: var(--ui-text-3);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.catalog-service-price-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.catalog-service-dialog .adm-service-image {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: 1px dashed var(--ui-border-strong);
+  border-radius: 10px;
+  background: var(--ui-bg);
+}
+.catalog-service-image-controls {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+.catalog-service-image-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.catalog-service-image-picker > button {
+  flex-shrink: 0;
+}
+.catalog-service-image-name {
+  overflow: hidden;
+  color: var(--ui-text-3);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.catalog-service-image-controls > small {
+  color: var(--ui-text-3);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.catalog-service-image-controls > button {
+  justify-self: start;
+}
+.catalog-service-dialog .catalog-service-image-preview {
+  width: 88px;
+  height: 76px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.catalog-service-image-preview .ant-image,
+.catalog-service-image-preview .ant-image-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.catalog-service-dialog .catalog-service-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+}
+.catalog-service-status > span {
+  display: grid;
+  gap: 4px;
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.catalog-service-status small {
+  color: var(--ui-text-3);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+.catalog-service-dialog .catalog-service-status input {
+  appearance: none;
+  position: relative;
+  width: 34px;
+  height: 20px;
+  flex-shrink: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ui-border-strong);
+  cursor: pointer;
+}
+.catalog-service-status input::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: 3px;
+  left: 3px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+.catalog-service-dialog .catalog-service-status input:checked {
+  background: var(--ui-primary);
+}
+.catalog-service-status input:checked::after {
+  transform: translateX(14px);
+}
+.catalog-service-status input:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 3px;
+}
+.catalog-service-dialog .ui-modal-footer {
+  padding: 14px 22px;
+  border-top: 1px solid var(--ui-border);
+  background: var(--ui-surface);
+}
+.catalog-service-dialog .ui-modal-footer .odm-btn {
+  min-height: 38px;
+  border-radius: 9px;
+}
+@media (max-width: 520px) {
+  .catalog-service-dialog .ui-modal-header,
+  .catalog-service-dialog .ui-modal-body {
+    padding: 18px;
+  }
+  .catalog-service-dialog .ui-modal-footer {
+    padding: 14px 18px;
+  }
+  .catalog-service-dialog .adm-service-image {
+    flex-wrap: wrap;
+  }
+  .catalog-service-image-picker {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .catalog-service-image-name {
+    max-width: 100%;
+  }
+}
