@@ -137,3 +137,18 @@ describe('backend authentication contract', () => {
     )
   })
 })
+
+it('identifies authentication transport failures with a stable code for UI translation', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockRejectedValue(new TypeError('Failed to fetch')),
+  )
+  await expect(
+    authApi.register({
+      email: 'test@example.com',
+      password: 'Password@123',
+      fullName: 'Test',
+      role: 'CUSTOMER',
+    }),
+  ).rejects.toMatchObject({ code: 'AUTH_SERVICE_UNAVAILABLE' })
+})

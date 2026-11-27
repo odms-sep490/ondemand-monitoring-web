@@ -30,6 +30,11 @@ export const authPageMessages = defineMessages({
     invalidCredentials: 'Email hoặc mật khẩu không đúng.',
     linkLocalRequired:
       'Email này đã đăng nhập bằng Google. Hãy đăng nhập Google để xác nhận chủ tài khoản, sau đó đặt mật khẩu đăng nhập local.',
+    serviceUnavailable:
+      'Không thể kết nối đến dịch vụ xác thực. Vui lòng thử lại.',
+    googleNotConfigured:
+      'Đăng nhập bằng Google hiện chưa được cấu hình. Vui lòng đăng nhập bằng email.',
+    sessionChanged: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.',
     genericError: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
     passwordMismatch: 'Mật khẩu không khớp',
     otpSent: (email: string) =>
@@ -73,6 +78,11 @@ export const authPageMessages = defineMessages({
     invalidCredentials: 'Incorrect email or password.',
     linkLocalRequired:
       'This email already uses Google sign-in. Sign in with Google to verify ownership, then set a local password.',
+    serviceUnavailable:
+      'Unable to reach the authentication service. Please try again.',
+    googleNotConfigured:
+      'Google sign-in is not configured. Please log in with your email.',
+    sessionChanged: 'Your session has changed. Please try again.',
     genericError: 'Something went wrong. Please try again.',
     passwordMismatch: 'Passwords do not match',
     otpSent: (email: string) =>

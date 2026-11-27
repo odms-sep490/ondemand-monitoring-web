@@ -45,18 +45,56 @@ describe('AccountsPage', () => {
     await screen.findByText('Thời gian')
   })
 
-  it('shows disabled confirm with unsupported note for reset password', async () => {
-    render(<AccountsPage />)
-    const buttons = await screen.findAllByLabelText('Reset mật khẩu')
-    fireEvent.click(buttons[0])
-    expect(screen.getByText('BE chưa hỗ trợ')).toBeTruthy()
-    expect(
-      (screen.getByText('Xác nhận reset') as HTMLButtonElement).disabled,
-    ).toBe(true)
-  })
-
   it('opens the create modal when routed with openCreate', () => {
     render(<AccountsPage openCreate />)
     expect(screen.getByRole('dialog')).toBeTruthy()
+  })
+
+  it('clears search, role and status filters and reloads the first page', async () => {
+    render(<AccountsPage />)
+    await screen.findByRole('table', { name: 'Danh sách tài khoản người dùng' })
+    const clear = screen.getByRole('button', { name: 'Xóa bộ lọc' })
+    expect(clear).toBeDisabled()
+    fireEvent.change(screen.getByLabelText('Vai trò'), {
+      target: { value: 'MANAGER' },
+    })
+    fireEvent.change(screen.getByLabelText('Trạng thái'), {
+      target: { value: 'locked' },
+    })
+    fireEvent.change(
+      screen.getByRole('searchbox', { name: 'Tìm người dùng' }),
+      { target: { value: 'test' } },
+    )
+    await waitFor(() =>
+      expect(
+        requestedUrls.some(
+          (url) =>
+            url.includes('search=test') &&
+            url.includes('role=MANAGER') &&
+            url.includes('active=false'),
+        ),
+      ).toBe(true),
+    )
+    const requestsBeforeClear = requestedUrls.length
+    fireEvent.click(clear)
+    expect(screen.getByLabelText('Vai trò')).toHaveValue('')
+    expect(screen.getByLabelText('Trạng thái')).toHaveValue('')
+    expect(
+      screen.getByRole('searchbox', { name: 'Tìm người dùng' }),
+    ).toHaveValue('')
+    await waitFor(() =>
+      expect(
+        requestedUrls.slice(requestsBeforeClear).some((url) => {
+          const params = new URL(url, 'http://localhost').searchParams
+          return (
+            params.get('page') === '0' &&
+            !params.has('role') &&
+            !params.has('active') &&
+            !params.has('search')
+          )
+        }),
+      ).toBe(true),
+    )
+    expect(clear).toBeDisabled()
   })
 })

@@ -2,6 +2,8 @@ import { defineMessages } from '../../../../../shared/i18n'
 
 export const accountsFiltersMessages = defineMessages({
   vi: {
+    searchLabel: 'Tìm kiếm người dùng',
+    clearFilters: 'Xóa bộ lọc',
     allRoles: 'Tất cả vai trò',
     allStatuses: 'Mọi trạng thái',
     active: 'Hoạt động',
@@ -13,6 +15,8 @@ export const accountsFiltersMessages = defineMessages({
     statusAria: 'Trạng thái',
   },
   en: {
+    searchLabel: 'Find a user',
+    clearFilters: 'Clear filters',
     allRoles: 'All roles',
     allStatuses: 'All statuses',
     active: 'Active',

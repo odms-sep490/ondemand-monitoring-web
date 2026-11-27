@@ -1,5 +1,4 @@
 import {
-  DownOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   QuestionCircleOutlined,
@@ -98,7 +97,6 @@ export function CustomerHeader({
         />
         <div className="cus-header-user">
           <CustomerUserMenu />
-          <DownOutlined aria-hidden="true" />
         </div>
       </div>
     </Layout.Header>

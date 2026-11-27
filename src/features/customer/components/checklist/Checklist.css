@@ -621,38 +621,93 @@
 }
 
 .checklist-evidence-requirements {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 14px;
-  padding: 8px 10px;
+  display: grid;
+  gap: 16px;
+  padding: 16px;
   border: 1px solid var(--ui-border);
-  border-radius: 8px;
-  background: var(--ui-surface-2);
+  border-radius: 12px;
+  background: var(--ui-surface);
 }
-.checklist-evidence-requirements label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.checklist-evidence-heading h4 {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+.checklist-evidence-heading p {
+  margin: 5px 0 0;
   color: var(--ui-text-2);
   font-size: 12px;
-  font-weight: 600;
+  line-height: 1.65;
+}
+.checklist-evidence-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.checklist-evidence-controls label {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  flex: 1 1 150px;
+  min-width: 0;
+  color: var(--ui-text-2);
+  font-size: 12px;
+  font-weight: 500;
 }
 .checklist-evidence-field-label {
   color: var(--ui-text-2);
 }
 .checklist-evidence-requirements input,
 .checklist-evidence-requirements select {
-  min-height: 34px;
-  padding: 4px 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 7px 10px;
   border: 1px solid var(--ui-border-strong);
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--ui-surface);
   color: var(--ui-text);
   font: inherit;
   font-size: 13px;
 }
-.checklist-evidence-requirements input {
-  width: 76px;
+.checklist-evidence-requirements :is(input, select):focus-visible {
+  outline: 2px solid var(--ui-primary-soft);
+  outline-offset: 2px;
+  border-color: var(--ui-primary);
+}
+.checklist-evidence-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+.checklist-evidence-breakdown > div {
+  flex: 1 1 180px;
+  padding: 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: 9px;
+  background: var(--ui-surface-2);
+}
+.checklist-evidence-breakdown dt {
+  color: var(--ui-text-2);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.checklist-evidence-breakdown dd {
+  margin: 6px 0 0;
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.checklist-evidence-acceptance {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--ui-border);
+  color: var(--ui-text-2);
+  font-size: 12px;
+  line-height: 1.7;
 }
 .checklist-evidence-summary {
   flex: none;
@@ -1275,4 +1330,10 @@
   color: var(--ui-text-2);
 }
 
-.checklist-default-content { margin: 0 0 12px; padding: 10px 12px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.checklist-default-content {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}

@@ -92,7 +92,11 @@ export function EditUserForm({
       onClose={onClose}
       footer={
         <>
-          <button type="button" className="odm-btn odm-btn-gh" onClick={onClose}>
+          <button
+            type="button"
+            className="odm-btn odm-btn-gh"
+            onClick={onClose}
+          >
             {isSelf ? t.cancel : t.close}
           </button>
           {isSelf && (
@@ -125,9 +129,7 @@ export function EditUserForm({
         <ContactSection draft={draft} editable={isSelf} onChange={patch} />
       )}
       <TimesSection user={user} />
-      <p className="adm-readonly-note">
-        {isSelf ? t.selfNote : t.readonlyNote}
-      </p>
+      {isSelf && <p className="adm-readonly-note">{t.selfNote}</p>}
       {message && (
         <div
           role={message.ok ? 'status' : 'alert'}

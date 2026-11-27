@@ -46,6 +46,8 @@ function TextField({
   editable: boolean
   onChange: (v: string) => void
 }) {
+  if (!editable) return <Field label={label}>{value.trim() || '—'}</Field>
+
   return (
     <div>
       <label htmlFor={id} className="adm-field-label">
@@ -55,7 +57,6 @@ function TextField({
         id={id}
         className="odm-inp"
         value={value}
-        readOnly={!editable}
         onChange={(e) => onChange(e.target.value)}
       />
     </div>

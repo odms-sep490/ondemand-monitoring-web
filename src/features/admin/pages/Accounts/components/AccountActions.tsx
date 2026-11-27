@@ -7,12 +7,10 @@ export function AccountActions({
   account,
   onEdit,
   onLock,
-  onResetPassword,
 }: {
   account: AdminAccountItem
   onEdit: () => void
   onLock: () => void
-  onResetPassword: () => void
 }) {
   const { t } = useI18n(accountActionsMessages)
   const locked = account.status === 'INACTIVE'
@@ -22,12 +20,13 @@ export function AccountActions({
     <div className="odm-adm-account-actions">
       <button
         type="button"
-        className="adm-action-btn"
+        className="odm-btn odm-btn-sm accounts-view-action"
         onClick={onEdit}
         aria-label={t.edit}
         title={t.edit}
       >
-        <Icon name="eye" width={16} height={16} />
+        <Icon name="eye" width={16} height={16} aria-hidden="true" />
+        <span>{t.viewDetails}</span>
       </button>
       <button
         type="button"
@@ -36,16 +35,7 @@ export function AccountActions({
         aria-label={lockLabel}
         title={lockLabel}
       >
-        <Icon name="lock" width={16} height={16} />
-      </button>
-      <button
-        type="button"
-        className="adm-action-btn is-warning"
-        onClick={onResetPassword}
-        aria-label={t.resetPassword}
-        title={t.resetPassword}
-      >
-        <Icon name="key" width={16} height={16} />
+        <Icon name="lock" width={16} height={16} aria-hidden="true" />
       </button>
     </div>
   )

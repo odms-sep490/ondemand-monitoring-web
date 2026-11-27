@@ -181,76 +181,110 @@ export function ChecklistEditor({
       </label>
     )
     const bothTypes = row.requiredEvidenceType === 'IMAGE_AND_VIDEO'
+    const requestedImages = usesMedia(row)
+      ? row.requestedImageCount
+      : row.requiredEvidenceType === 'VIDEO'
+        ? 0
+        : singleEvidenceCount(row)
+    const requestedVideos = usesMedia(row)
+      ? row.requestedVideoCount
+      : row.requiredEvidenceType === 'VIDEO'
+        ? singleEvidenceCount(row)
+        : 0
+
     const evidenceRequirements = (
       <div className="checklist-evidence-requirements">
-        <label>
-          <span className="checklist-evidence-field-label">
-            {t.evidenceTypeLabel}
-          </span>
-          <select
-            value={
-              row.requiredEvidenceType === 'IMAGE_OR_VIDEO'
-                ? 'IMAGE_AND_VIDEO'
-                : row.requiredEvidenceType
-            }
-            disabled={!row.selected}
-            aria-label={t.evidenceType(index + 1)}
-            onChange={(event) =>
-              checklist.change(
-                row.key,
-                withEvidenceType(
-                  row,
-                  event.target.value as RequiredEvidenceType,
-                ),
-              )
-            }
-          >
-            <option value="IMAGE">{t.image}</option>
-            <option value="VIDEO">{t.video}</option>
-            <option value="IMAGE_AND_VIDEO">{t.imageAndVideo}</option>
-          </select>
-        </label>
-        {bothTypes ? (
-          <>
-            {numberInput(
-              t.minimumImagesLabel,
-              row.requestedImageCount,
+        <header className="checklist-evidence-heading">
+          <h4>{t.deliverableRequirements}</h4>
+          <p>{t.requestedQuantityHint}</p>
+        </header>
+        <div className="checklist-evidence-controls">
+          <label>
+            <span className="checklist-evidence-field-label">
+              {t.evidenceTypeLabel}
+            </span>
+            <select
+              value={
+                row.requiredEvidenceType === 'IMAGE_OR_VIDEO'
+                  ? 'IMAGE_AND_VIDEO'
+                  : row.requiredEvidenceType
+              }
+              disabled={!row.selected}
+              aria-label={t.evidenceType(index + 1)}
+              onChange={(event) =>
+                checklist.change(
+                  row.key,
+                  withEvidenceType(
+                    row,
+                    event.target.value as RequiredEvidenceType,
+                  ),
+                )
+              }
+            >
+              <option value="IMAGE">{t.image}</option>
+              <option value="VIDEO">{t.video}</option>
+              <option value="IMAGE_AND_VIDEO">{t.imageAndVideo}</option>
+            </select>
+          </label>
+          {bothTypes ? (
+            <>
+              {numberInput(
+                t.requestedImages,
+                row.requestedImageCount,
+                1,
+                500,
+                (value) =>
+                  checklist.change(row.key, { requestedImageCount: value }),
+              )}
+              {numberInput(
+                t.requestedVideos,
+                row.requestedVideoCount,
+                1,
+                500,
+                (value) =>
+                  checklist.change(row.key, { requestedVideoCount: value }),
+              )}
+            </>
+          ) : (
+            numberInput(
+              row.requiredEvidenceType === 'VIDEO'
+                ? t.requestedVideos
+                : t.requestedImages,
+              singleEvidenceCount(row),
               1,
-              500,
+              usesMedia(row) ? 500 : 50,
               (value) =>
-                checklist.change(row.key, { requestedImageCount: value }),
-            )}
-            {numberInput(
-              t.minimumVideosLabel,
-              row.requestedVideoCount,
-              1,
-              500,
-              (value) =>
-                checklist.change(row.key, { requestedVideoCount: value }),
-            )}
-          </>
-        ) : (
-          numberInput(
-            t.evidenceCountLabel,
-            singleEvidenceCount(row),
-            1,
-            usesMedia(row) ? 500 : 50,
-            (value) =>
-              checklist.change(row.key, withSingleEvidenceCount(row, value)),
-          )
-        )}
+                checklist.change(row.key, withSingleEvidenceCount(row, value)),
+            )
+          )}
+        </div>
         {usesMedia(row) && (
-          <small className="checklist-hint">
-            {t.includedMedia(row.includedImageCount, row.includedVideoCount)}
-            {' · '}
-            {t.extraMedia(
-              extraMedia(row.requestedImageCount, row.includedImageCount),
-              extraMedia(row.requestedVideoCount, row.includedVideoCount),
-            )}
-            {' · '}
-            {t.mediaAcceptanceNote}
-          </small>
+          <dl className="checklist-evidence-breakdown">
+            <div>
+              <dt>{t.includedQuantityTitle}</dt>
+              <dd>
+                {t.mediaQuantity(
+                  row.includedImageCount,
+                  row.includedVideoCount,
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>{t.extraQuantityTitle}</dt>
+              <dd>
+                {t.mediaQuantity(
+                  extraMedia(row.requestedImageCount, row.includedImageCount),
+                  extraMedia(row.requestedVideoCount, row.includedVideoCount),
+                )}
+              </dd>
+            </div>
+          </dl>
         )}
+        <p className="checklist-evidence-acceptance">
+          {requestedImages + requestedVideos > 0
+            ? t.acceptanceFor(t.mediaQuantity(requestedImages, requestedVideos))
+            : t.mediaRequired}
+        </p>
       </div>
     )
     if (!expanded) {
@@ -309,31 +343,44 @@ export function ChecklistEditor({
                 className="checklist-summary"
                 title={row.content}
               >
-              {row.content || t.emptyContent}
-              {!row.sourceChecklistId && awaitingManagerQuote(row) && (
-                <span className="checklist-custom-tag is-pending-quote">
-                  {t.onDemandService}
-                </span>
-              )}
-              {row.mandatory && (
-                <span
-                  className="checklist-custom-tag is-mandatory"
-                  title={t.mandatoryHint}
-                >
-                  {t.mandatory}
-                </span>
-              )}
+                {row.content || t.emptyContent}
+                {!row.sourceChecklistId && awaitingManagerQuote(row) && (
+                  <span className="checklist-custom-tag is-pending-quote">
+                    {t.onDemandService}
+                  </span>
+                )}
+                {row.mandatory && (
+                  <span
+                    className="checklist-custom-tag is-mandatory"
+                    title={t.mandatoryHint}
+                  >
+                    {t.mandatory}
+                  </span>
+                )}
               </span>
             )}
             <span className="checklist-evidence-summary">
-              {row.requiredEvidenceType === 'IMAGE_AND_VIDEO'
-                ? t.imageAndVideoSummary(
-                    row.requestedImageCount,
-                    row.requestedVideoCount,
+              {disclosure
+                ? t.requiredMedia(
+                    usesMedia(row)
+                      ? row.requestedImageCount
+                      : row.requiredEvidenceType === 'VIDEO'
+                        ? 0
+                        : singleEvidenceCount(row),
+                    usesMedia(row)
+                      ? row.requestedVideoCount
+                      : row.requiredEvidenceType === 'VIDEO'
+                        ? singleEvidenceCount(row)
+                        : 0,
                   )
-                : `${singleEvidenceCount(row)} · ${
-                    row.requiredEvidenceType === 'VIDEO' ? t.video : t.image
-                  }`}
+                : row.requiredEvidenceType === 'IMAGE_AND_VIDEO'
+                  ? t.imageAndVideoSummary(
+                      row.requestedImageCount,
+                      row.requestedVideoCount,
+                    )
+                  : `${singleEvidenceCount(row)} · ${
+                      row.requiredEvidenceType === 'VIDEO' ? t.video : t.image
+                    }`}
             </span>
             {(() => {
               const priced = row.selected ? priceOf(row) : undefined
@@ -371,6 +418,7 @@ export function ChecklistEditor({
                 }}
               >
                 <Icon name="edit" width={16} height={16} aria-hidden="true" />
+                {disclosure && <span>{t.edit}</span>}
               </button>
               {!row.sourceChecklistId && (
                 <button
@@ -402,6 +450,7 @@ export function ChecklistEditor({
                   title={detailsOpen ? t.hideDetailsTitle : t.showDetailsTitle}
                   onClick={toggleDetails}
                 >
+                  <span>{t.detailsLabel}</span>
                   <DownOutlined aria-hidden="true" />
                 </button>
               )}
@@ -515,8 +564,14 @@ export function ChecklistEditor({
             {t.content(index + 1)}
           </span>
           {row.sourceChecklistId && row.packageItem !== false ? (
-            <p id={`requirement-${row.key}`} className="checklist-default-content"
-              role="textbox" aria-readonly="true" aria-labelledby={`requirement-label-${row.key}`} tabIndex={0}>
+            <p
+              id={`requirement-${row.key}`}
+              className="checklist-default-content"
+              role="textbox"
+              aria-readonly="true"
+              aria-labelledby={`requirement-label-${row.key}`}
+              tabIndex={0}
+            >
               {row.originalContent}
             </p>
           ) : (

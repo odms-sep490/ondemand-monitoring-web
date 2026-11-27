@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { ApiError } from '../../../../../shared/api/httpClient'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { Modal } from '../../../../../shared/components/ui'
@@ -8,6 +9,7 @@ import { deleteConfirmMessages } from './DeleteConfirmModal.messages'
 type Props = {
   title: string
   name: string
+  description?: string
   onConfirm: () => Promise<unknown>
   onClose: () => void
   onDeleted: () => void
@@ -16,23 +18,32 @@ type Props = {
 export function DeleteConfirmModal({
   title,
   name,
+  description,
   onConfirm,
   onClose,
   onDeleted,
 }: Props) {
   const { t } = useI18n(deleteConfirmMessages)
   const [busy, setBusy] = useState(false)
+  const deleting = useRef(false)
   const [error, setError] = useState<string | null>(null)
 
   async function handleConfirm() {
+    if (deleting.current) return
+    deleting.current = true
     setBusy(true)
     setError(null)
     try {
       await onConfirm()
       onDeleted()
     } catch (err) {
-      setError(readApiError(err, t.genericError).message)
+      setError(
+        err instanceof ApiError && err.code === 'SERVICE_IN_USE'
+          ? t.serviceInUse
+          : readApiError(err, t.genericError).message,
+      )
     } finally {
+      deleting.current = false
       setBusy(false)
     }
   }
@@ -44,10 +55,17 @@ export function DeleteConfirmModal({
       icon="shield"
       title={title}
       subtitle={name}
-      onClose={onClose}
+      onClose={() => {
+        if (!deleting.current) onClose()
+      }}
       footer={
         <>
-          <button type="button" className="odm-btn odm-btn-gh" onClick={onClose}>
+          <button
+            type="button"
+            className="odm-btn odm-btn-gh"
+            disabled={busy}
+            onClick={onClose}
+          >
             {t.cancel}
           </button>
           <button
@@ -65,6 +83,7 @@ export function DeleteConfirmModal({
         {t.confirmPrefix} <strong>{name}</strong>
         {t.confirmSuffix}
       </p>
+      {description && <p className="adm-wrap">{description}</p>}
       {error && (
         <div role="alert" className="adm-alert is-danger">
           {error}

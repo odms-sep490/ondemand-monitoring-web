@@ -109,7 +109,8 @@ describe('Checklist evidence configuration', () => {
   it('shows included evidence counts in the catalog table without pricing profiles', async () => {
     render(<ChecklistCatalogPage />)
     await screen.findByText(priced.content)
-    expect(screen.getByText(/10 ảnh.*1 video/)).toBeInTheDocument()
+    expect(screen.getByText('10 ảnh')).toBeInTheDocument()
+    expect(screen.getByText('1 video')).toBeInTheDocument()
     expect(screen.queryByText('STANDARD')).toBeNull()
   })
 

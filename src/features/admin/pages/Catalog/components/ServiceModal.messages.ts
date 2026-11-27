@@ -9,6 +9,11 @@ export const serviceModalMessages = defineMessages({
     name: 'Tên dịch vụ',
     namePlaceholder: 'VD: Kiểm tra mái nhà',
     description: 'Mô tả',
+    descriptionPlaceholder: 'Giới thiệu phạm vi và nội dung của dịch vụ...',
+    chooseImage: 'Chọn ảnh',
+    changeImage: 'Đổi ảnh',
+    currentImage: 'Ảnh hiện tại',
+    noImage: 'Chưa chọn ảnh minh họa',
     previewTitle: 'Giá mặc định tính từ checklist',
     previewButton: 'Kiểm tra giá mặc định',
     previewError: 'Không thể tính giá mặc định.',
@@ -21,7 +26,10 @@ export const serviceModalMessages = defineMessages({
     imageError:
       'Thông tin dịch vụ đã lưu, nhưng chưa cập nhật được ảnh. Hãy thử lưu lại.',
     isActive: 'Đang hoạt động',
-    isActiveHint: 'Dịch vụ tắt sẽ không hiển thị cho khách hàng.',
+    inactiveState: 'Tạm ngừng hoạt động',
+    activityLabel: 'Bật hoạt động dịch vụ',
+    isActiveHint:
+      'Tắt để tạm ẩn dịch vụ với khách hàng. Bạn có thể bật lại bất cứ lúc nào.',
     required: 'Bắt buộc',
     genericError: 'Không lưu được dịch vụ.',
   },
@@ -33,6 +41,12 @@ export const serviceModalMessages = defineMessages({
     name: 'Service name',
     namePlaceholder: 'e.g. Roof inspection',
     description: 'Description',
+    descriptionPlaceholder:
+      'Describe the service scope and what it includes...',
+    chooseImage: 'Choose image',
+    changeImage: 'Change image',
+    currentImage: 'Current image',
+    noImage: 'No illustration selected',
     previewTitle: 'Default price derived from checklists',
     previewButton: 'Check the default price',
     previewError: 'Unable to calculate the default price.',
@@ -46,7 +60,10 @@ export const serviceModalMessages = defineMessages({
     imageError:
       'Service details were saved, but the image was not updated. Please save again.',
     isActive: 'Active',
-    isActiveHint: 'Inactive services are hidden from customers.',
+    inactiveState: 'Temporarily inactive',
+    activityLabel: 'Enable service',
+    isActiveHint:
+      'Turn off to temporarily hide the service from customers. You can enable it again at any time.',
     required: 'Required',
     genericError: 'Could not save the service.',
   },

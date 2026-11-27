@@ -1,5 +1,4 @@
 import {
-  DownOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SearchOutlined,
@@ -110,7 +109,6 @@ export function OperatorTopbar({
             fallbackName={t.pilotLabel}
             profileHref={operatorHref({ screen: 'profile' })}
           />
-          <DownOutlined aria-hidden="true" />
         </div>
       </div>
     </Layout.Header>

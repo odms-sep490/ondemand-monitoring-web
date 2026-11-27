@@ -472,12 +472,21 @@
   margin-top: 6px;
 }
 
+.iq-review-hint:not(:empty) {
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 13px;
+}
+
 .iq-btn-submit-decision {
   width: 100% !important;
   height: 44px !important;
   border-radius: 10px !important;
   font-size: 15px !important;
   font-weight: 600 !important;
+}
+
+.iq-btn-submit-decision:not(:disabled) {
   background: #2563eb !important;
 }
 

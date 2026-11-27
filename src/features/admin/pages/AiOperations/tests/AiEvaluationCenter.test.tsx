@@ -1,13 +1,14 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { aiOpsApi } from '../../../api/aiOpsApi'
+import { aiOpsApi, type AiTraceView } from '../../../api/aiOpsApi'
 import { AiOperationsPage } from '../AiOperationsPage'
 
 vi.mock('../../../api/aiOpsApi', () => ({
   aiOpsApi: {
     getOverview: vi.fn(),
     listTraces: vi.fn(),
+    getTrace: vi.fn(),
     listEvaluations: vi.fn(),
     getSecurity: vi.fn(),
     listIncidents: vi.fn(),
@@ -23,6 +24,16 @@ vi.mock('../../../api/aiOpsApi', () => ({
     exportBenchmarkReport: vi.fn(),
   },
 }))
+
+const trace: AiTraceView = {
+  id: 'audit-1', traceId: 'AI-12345678-abcd-1234-abcd-123456789abc', userId: 'actor-1', userRole: 'ADMIN',
+  modelCode: 'checklist-image-vision', modelVersion: 'vision-model', promptVersion: 'prompt-1',
+  feature: 'CHECKLIST_VISION', resourceId: 'mission-1', inputRef: 'execution-1', outputRef: 'evidence-1',
+  durationMs: 0, httpStatus: 200, inferenceDevice: '', fallbackUsed: false,
+  validationStatus: 'BLOCKED', securityDecision: 'BLOCK', humanReviewStatus: 'NOT_REQUIRED',
+  spans: [{ name: 'Rào chắn', durationMs: 0, status: 'BLOCKED', versionId: 'context-version-1', contentHash: 'hash-1', staleCacheUsed: true }],
+  createdAt: '2026-11-27T01:00:00Z',
+}
 
 describe('AiOperationsPage — AI Evaluation Center (DeepEval)', () => {
   beforeEach(() => {
@@ -175,5 +186,65 @@ describe('AiOperationsPage — AI Evaluation Center (DeepEval)', () => {
       expect(screen.getByText('KR-001')).toBeTruthy()
     })
     expect(screen.getByText(/All confirmed facts recalled accurately/i)).toBeTruthy()
+    expect(screen.queryByRole('region', { name: 'Benchmark thị giác checklist' })).toBeNull()
+  })
+
+  it('shows guardrail blocks even for HTTP 200 and prompt provenance in traces', async () => {
+    vi.mocked(aiOpsApi.listTraces).mockResolvedValue([trace])
+    render(<AiOperationsPage initialTab="tracing" />)
+    expect(await screen.findByText('Mã tương quan')).toBeTruthy()
+    expect(screen.getAllByText('Đã chặn').length).toBeGreaterThan(0)
+    expect(screen.getByText('context-version-1')).toBeTruthy()
+    expect(screen.getByText('hash-1')).toBeTruthy()
+    expect(screen.getByText('Bộ nhớ đệm cũ: Có')).toBeTruthy()
+    expect(screen.getByText('evidence-1')).toBeTruthy()
+  })
+
+  it('searches prompt context and resource references in audit without hiding blocks', async () => {
+    vi.mocked(aiOpsApi.listTraces).mockResolvedValue([trace])
+    render(<AiOperationsPage initialTab="audit" />)
+    await screen.findByText('context-version-1')
+    const search = screen.getByPlaceholderText('Tìm mã truy vết, mô hình, tính năng...')
+    for (const value of ['context-version-1', 'evidence-1', trace.traceId]) {
+      fireEvent.change(search, { target: { value } })
+      expect(screen.getByText('Đã chặn')).toBeTruthy()
+      expect(screen.getAllByText('BLOCKED').length).toBeGreaterThan(0)
+    }
+    fireEvent.change(search, { target: { value: 'not-a-match' } })
+    expect(screen.getByText('Không có bản ghi kiểm toán phù hợp.')).toBeTruthy()
+  })
+
+  it('opens the exact trace referenced by a Vietnamese incident summary', async () => {
+    vi.mocked(aiOpsApi.listTraces).mockResolvedValue([trace])
+    vi.mocked(aiOpsApi.listIncidents).mockResolvedValue([{
+      id: 'incident-1', title: 'Lỗi nhà cung cấp', severity: 'WARNING', status: 'OPEN',
+      modelCode: 'checklist-image-vision', serviceEndpoint: null,
+      summary: `Mã truy vết: ${trace.traceId}`, recommendedAction: null,
+      createdBy: 'SYSTEM:CHECKLIST_VISION', resolvedBy: null, createdAt: trace.createdAt, resolvedAt: null,
+    }])
+    render(<AiOperationsPage initialTab="incidents" />)
+    fireEvent.click(await screen.findByRole('button', { name: `Xem truy vết ${trace.traceId}` }))
+    expect(screen.getByText(`Truy vết #${trace.traceId}`)).toBeTruthy()
+  })
+
+  it.each([false, true])('fetches older incident traces and truthfully handles failure=%s', async failure => {
+    if (failure) vi.mocked(aiOpsApi.getTrace).mockRejectedValue(new Error('Không tìm thấy truy vết'))
+    else vi.mocked(aiOpsApi.getTrace).mockResolvedValue(trace)
+    vi.mocked(aiOpsApi.listIncidents).mockResolvedValue([{
+      id: 'incident-1', title: 'Lỗi nhà cung cấp', severity: 'WARNING', status: 'OPEN',
+      modelCode: 'checklist-image-vision', serviceEndpoint: null,
+      summary: `Mã truy vết: ${trace.traceId}`, recommendedAction: null,
+      createdBy: 'SYSTEM:CHECKLIST_VISION', resolvedBy: null, createdAt: trace.createdAt, resolvedAt: null,
+    }])
+    render(<AiOperationsPage initialTab="incidents" />)
+    fireEvent.click(await screen.findByRole('button', { name: `Xem truy vết ${trace.traceId}` }))
+    expect(aiOpsApi.getTrace).toHaveBeenCalledWith(trace.traceId)
+    if (failure) {
+      expect(await screen.findByText('Không tìm thấy truy vết')).toBeTruthy()
+      expect(screen.queryByText(`Truy vết #${trace.traceId}`)).toBeNull()
+    } else {
+      expect(await screen.findByText(`Truy vết #${trace.traceId}`)).toBeTruthy()
+      expect(screen.getByText('context-version-1')).toBeTruthy()
+    }
   })
 })

@@ -72,7 +72,20 @@ export function AuthPage({
         setNotice({ type: 'error', message: t.invalidCredentials })
         return
       }
-      setNotice({ type: 'error', message: error.message })
+      const localizedErrors: Record<string, string> = {
+        AUTH_SERVICE_UNAVAILABLE: t.serviceUnavailable,
+        CSRF_TOKEN_UNAVAILABLE: t.serviceUnavailable,
+        GOOGLE_AUTH_NOT_CONFIGURED: t.googleNotConfigured,
+        SESSION_CHANGED: t.sessionChanged,
+        INVALID_AUTH_RESPONSE: t.genericError,
+      }
+      setNotice({
+        type: 'error',
+        message:
+          error.status && error.status >= 500
+            ? t.serviceUnavailable
+            : (localizedErrors[error.code ?? ''] ?? error.message),
+      })
       return
     }
     setNotice({ type: 'error', message: t.genericError })

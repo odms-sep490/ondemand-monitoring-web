@@ -1,5 +1,5 @@
 import { ImagePreview } from '../../../../../shared/components/media/ImagePreview'
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { useI18n } from '../../../../../shared/i18n'
 import { catalogApi } from '../../../api/catalogApi'
@@ -22,6 +22,7 @@ import {
 } from '../../../../../shared/api/checklistPricingApi'
 import { adminHref } from '../../../routes'
 import { ServicePriceSummary } from '../../Checklists/ServicePriceSummary'
+import './serviceModal.css'
 
 type Props = {
   /** Existing service (edit) or undefined (create). */
@@ -40,6 +41,7 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [savedId, setSavedId] = useState(service?.id)
   const [image, setImage] = useState<File | null>(null)
+  const imageInput = useRef<HTMLInputElement>(null)
   const [removeImage, setRemoveImage] = useState(false)
   const [priceCheck, setPriceCheck] = useState<ServicePricePreview | null>(null)
   const [priceCheckError, setPriceCheckError] = useState<string | null>(null)
@@ -62,9 +64,7 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
     if (!service?.id) return
     setPriceCheckError(null)
     try {
-      setPriceCheck(
-        await checklistPricingApi.defaultPrice(service.id),
-      )
+      setPriceCheck(await checklistPricingApi.defaultPrice(service.id))
     } catch {
       setPriceCheck(null)
       setPriceCheckError(t.previewError)
@@ -101,147 +101,187 @@ function ServiceForm({ service, onClose, onSaved }: Props) {
   }
 
   return (
-    <Modal
-      width={540}
-      icon="plus"
-      title={service ? t.editTitle : t.createTitle}
-      subtitle={service ? t.editSubtitle : t.createSubtitle}
-      onClose={onClose}
-      footer={
-        <FormFooter formId="adm-service-form" busy={busy} onClose={onClose} />
-      }
-    >
-      <form id="adm-service-form" onSubmit={handleSubmit} noValidate>
-        <FormField
-          id="adm-svc-name"
-          label={t.name}
-          required
-          error={errors.name}
+    <div className="catalog-service-dialog">
+      <Modal
+        width={620}
+        icon="plus"
+        title={service ? t.editTitle : t.createTitle}
+        subtitle={service ? t.editSubtitle : t.createSubtitle}
+        onClose={onClose}
+        footer={
+          <FormFooter formId="adm-service-form" busy={busy} onClose={onClose} />
+        }
+      >
+        <form
+          id="adm-service-form"
+          className="catalog-service-form"
+          onSubmit={handleSubmit}
+          noValidate
         >
-          <input
+          <FormField
             id="adm-svc-name"
-            className="odm-inp"
-            value={values.name}
-            placeholder={t.namePlaceholder}
-            aria-invalid={!!errors.name}
-            onChange={(e) => setValues({ ...values, name: e.target.value })}
-          />
-        </FormField>
-        <section
-          aria-label={t.previewTitle}
-          className="adm-service-price-check"
-        >
-          <strong>{t.previewTitle}</strong>
-          {service?.id ? (
-            <>
-              <div>
-                <button
-                  type="button"
-                  className="odm-btn odm-btn-sm"
-                  disabled={busy}
-                  onClick={() => void checkPrice()}
-                >
-                  {t.previewButton}
-                </button>{' '}
-                <a
-                  className="odm-btn odm-btn-gh odm-btn-sm"
-                  href={adminHref({
-                    screen: 'serviceChecklists',
-                    serviceId: service.id,
-                  })}
-                >
-                  {t.manageChecklists}
-                </a>
-              </div>
-              {priceCheckError && <p role="alert">{priceCheckError}</p>}
-              {priceCheck && <ServicePriceSummary preview={priceCheck} />}
-            </>
-          ) : (
-            <small>{t.previewSaveFirst}</small>
-          )}
-        </section>
-        <FormField
-          id="adm-svc-desc"
-          label={t.description}
-          error={errors.description}
-        >
-          <textarea
-            id="adm-svc-desc"
-            className="odm-inp"
-            rows={4}
-            value={values.description}
-            onChange={(e) =>
-              setValues({ ...values, description: e.target.value })
-            }
-          />
-        </FormField>
-        <FormField id="adm-svc-image" label={t.image} error={errors.image}>
-          <div className="adm-service-image">
-            {preview && <ImagePreview src={preview} fileName={t.image} />}
+            label={t.name}
+            required
+            error={errors.name}
+          >
             <input
-              id="adm-svc-image"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
+              id="adm-svc-name"
+              className="odm-inp"
               disabled={busy}
-              onChange={(event) => {
-                const file = event.target.files?.[0]
-                if (!file) return
-                if (
-                  !['image/jpeg', 'image/png', 'image/webp'].includes(
-                    file.type,
-                  ) ||
-                  file.size === 0 ||
-                  file.size > 5 * 1024 * 1024
-                ) {
-                  setErrors((current) => ({
-                    ...current,
-                    image: t.invalidImage,
-                  }))
-                  event.target.value = ''
-                  return
-                }
-                setErrors((current) => ({ ...current, image: '' }))
-                setImage(file)
-                setRemoveImage(false)
-              }}
+              value={values.name}
+              placeholder={t.namePlaceholder}
+              aria-invalid={!!errors.name}
+              onChange={(e) => setValues({ ...values, name: e.target.value })}
             />
-            <small>{t.imageHint}</small>
-            {(preview || image) && (
-              <button
-                type="button"
-                className="odm-btn odm-btn-sm"
-                disabled={busy}
-                onClick={() => {
-                  setImage(null)
-                  setRemoveImage(true)
-                  setErrors((current) => ({ ...current, image: '' }))
-                }}
-              >
-                {t.removeImage}
-              </button>
+          </FormField>
+          <FormField
+            id="adm-svc-desc"
+            label={t.description}
+            error={errors.description}
+          >
+            <textarea
+              id="adm-svc-desc"
+              className="odm-inp"
+              rows={3}
+              disabled={busy}
+              placeholder={t.descriptionPlaceholder}
+              value={values.description}
+              onChange={(e) =>
+                setValues({ ...values, description: e.target.value })
+              }
+            />
+          </FormField>
+          <section
+            aria-label={t.previewTitle}
+            className="adm-service-price-check"
+          >
+            <strong>{t.previewTitle}</strong>
+            {service?.id ? (
+              <>
+                <div className="catalog-service-price-actions">
+                  <button
+                    type="button"
+                    className="odm-btn odm-btn-sm"
+                    disabled={busy}
+                    onClick={() => void checkPrice()}
+                  >
+                    {t.previewButton}
+                  </button>{' '}
+                  <a
+                    className="odm-btn odm-btn-gh odm-btn-sm"
+                    href={adminHref({
+                      screen: 'serviceChecklists',
+                      serviceId: service.id,
+                    })}
+                  >
+                    {t.manageChecklists}
+                  </a>
+                </div>
+                {priceCheckError && <p role="alert">{priceCheckError}</p>}
+                {priceCheck && <ServicePriceSummary preview={priceCheck} />}
+              </>
+            ) : (
+              <small>{t.previewSaveFirst}</small>
             )}
-          </div>
-        </FormField>
-        <label className="adm-check">
-          <input
-            type="checkbox"
-            checked={values.isActive}
-            onChange={(e) =>
-              setValues({ ...values, isActive: e.target.checked })
-            }
-          />
-          <span>
-            {t.isActive}
-            <small>{t.isActiveHint}</small>
-          </span>
-        </label>
-        {submitError && (
-          <div role="alert" className="adm-alert is-danger">
-            {submitError}
-          </div>
-        )}
-      </form>
-    </Modal>
+          </section>
+          <FormField id="adm-svc-image" label={t.image} error={errors.image}>
+            <div className="adm-service-image">
+              {preview && (
+                <ImagePreview
+                  className="catalog-service-image-preview"
+                  src={preview}
+                  fileName={t.image}
+                />
+              )}
+              <div className="catalog-service-image-controls">
+                <input
+                  id="adm-svc-image"
+                  ref={imageInput}
+                  className="odm-visually-hidden"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={busy}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0]
+                    if (!file) return
+                    if (
+                      !['image/jpeg', 'image/png', 'image/webp'].includes(
+                        file.type,
+                      ) ||
+                      file.size === 0 ||
+                      file.size > 5 * 1024 * 1024
+                    ) {
+                      setErrors((current) => ({
+                        ...current,
+                        image: t.invalidImage,
+                      }))
+                      event.target.value = ''
+                      return
+                    }
+                    setErrors((current) => ({ ...current, image: '' }))
+                    setImage(file)
+                    setRemoveImage(false)
+                  }}
+                />
+                <div className="catalog-service-image-picker">
+                  <button
+                    type="button"
+                    className="odm-btn odm-btn-sm"
+                    disabled={busy}
+                    onClick={() => imageInput.current?.click()}
+                  >
+                    {preview || image ? t.changeImage : t.chooseImage}
+                  </button>
+                  <span
+                    className="catalog-service-image-name"
+                    title={image?.name}
+                  >
+                    {image?.name ?? (preview ? t.currentImage : t.noImage)}
+                  </span>
+                </div>
+                <small>{t.imageHint}</small>
+                {(preview || image) && (
+                  <button
+                    type="button"
+                    className="odm-btn odm-btn-sm"
+                    disabled={busy}
+                    onClick={() => {
+                      setImage(null)
+                      if (imageInput.current) imageInput.current.value = ''
+                      setRemoveImage(true)
+                      setErrors((current) => ({ ...current, image: '' }))
+                    }}
+                  >
+                    {t.removeImage}
+                  </button>
+                )}
+              </div>
+            </div>
+          </FormField>
+          <label className="adm-check catalog-service-status">
+            <input
+              type="checkbox"
+              role="switch"
+              aria-label={t.activityLabel}
+              disabled={busy}
+              checked={values.isActive}
+              onChange={(e) =>
+                setValues({ ...values, isActive: e.target.checked })
+              }
+            />
+            <span>
+              {values.isActive ? t.isActive : t.inactiveState}
+              <small>{t.isActiveHint}</small>
+            </span>
+          </label>
+          {submitError && (
+            <div role="alert" className="adm-alert is-danger">
+              {submitError}
+            </div>
+          )}
+        </form>
+      </Modal>
+    </div>
   )
 }
 

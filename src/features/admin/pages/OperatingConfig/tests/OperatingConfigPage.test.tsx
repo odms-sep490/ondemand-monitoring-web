@@ -44,6 +44,11 @@ describe('OperatingConfigPage', () => {
     ).toBeInTheDocument()
   })
 
+  it('keeps AI management in AI Operations', () => {
+    render(<OperatingConfigPage />)
+    expect(screen.queryByRole('tab', { name: 'AI đánh giá ảnh' })).not.toBeInTheDocument()
+  })
+
   it('shows independent quote and deposit timeout settings with the default values', async () => {
     render(<OperatingConfigPage />)
 

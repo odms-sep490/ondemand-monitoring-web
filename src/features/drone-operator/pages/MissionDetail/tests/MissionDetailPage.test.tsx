@@ -2,6 +2,8 @@ import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
+import * as auth from '../../../../auth/api/authApi'
+import * as checkData from '../checkData'
 import { setLanguage } from '../../../../../shared/i18n'
 import { MissionDetailPage } from '../MissionDetailPage'
 import { operatorApi } from '../../../api/operatorApi'
@@ -625,5 +627,59 @@ describe('MissionDetailScreen', () => {
     act(() => setLanguage('en'))
     expect(await screen.findByText('Could not load the mission')).toBeTruthy()
     expect(screen.getByText('Back to list')).toBeTruthy()
+  })
+})
+
+
+describe('Inspector weather-to-start workflow', () => {
+  it.each(['missing', 'expired'] as const)('checks %s weather, requires explicit confirmation, then starts', async (initial) => {
+    setLanguage('vi')
+    vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
+      ...mission, backendStatus: 'READY', status: 'READY_TO_FLY', myResponseStatus: 'ACCEPTED',
+      deviceAssignmentStatus: 'READY_TO_FLY', flightPermitStatus: 'APPROVED',
+      flightPermitUpdatedAt: new Date(Date.now() - 60000).toISOString(), latitude: 10.8, longitude: 106.7,
+    })
+    vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({ ...noActions, canStartMission: true })
+    const weather = {
+      id: 'weather-qa', status: 'PASS' as const, safeToFly: true, summary: 'Safe',
+      windSpeedMps: 1, windGustMps: 2, precipitationMmH: 0, visibilityKm: 10,
+      temperatureC: 28, humidityPercent: 70, advisories: [], checkedAt: new Date().toISOString(), inspectorAccepted: false,
+    }
+    vi.spyOn(checkData, 'fetchLatestWeatherCheck').mockResolvedValue(initial === 'missing' ? null : {
+      ...weather, checkedAt: new Date(Date.now() - 16 * 60000).toISOString(), inspectorAccepted: true,
+    })
+    const check = vi.spyOn(auth, 'authenticatedFetch').mockImplementation(async (url) => new Response(JSON.stringify({
+      data: String(url).includes('/api/weather/preflight-check') ? weather : null,
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } }))
+    const accept = vi.spyOn(checkData, 'acceptWeatherCheck').mockResolvedValue({ ...weather, inspectorAccepted: true })
+    const start = vi.spyOn(missionApi, 'startMission').mockResolvedValue({} as never)
+    render(<MissionDetailPage missionId="m" />)
+    fireEvent.click(await screen.findByRole('button', { name: /Kiểm tra (lại )?thời tiết/ }))
+    await waitFor(() => expect(check).toHaveBeenCalledWith(expect.stringContaining('/api/weather/preflight-check'), expect.objectContaining({
+      method: 'POST', body: JSON.stringify({ missionId: 'm', latitude: 10.8, longitude: 106.7 }),
+    })))
+    expect(await screen.findByText('1.0 / 2.0 m/s')).toBeInTheDocument()
+    expect(start).not.toHaveBeenCalled()
+    expect(screen.queryByRole('button', { name: 'Bắt đầu nhiệm vụ' })).not.toBeInTheDocument()
+    fireEvent.click(await screen.findByRole('button', { name: 'Xác nhận quyết định bay' }))
+    await waitFor(() => expect(accept).toHaveBeenCalledWith('m', 'weather-qa'))
+    const startButton = await screen.findByRole('button', { name: 'Bắt đầu nhiệm vụ' })
+    expect(start).not.toHaveBeenCalled()
+    fireEvent.click(startButton)
+    await waitFor(() => expect(start).toHaveBeenCalledExactlyOnceWith('m'))
+  })
+
+  it('hides weather approval and Start from a crew member without start permission', async () => {
+    setLanguage('vi')
+    vi.spyOn(operatorApi, 'getMission').mockResolvedValue({
+      ...mission, backendStatus: 'READY', status: 'READY_TO_FLY', myResponseStatus: 'ACCEPTED',
+      deviceAssignmentStatus: 'READY_TO_FLY', flightPermitStatus: 'APPROVED',
+    })
+    vi.spyOn(missionApi, 'getPermissions').mockResolvedValue({ ...noActions, canStartMission: false })
+    vi.spyOn(checkData, 'fetchLatestWeatherCheck').mockResolvedValue(null)
+    render(<MissionDetailPage missionId="m" />)
+    await screen.findByRole('heading', { level: 1, name: 'Mission MS-1' })
+    expect(screen.queryByRole('button', { name: 'Xác nhận quyết định bay' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Bắt đầu nhiệm vụ' })).not.toBeInTheDocument()
   })
 })

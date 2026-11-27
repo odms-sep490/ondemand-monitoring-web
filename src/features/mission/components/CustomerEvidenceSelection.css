@@ -112,61 +112,163 @@
   justify-content: flex-start;
   flex-wrap: wrap;
 }
+.customer-evidence-selection__suggestion-result.ant-alert {
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.customer-evidence-selection__suggestion-result .ant-alert-icon {
+  margin-inline-end: 8px;
+  font-size: 16px;
+}
+.customer-evidence-selection__suggestion-result .ant-alert-message {
+  font-size: 13px;
+  line-height: 20px;
+}
+.customer-evidence-selection__suggestion-result .ant-alert-description {
+  font-size: 12px;
+  line-height: 1.5;
+}
 .image-content-assessment {
   display: grid;
-  gap: 8px;
+  gap: 12px;
   min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--bd, #dce4ef);
+  border-radius: 10px;
+  background: var(--sf, #fff);
 }
 .image-content-assessment p,
 .image-content-assessment ul {
   margin: 0;
 }
-.image-content-assessment .customer-evidence-selection__actions {
+.image-content-assessment__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.image-content-assessment__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--blue-bg, #eff6ff);
+  color: var(--blue-fg, #1d4ed8);
+  font-size: 17px;
+}
+.image-content-assessment__header h4 {
+  margin: 0 0 3px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.image-content-assessment__header p,
+.image-content-assessment__advisory {
+  color: var(--tx3, #64748b);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.image-content-assessment__controls {
+  display: flex;
   align-items: end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.image-content-assessment__controls > .ant-btn {
+  height: 36px;
+  border-radius: 8px;
+  font-size: 13px;
 }
 .image-content-assessment__thumbnail {
   display: grid;
   place-items: center;
-  flex: 0 0 64px;
-  min-width: 0;
-  height: 48px;
+  flex: 0 0 52px;
+  height: 52px;
   overflow: hidden;
   border: 1px solid var(--bd, #dce4ef);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--sf2, #f4f7fb);
+  color: var(--tx3, #64748b);
+  font-size: 20px;
 }
 .image-content-assessment__thumbnail img {
   display: block;
   width: 100%;
   height: 100%;
   min-height: 0;
-  object-fit: contain;
+  object-fit: cover;
 }
 .image-content-assessment__choice {
   display: grid;
   gap: 4px;
   min-width: 0;
+  width: min(100%, 320px);
   max-width: 100%;
+  font-size: 12px;
+  font-weight: 600;
 }
 .image-content-assessment__choice select {
   min-width: 0;
-  max-width: 100%;
-  min-height: 38px;
-  padding: 6px 8px;
+  width: 100%;
+  height: 36px;
+  padding: 6px 10px;
   border: 1px solid var(--bd, #dce4ef);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--sf, #fff);
   color: inherit;
   font: inherit;
+  font-weight: 400;
+}
+.image-content-assessment__choice select:focus-visible {
+  outline: 2px solid var(--blue-dot, #2563eb);
+  outline-offset: 2px;
+}
+.image-content-assessment__choice select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.image-content-assessment__feedback:empty {
+  display: none;
 }
 .image-content-assessment__result {
-  padding: 10px 12px;
-  border-radius: 6px;
+  padding: 12px;
+  border: 1px solid var(--bd, #dce4ef);
+  border-radius: 8px;
   background: var(--sf2, #f4f7fb);
   overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.image-content-assessment__verdict {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.image-content-assessment__verdict .ant-tag {
+  margin: 0;
+}
+.image-content-assessment__result ul {
+  padding-left: 20px;
 }
 .image-content-assessment__result li {
-  margin-top: 6px;
+  padding-top: 10px;
+  line-height: 1.5;
+}
+.image-content-assessment__result li div {
+  color: var(--tx3, #64748b);
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  .image-content-assessment {
+    padding: 12px;
+  }
+  .image-content-assessment__choice {
+    flex: 1;
+    width: auto;
+  }
+  .image-content-assessment__controls > .ant-btn {
+    width: 100%;
+  }
 }
 .customer-evidence-selection__recommendation {
   display: grid;

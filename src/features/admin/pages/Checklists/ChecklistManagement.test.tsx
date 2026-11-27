@@ -117,6 +117,14 @@ describe('Admin checklist catalog', () => {
         expect.any(AbortSignal),
       ),
     )
+    fireEvent.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }))
+    await waitFor(() =>
+      expect(checklistsApi.list).toHaveBeenLastCalledWith(
+        '', undefined, 0, expect.any(AbortSignal),
+      ),
+    )
+    expect(screen.getByRole('searchbox')).toHaveValue('')
+    expect(screen.getByRole('combobox')).toHaveValue('')
   })
   it('sends the description and one list entry per non-empty line, in order', async () => {
     render(<ChecklistCatalogPage />)
@@ -409,9 +417,9 @@ describe('Admin service template', () => {
     expect(await within(picker).findByText(other.content)).toBeInTheDocument()
     expect(within(picker).queryByText(definition.content)).toBeNull()
     expect(within(picker).queryByText('Inactive')).toBeNull()
-    fireEvent.click(within(picker).getByRole('radio', { name: other.content }))
+    fireEvent.click(within(picker).getByRole('checkbox', { name: other.content }))
     fireEvent.click(
-      within(picker).getByRole('button', { name: 'Thêm checklist' }),
+      within(picker).getByRole('button', { name: 'Thêm 1 checklist' }),
     )
     await waitFor(() =>
       expect(checklistsApi.assign).toHaveBeenCalledWith('s', 'b', 1),
@@ -661,7 +669,7 @@ describe('Admin checklist visual structure and interaction', () => {
     })
     expect(confirm).toBeDisabled()
     fireEvent.click(
-      await within(modal).findByRole('radio', { name: other.content }),
+      await within(modal).findByRole('checkbox', { name: other.content }),
     )
     expect(checklistsApi.assign).not.toHaveBeenCalled()
     expect(confirm).toBeEnabled()
@@ -696,7 +704,7 @@ describe('Admin checklist visual structure and interaction', () => {
       'aria-describedby',
       'checklist-content-hint',
     )
-    expect(screen.getByRole('button', { name: 'Lưu' })).toHaveClass('odm-btn-p')
+    expect(screen.getByRole('button', { name: 'Lưu' })).toHaveClass('ui-btn', 'is-primary')
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByRole('dialog')).toBeNull()
   })
