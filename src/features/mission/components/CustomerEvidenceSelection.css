@@ -112,6 +112,22 @@
   justify-content: flex-start;
   flex-wrap: wrap;
 }
+.customer-evidence-selection__suggestion-result.ant-alert {
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.customer-evidence-selection__suggestion-result .ant-alert-icon {
+  margin-inline-end: 8px;
+  font-size: 16px;
+}
+.customer-evidence-selection__suggestion-result .ant-alert-message {
+  font-size: 13px;
+  line-height: 20px;
+}
+.customer-evidence-selection__suggestion-result .ant-alert-description {
+  font-size: 12px;
+  line-height: 1.5;
+}
 .image-content-assessment {
   display: grid;
   gap: 8px;

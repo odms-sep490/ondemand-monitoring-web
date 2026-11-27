@@ -390,6 +390,7 @@ export function CustomerEvidenceSelection({
           )}
           {activeSuggestion && (
             <Alert
+              className="customer-evidence-selection__suggestion-result"
               showIcon
               type={
                 activeSuggestion.suggestedImageCount <
@@ -403,23 +404,32 @@ export function CustomerEvidenceSelection({
                 activeSuggestion.requiredImageCount,
               )}
               description={
-                <>
-                  {activeSuggestion.warnings.map((code) => (
-                    <div key={code}>{suggestionReason(lang, code)}</div>
-                  ))}
-                  {(activeSuggestion.suggestedImageCount === 0 ||
-                    activeSuggestion.suggestedImageCount <
-                      activeSuggestion.requiredImageCount) && (
-                    <div>{suggestionText.qualityHint}</div>
-                  )}
-                </>
+                activeSuggestion.warnings.length > 0 ||
+                activeSuggestion.suggestedImageCount <
+                  activeSuggestion.requiredImageCount ||
+                activeSuggestion.suggestedImageCount === 0 ? (
+                  <>
+                    {activeSuggestion.warnings.map((code) => (
+                      <div key={code}>{suggestionReason(lang, code)}</div>
+                    ))}
+                    {(activeSuggestion.suggestedImageCount === 0 ||
+                      activeSuggestion.suggestedImageCount <
+                        activeSuggestion.requiredImageCount) && (
+                      <div>{suggestionText.qualityHint}</div>
+                    )}
+                  </>
+                ) : undefined
               }
             />
           )}
           <ImageContentAssessment
             missionId={missionId}
             executionId={item.id}
-            context={JSON.stringify([suggestionContext, suggestionAttempt, lang])}
+            context={JSON.stringify([
+              suggestionContext,
+              suggestionAttempt,
+              lang,
+            ])}
             suggestion={activeSuggestion}
             links={links}
             lang={lang}
