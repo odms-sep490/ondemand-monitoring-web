@@ -747,3 +747,30 @@
   padding-left: 12px;
   padding-right: 12px;
 }
+
+.checklist-picker-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ui-border);
+}
+.checklist-picker-toolbar > span {
+  color: var(--ui-primary-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+.checklist-picker-toolbar > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.checklist-picker-dialog .checklist-candidates {
+  margin-top: 8px;
+}
+.checklist-picker-dialog .checklist-candidate {
+  padding: 12px 14px;
+}

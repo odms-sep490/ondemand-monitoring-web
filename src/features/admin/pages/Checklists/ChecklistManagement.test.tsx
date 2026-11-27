@@ -417,9 +417,9 @@ describe('Admin service template', () => {
     expect(await within(picker).findByText(other.content)).toBeInTheDocument()
     expect(within(picker).queryByText(definition.content)).toBeNull()
     expect(within(picker).queryByText('Inactive')).toBeNull()
-    fireEvent.click(within(picker).getByRole('radio', { name: other.content }))
+    fireEvent.click(within(picker).getByRole('checkbox', { name: other.content }))
     fireEvent.click(
-      within(picker).getByRole('button', { name: 'Thêm checklist' }),
+      within(picker).getByRole('button', { name: 'Thêm 1 checklist' }),
     )
     await waitFor(() =>
       expect(checklistsApi.assign).toHaveBeenCalledWith('s', 'b', 1),
@@ -669,7 +669,7 @@ describe('Admin checklist visual structure and interaction', () => {
     })
     expect(confirm).toBeDisabled()
     fireEvent.click(
-      await within(modal).findByRole('radio', { name: other.content }),
+      await within(modal).findByRole('checkbox', { name: other.content }),
     )
     expect(checklistsApi.assign).not.toHaveBeenCalled()
     expect(confirm).toBeEnabled()
