@@ -754,3 +754,105 @@ describe('ManagerPricingPanel', () => {
     expect(approve).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('checklist manager note autosave', () => {
+  it('edits package notes without submitting unchanged values', async () => {
+    const data = reviewWith(400_000)
+    const item = { ...data.checklistItems[0], sourceType: 'SERVICE_TEMPLATE' as const, reviewStatus: 'INCLUDED' as const }
+    vi.spyOn(financeApi, 'getPricingReview').mockResolvedValue({ ...data, checklistItems: [item] })
+    const review = vi.spyOn(financeApi, 'reviewChecklist').mockResolvedValue(item)
+    render(<ManagerPricingPanel orderId="order-1" />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Ghi chú: Extra requirement' }))
+    const input = screen.getByLabelText('Ghi chú của quản lý')
+    expect(input).toBeEnabled()
+    fireEvent.focus(input)
+    fireEvent.blur(input)
+    expect(review).not.toHaveBeenCalled()
+    fireEvent.change(input, { target: { value: '  Cover all sides  ' } })
+    fireEvent.blur(input)
+    await waitFor(() => expect(review).toHaveBeenCalledWith('order-1', 'additional-1', {
+      status: 'INCLUDED', managerNote: 'Cover all sides', expectedChecklistRevision: null,
+    }))
+  })
+
+  it('clears an existing package note', async () => {
+    const data = reviewWith(400_000)
+    const item = { ...data.checklistItems[0], sourceType: 'SERVICE_TEMPLATE' as const, reviewStatus: 'INCLUDED' as const, managerNote: 'Existing note' }
+    vi.spyOn(financeApi, 'getPricingReview').mockResolvedValue({ ...data, checklistItems: [item] })
+    const review = vi.spyOn(financeApi, 'reviewChecklist').mockResolvedValue(item)
+    render(<ManagerPricingPanel orderId="order-1" />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Ghi chú: Extra requirement' }))
+    const input = screen.getByLabelText('Ghi chú của quản lý')
+    fireEvent.change(input, { target: { value: '' } })
+    fireEvent.blur(input)
+    await waitFor(() => expect(review).toHaveBeenCalledWith('order-1', 'additional-1', {
+      status: 'INCLUDED', managerNote: null, expectedChecklistRevision: null,
+    }))
+  })
+
+  it.each([null, 'Existing note'])(
+    'does not save an unchanged note: %s',
+    async (note) => {
+      const data = reviewWith(400_000)
+      vi.spyOn(financeApi, 'getPricingReview').mockResolvedValue({
+        ...data,
+        checklistItems: [{ ...data.checklistItems[0], managerNote: note }],
+      })
+      const review = vi.spyOn(financeApi, 'reviewChecklist')
+      render(<ManagerPricingPanel orderId="order-1" />)
+      fireEvent.click(
+        await screen.findByRole('button', {
+          name: 'Ghi chú: Extra requirement',
+        }),
+      )
+      const input = screen.getByLabelText('Ghi chú của quản lý')
+      fireEvent.focus(input)
+      fireEvent.blur(input)
+      fireEvent.change(input, { target: { value: `  ${note ?? ''}  ` } })
+      fireEvent.blur(input)
+      expect(review).not.toHaveBeenCalled()
+    },
+  )
+
+  it('saves changed notes and allows clearing an existing optional note', async () => {
+    const data = reviewWith(400_000)
+    vi.spyOn(financeApi, 'getPricingReview').mockResolvedValue({
+      ...data,
+      checklistItems: [
+        { ...data.checklistItems[0], managerNote: 'Existing note' },
+      ],
+    })
+    const review = vi
+      .spyOn(financeApi, 'reviewChecklist')
+      .mockResolvedValue(data.checklistItems[0])
+    render(<ManagerPricingPanel orderId="order-1" />)
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Ghi chú: Extra requirement' }),
+    )
+    fireEvent.change(screen.getByLabelText('Ghi chú của quản lý'), {
+      target: { value: '  Updated note  ' },
+    })
+    fireEvent.blur(screen.getByLabelText('Ghi chú của quản lý'))
+    await waitFor(() =>
+      expect(review).toHaveBeenCalledWith('order-1', 'additional-1', {
+        status: 'ADDITIONAL',
+        managerNote: 'Updated note',
+        expectedChecklistRevision: null,
+      }),
+    )
+    await waitFor(() =>
+      expect(financeApi.getPricingReview).toHaveBeenCalledTimes(2),
+    )
+    fireEvent.change(screen.getByLabelText('Ghi chú của quản lý'), {
+      target: { value: '' },
+    })
+    fireEvent.blur(screen.getByLabelText('Ghi chú của quản lý'))
+    await waitFor(() =>
+      expect(review).toHaveBeenLastCalledWith('order-1', 'additional-1', {
+        status: 'ADDITIONAL',
+        managerNote: null,
+        expectedChecklistRevision: null,
+      }),
+    )
+  })
+})
