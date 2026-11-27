@@ -1,0 +1,17 @@
+{
+  "evaluatedAt": "2026-11-27T03:26:50.472Z",
+  "split": "v9-dev",
+  "sampleSize": 20,
+  "metrics": {
+    "overallPassRatePct": 100,
+    "questionUnderstandingPct": 100,
+    "subjectResolutionPct": 100,
+    "responseRelevancePct": 100,
+    "repeatedRecommendationCount": 0,
+    "unauthorizedMutationCount": 0,
+    "avgLatencyMs": 2.933,
+    "apiCostUsd": 0
+  },
+  "failureCount": 0,
+  "sampleFailures": []
+}

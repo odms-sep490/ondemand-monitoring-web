@@ -279,6 +279,76 @@ export function CreateOrderPage() {
         ]))}
         serializeChecklist={checklist.serialize} checklistValid={checklist.valid} mediaTotals={checklist.mediaTotals} onApply={applyValidatedAgentDraft}
         onSubmitFinal={() => submit.submit()}
+        checklistActions={{
+          checklistSelectAll: () => {
+            if (checklist.status !== 'ready') return null
+            const rows = checklist.rows.filter((row) => !row.selected && row.packageItem !== false)
+            rows.forEach((row) => checklist.change(row.key, { selected: true }))
+            return rows.length
+          },
+          checklistClearAll: () => {
+            if (checklist.status !== 'ready') return null
+            const rows = checklist.rows.filter((row) => row.selected)
+            rows.forEach((row) => checklist.change(row.key, { selected: false }))
+            return rows.length
+          },
+          checklistSelectMandatoryOnly: () => {
+            if (checklist.status !== 'ready') return null
+            let changed = 0
+            checklist.rows.forEach((row) => {
+              const shouldSelect = row.required === true || row.packageItem === true
+              if (row.selected !== shouldSelect) {
+                checklist.change(row.key, { selected: shouldSelect })
+                changed += 1
+              }
+            })
+            return changed
+          },
+          checklistToggleItem: (index, keyword, selected) => {
+            if (checklist.status !== 'ready') return null
+            const rows = checklist.rows
+            if (index !== undefined) {
+              const row = rows[index]
+              if (!row) return null
+              if (row.required && !selected) return 0
+              checklist.change(row.key, { selected })
+              return 1
+            }
+            if (keyword) {
+              const q = keyword.toLowerCase()
+              const matched = rows.filter((r) => r.name.toLowerCase().includes(q))
+              if (!matched.length) return null
+              matched.forEach((r) => {
+                if (!(r.required && !selected)) checklist.change(r.key, { selected })
+              })
+              return matched.length
+            }
+            return null
+          },
+          checklistSetImages: (count) => {
+            if (checklist.status !== 'ready') return null
+            const rows = checklist.rows.filter(
+              (row) => row.selected && row.requestedImageCount !== count,
+            )
+            rows.forEach((row) =>
+              checklist.change(row.key, {
+                requestedImageCount: count,
+              }),
+            )
+            return rows.length
+          },
+          checklistSetVideos: (count) => {
+            if (checklist.status !== 'ready') return null
+            const rows = checklist.rows.filter((row) => row.selected && row.requiredEvidenceType !== 'IMAGE_AND_VIDEO' && row.requestedVideoCount !== count)
+            rows.forEach((row) => checklist.change(row.key, {
+              requestedVideoCount: count,
+              ...(count === 0 && row.requestedImageCount < 1 && row.includedImageCount + row.includedVideoCount > 0
+                ? { requestedImageCount: Math.max(1, row.includedImageCount) }
+                : {}),
+            }))
+            return rows.length
+          },
+        }}
         onOpenStep={f.setStep} onManualStepChange={setAssistantStep} renderStep={renderAssistantStep} serviceSelectionStep={step === 1} />
       {renderOrderStep(step)}
       {f.submitError && !submit.confirmOpen && (

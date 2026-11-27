@@ -3,19 +3,13 @@ import { Badge, Button } from 'antd'
 import { createPortal } from 'react-dom'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { authSession } from '../auth/api/authApi'
 import { useI18n } from '../../shared/i18n'
-import { createAssistantVoiceUtterance } from '../../shared/lib/assistantVoice'
-import { NotificationItem, notificationCopy } from './NotificationItems'
+import { NotificationItem } from './NotificationItems'
 import { notificationsHref } from './routes'
 import { notificationsMessages } from './notifications.messages'
-import type { AppNotification, NotificationRole } from './types'
+import type { NotificationRole } from './types'
 import { useNotifications } from './useNotifications'
 import './notifications.css'
-
-function notificationIds(items: AppNotification[]) {
-  return new Set(items.map((item) => item.id).filter(Boolean))
-}
 
 export function NotificationBell({
   role,
@@ -27,206 +21,11 @@ export function NotificationBell({
   const popoverId = 'odm-notification-popover'
   const { t } = useI18n(notificationsMessages)
   const notifications = useNotifications()
-  const managerId = authSession.getUser()?.id ?? 'manager'
   const [open, setOpen] = useState(false)
   const [position, setPosition] = useState({ top: 0, left: 12 })
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const restoreFocusOnClose = useRef(false)
-  const previousNotificationIds = useRef<{
-    managerId: string
-    ids: Set<string>
-  } | null>(null)
-  const handledNotificationIds = useRef<{
-    managerId: string
-    ids: Set<string>
-  } | null>(null)
-  const speechQueue = useRef<Array<{ notificationId: string; text: string }>>(
-    [],
-  )
-  const speaking = useRef(false)
-  const activeUtterance = useRef<SpeechSynthesisUtterance | null>(null)
-  const resumeSpeech = useRef<(() => void) | null>(null)
-
-  const playNextSpeech = useCallback(function playNextSpeechCallback() {
-    if (
-      speaking.current ||
-      resumeSpeech.current ||
-      speechQueue.current.length === 0
-    )
-      return
-    const synthesis = window.speechSynthesis
-    if (!synthesis) {
-      speechQueue.current = []
-      return
-    }
-
-    const announcement = speechQueue.current[0]
-    speaking.current = true
-    const speak = async () => {
-      let utterance: SpeechSynthesisUtterance | null = null
-      try {
-        utterance = await createAssistantVoiceUtterance(announcement.text)
-      } catch {
-        // Keep the unread alert queued for the next user gesture.
-      }
-      if (!speaking.current || speechQueue.current[0] !== announcement) return
-      if (!utterance) {
-        speaking.current = false
-        resumeSpeech.current = () => {
-          resumeSpeech.current = null
-          playNextSpeechCallback()
-        }
-        return
-      }
-
-      activeUtterance.current = utterance
-      utterance.onend = () => {
-        if (activeUtterance.current !== utterance) return
-        activeUtterance.current = null
-        speaking.current = false
-        const index = speechQueue.current.indexOf(announcement)
-        if (index >= 0) speechQueue.current.splice(index, 1)
-        playNextSpeechCallback()
-      }
-      utterance.onerror = () => {
-        if (activeUtterance.current !== utterance) return
-        activeUtterance.current = null
-        speaking.current = false
-        resumeSpeech.current = () => {
-          resumeSpeech.current = null
-          playNextSpeechCallback()
-        }
-      }
-      synthesis.speak(utterance)
-    }
-    void speak()
-  }, [])
-
-  useEffect(() => {
-    if (role !== 'MANAGER') return
-    const resume = () => {
-      const play = resumeSpeech.current
-      window.speechSynthesis?.resume()
-      if (!play) {
-        if (!speaking.current && speechQueue.current.length > 0)
-          playNextSpeech()
-        return
-      }
-      resumeSpeech.current = null
-      play()
-    }
-    window.addEventListener('pointerdown', resume)
-    window.addEventListener('keydown', resume)
-    return () => {
-      window.removeEventListener('pointerdown', resume)
-      window.removeEventListener('keydown', resume)
-    }
-  }, [playNextSpeech, role])
-
-  useEffect(() => {
-    const current = speechQueue.current[0]
-    if (
-      current &&
-      speaking.current &&
-      notifications.readIds.has(current.notificationId)
-    ) {
-      window.speechSynthesis?.cancel()
-      activeUtterance.current = null
-      speechQueue.current.shift()
-      speaking.current = false
-    }
-    speechQueue.current = speechQueue.current.filter(
-      (announcement) => !notifications.readIds.has(announcement.notificationId),
-    )
-    if (speechQueue.current.length === 0) resumeSpeech.current = null
-    else if (!speaking.current && !resumeSpeech.current) playNextSpeech()
-  }, [notifications.readIds, playNextSpeech])
-
-  useEffect(() => {
-    if (role !== 'MANAGER' || !notifications.loaded) return
-    if (
-      !handledNotificationIds.current ||
-      handledNotificationIds.current.managerId !== managerId
-    ) {
-      handledNotificationIds.current = { managerId, ids: new Set() }
-    }
-    const handledIds = handledNotificationIds.current.ids
-    const currentNotificationIds = notificationIds(notifications.items)
-    const previous = previousNotificationIds.current
-
-    if (!previous || previous.managerId !== managerId) {
-      previousNotificationIds.current = {
-        managerId,
-        ids: currentNotificationIds,
-      }
-      const unreadNotifications = notifications.items.filter(
-        (item) =>
-          !notifications.readIds.has(item.id) && !handledIds.has(item.id),
-      )
-      currentNotificationIds.forEach((id) => handledIds.add(id))
-      speechQueue.current.push(
-        ...unreadNotifications.map((notification) => ({
-          notificationId: notification.id,
-          text:
-            notification.type === 'ORDER_CREATED'
-              ? 'Bạn có đơn hàng mới cần xử lý nè.'
-              : (() => {
-                  const copy = notificationCopy(
-                    notification,
-                    notificationsMessages.vi,
-                  )
-                  return `${copy.title}. ${copy.description}`
-                })(),
-        })),
-      )
-      playNextSpeech()
-      return
-    }
-
-    const addedNotificationIds = [...currentNotificationIds].filter(
-      (id) => !previous.ids.has(id),
-    )
-    previousNotificationIds.current = {
-      managerId,
-      ids: currentNotificationIds,
-    }
-    if (addedNotificationIds.length === 0) return
-
-    const newNotificationIds = addedNotificationIds.filter(
-      (id) => !handledIds.has(id),
-    )
-    newNotificationIds.forEach((id) => handledIds.add(id))
-    const addedIdSet = new Set(newNotificationIds)
-    const newNotifications = notifications.items.filter(
-      (item) => addedIdSet.has(item.id),
-    )
-    speechQueue.current.push(
-      ...newNotifications
-        .filter((item) => !notifications.readIds.has(item.id))
-        .map((notification) => ({
-          notificationId: notification.id,
-          text:
-            notification.type === 'ORDER_CREATED'
-              ? 'Bạn có đơn hàng mới cần xử lý nè.'
-              : (() => {
-                  const copy = notificationCopy(
-                    notification,
-                    notificationsMessages.vi,
-                  )
-                  return `${copy.title}. ${copy.description}`
-                })(),
-        })),
-    )
-    playNextSpeech()
-  }, [
-    managerId,
-    notifications.items,
-    notifications.loaded,
-    notifications.readIds,
-    playNextSpeech,
-    role,
-  ])
 
   const updatePosition = useCallback(() => {
     const rect = triggerRef.current?.getBoundingClientRect()

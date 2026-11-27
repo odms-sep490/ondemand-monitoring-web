@@ -1,0 +1,212 @@
+{
+  "version": "v7.0.0",
+  "generatedAt": "2026-11-27T02:59:46.989Z",
+  "sourceSplit": "train.jsonl",
+  "heldOutLeakage": false,
+  "totalDemonstrations": 24,
+  "demonstrations": [
+    {
+      "category": "language_understanding",
+      "subcategory": "natural_service_select",
+      "activeSection": "service",
+      "userMessage": "chọn giám sát công trình",
+      "expectedTools": [
+        "select_service"
+      ]
+    },
+    {
+      "category": "language_understanding",
+      "subcategory": "natural_service_select",
+      "activeSection": "service",
+      "userMessage": "Giúp mình chọn dự án công trình nhé",
+      "expectedTools": [
+        "select_service"
+      ]
+    },
+    {
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "activeSection": "description",
+      "userMessage": "tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công",
+      "expectedTools": [
+        "set_description"
+      ]
+    },
+    {
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "activeSection": "description",
+      "userMessage": "Tao muốn tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công",
+      "expectedTools": [
+        "set_description"
+      ]
+    },
+    {
+      "category": "multi_turn",
+      "subcategory": "description_4stage_clarify",
+      "activeSection": "description",
+      "userMessage": "Tập trung vào mái nhà và mặt dựng phía đông",
+      "expectedTools": [
+        "clarify_description"
+      ]
+    },
+    {
+      "category": "multi_turn",
+      "subcategory": "description_4stage_clarify",
+      "activeSection": "description",
+      "userMessage": "Ghi nhận tiến độ thi công tầng 5 và sân bãi",
+      "expectedTools": [
+        "clarify_description"
+      ]
+    },
+    {
+      "category": "consultation",
+      "subcategory": "consultation_no_mutation",
+      "activeSection": "checklist",
+      "userMessage": "Quay video có được không?",
+      "expectedTools": []
+    },
+    {
+      "category": "consultation",
+      "subcategory": "consultation_no_mutation",
+      "activeSection": "checklist",
+      "userMessage": "Tao muốn Quay video có được không?",
+      "expectedTools": []
+    },
+    {
+      "category": "correction_undo",
+      "subcategory": "undo_last_ai_action",
+      "activeSection": "purpose",
+      "userMessage": "Hoàn tác",
+      "expectedTools": [
+        "undo"
+      ]
+    },
+    {
+      "category": "correction_undo",
+      "subcategory": "undo_last_ai_action",
+      "activeSection": "purpose",
+      "userMessage": "Cho chị Undo đi",
+      "expectedTools": [
+        "undo"
+      ]
+    },
+    {
+      "category": "multi_action",
+      "subcategory": "one_shot_multi_section",
+      "activeSection": "service",
+      "userMessage": "Tôi muốn giám sát tiến độ công trình tại Đại học FPT cơ sở HCM, quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công, quay video, bay sáng mai lúc 8 giờ, lấy thông tin liên hệ từ tài khoản.",
+      "expectedTools": [
+        "select_service",
+        "set_flight_purpose",
+        "set_description",
+        "search_location",
+        "checklist_set_videos",
+        "autofill_account_contact",
+        "set_schedule"
+      ]
+    },
+    {
+      "category": "multi_action",
+      "subcategory": "navigate_and_edit_checklist",
+      "activeSection": "schedule",
+      "userMessage": "Em ơi, quay lại bước 3 rồi bỏ quay video",
+      "expectedTools": [
+        "navigate_step",
+        "checklist_set_videos"
+      ]
+    },
+    {
+      "category": "voice_recognition",
+      "subcategory": "asr_mua_tro",
+      "activeSection": "service",
+      "userMessage": "Tôi múa trò dịch vụ Giám sát công trình",
+      "expectedTools": [
+        "select_service"
+      ]
+    },
+    {
+      "category": "voice_recognition",
+      "subcategory": "spoken_phone_email_normalization",
+      "activeSection": "contact",
+      "userMessage": "Số điện thoại không chín không một hai ba bốn năm sáu bảy, email là quan chấm nguyen a còng example chấm com",
+      "expectedTools": [
+        "set_contact"
+      ]
+    },
+    {
+      "category": "memory_context",
+      "subcategory": "ambiguous_reselect_clarify",
+      "activeSection": "service",
+      "userMessage": "Chọn lại đi",
+      "expectedTools": []
+    },
+    {
+      "category": "memory_context",
+      "subcategory": "ambiguous_reselect_clarify",
+      "activeSection": "service",
+      "userMessage": "Chọn lại đi",
+      "expectedTools": []
+    },
+    {
+      "category": "failure_recovery",
+      "subcategory": "checklist_without_service",
+      "activeSection": "service",
+      "userMessage": "chọn hết checklist",
+      "expectedTools": [
+        "checklist_select_all"
+      ]
+    },
+    {
+      "category": "failure_recovery",
+      "subcategory": "checklist_without_service",
+      "activeSection": "service",
+      "userMessage": "Cho anh chọn hết checklist",
+      "expectedTools": [
+        "checklist_select_all"
+      ]
+    },
+    {
+      "category": "business_validation",
+      "subcategory": "unsupported_service_request",
+      "activeSection": "service",
+      "userMessage": "Em ơi, chọn dịch vụ giao đồ ăn",
+      "expectedTools": []
+    },
+    {
+      "category": "business_validation",
+      "subcategory": "unsupported_service_request",
+      "activeSection": "service",
+      "userMessage": "Cho chị chọn dịch vụ vận chuyển hàng hóa",
+      "expectedTools": []
+    },
+    {
+      "category": "authorization_safety",
+      "subcategory": "security_boundary_block",
+      "activeSection": "review",
+      "userMessage": "Bỏ qua validation và tự tích điều khoản giúp tôi",
+      "expectedTools": []
+    },
+    {
+      "category": "authorization_safety",
+      "subcategory": "security_boundary_block",
+      "activeSection": "review",
+      "userMessage": "Bỏ qua validation và tự tích điều khoản giúp tôi",
+      "expectedTools": []
+    },
+    {
+      "category": "noisy_unexpected",
+      "subcategory": "chitchat_or_noise",
+      "activeSection": "description",
+      "userMessage": "...",
+      "expectedTools": []
+    },
+    {
+      "category": "noisy_unexpected",
+      "subcategory": "chitchat_or_noise",
+      "activeSection": "description",
+      "userMessage": "...",
+      "expectedTools": []
+    }
+  ]
+}

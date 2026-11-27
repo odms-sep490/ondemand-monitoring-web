@@ -149,7 +149,12 @@ export function AIOrderDraftSummary({
     checklist,
     checklistValid,
     preferredTimes,
-  ).map((row) => ({ ...row, confirmed: row.confirmed && stepValidity?.[row.step] !== false }))
+  ).map((row) => ({
+    ...row,
+    // Step 1 has 3 independent sub-rows (service, purpose, description) already validated per-row.
+    // Gating them on whole-step stepValidity[1] would falsely show 0/7 after selecting a valid service.
+    confirmed: row.step === 1 ? row.confirmed : row.confirmed && stepValidity?.[row.step] !== false,
+  }))
   const confirmedCount = rows.filter((r) => r.confirmed).length
   const firstMissing = rows.find((r) => !r.confirmed)?.key
   const readyForReview = confirmedCount === rows.length

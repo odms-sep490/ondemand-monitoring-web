@@ -1,0 +1,1082 @@
+{
+  "evaluatedAt": "2026-11-27T02:58:09.582Z",
+  "split": "critical-regression",
+  "sampleSize": 120,
+  "metrics": {
+    "overallPassRatePct": 46.67,
+    "intentAccuracyPct": 46.67,
+    "toolSelectionAccuracyPct": 46.67,
+    "toolArgumentAccuracyPct": 90.83,
+    "finalStateCorrectnessPct": 90.83,
+    "falseSuccessCount": 0,
+    "unauthorizedStateChanges": 2,
+    "avgLatencyMs": 1.906,
+    "apiCostUsd": 0
+  },
+  "byCategory": {
+    "language_understanding": {
+      "total": 68,
+      "passed": 25,
+      "passRatePct": 36.76
+    },
+    "form_automation": {
+      "total": 18,
+      "passed": 0,
+      "passRatePct": 0
+    },
+    "consultation": {
+      "total": 12,
+      "passed": 10,
+      "passRatePct": 83.33
+    },
+    "multi_action": {
+      "total": 4,
+      "passed": 3,
+      "passRatePct": 75
+    },
+    "failure_recovery": {
+      "total": 18,
+      "passed": 18,
+      "passRatePct": 100
+    }
+  },
+  "failureCount": 64,
+  "failuresByType": {
+    "tool_sequence_mismatch": 64,
+    "arg_mismatch:target": 11,
+    "visible_section_mismatch:null": 11,
+    "unauthorized_state_change": 2
+  },
+  "sampleFailures": [
+    {
+      "scenarioId": "v7-language_understanding-0003",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0008",
+      "scenarioFamily": "language_understanding:lang-negation-svc-build-to-svc-forest",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan, không phải Giám sát công trình, đổi sang Giám sát rừng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát rừng. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0013",
+      "scenarioFamily": "language_understanding:lang-negation-svc-factory-to-svc-build",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nhé, không phải Kiểm tra nhà xưởng, đổi sang Giám sát công trình",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát công trình. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0018",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nhé, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0023",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nhé, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0028",
+      "scenarioFamily": "language_understanding:lang-negation-svc-build-to-svc-forest",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nha, không phải Giám sát công trình, đổi sang Giám sát rừng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát rừng. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0030",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Mình muốn Quay lại chọn dịch vụ nha",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0033",
+      "scenarioFamily": "language_understanding:lang-negation-svc-factory-to-svc-build",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nha, không phải Kiểm tra nhà xưởng, đổi sang Giám sát công trình",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát công trình. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0035",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Ê em, Tôi muốn quay lại chọn dịch vụ nha",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0038",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giùm anh, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0043",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giùm anh, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0048",
+      "scenarioFamily": "language_understanding:lang-negation-svc-build-to-svc-forest",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giùm anh, không phải Giám sát công trình, đổi sang Giám sát rừng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát rừng. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0053",
+      "scenarioFamily": "language_understanding:lang-negation-svc-factory-to-svc-build",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giúp chị, không phải Kiểm tra nhà xưởng, đổi sang Giám sát công trình",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát công trình. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0055",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Tao muốn Quay lại chọn dịch vụ giúp chị",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0058",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giúp chị, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0060",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Làm ơn Tôi muốn quay lại chọn dịch vụ giúp chị",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0063",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan đi em, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0068",
+      "scenarioFamily": "language_understanding:lang-negation-svc-build-to-svc-forest",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan đi em, không phải Giám sát công trình, đổi sang Giám sát rừng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát rừng. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0073",
+      "scenarioFamily": "language_understanding:lang-negation-svc-factory-to-svc-build",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan luôn nhé, không phải Kiểm tra nhà xưởng, đổi sang Giám sát công trình",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát công trình. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0078",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan luôn nhé, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0080",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Nhờ trợ lý Quay lại chọn dịch vụ luôn nhé",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0083",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan luôn nhé, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0085",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Tôi muốn quay lại chọn dịch vụ với ạ",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0088",
+      "scenarioFamily": "language_understanding:lang-negation-svc-build-to-svc-forest",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan với ạ, không phải Giám sát công trình, đổi sang Giám sát rừng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát rừng. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0093",
+      "scenarioFamily": "language_understanding:lang-negation-svc-factory-to-svc-build",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan với ạ, không phải Kiểm tra nhà xưởng, đổi sang Giám sát công trình",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát công trình. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0098",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan., không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0103",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan., không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0108",
+      "scenarioFamily": "language_understanding:lang-negation-svc-build-to-svc-forest",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan., không phải Giám sát công trình, đổi sang Giám sát rừng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát rừng. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0113",
+      "scenarioFamily": "language_understanding:lang-negation-svc-factory-to-svc-build",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan, không phải Kiểm tra nhà xưởng, đổi sang Giám sát công trình",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát công trình. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0118",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0128",
+      "scenarioFamily": "language_understanding:lang-negation-svc-build-to-svc-forest",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nhé, không phải Giám sát công trình, đổi sang Giám sát rừng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát rừng. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0130",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Này em, Quay lại chọn dịch vụ nhé",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0135",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Alo bạn ơi, Tôi muốn quay lại chọn dịch vụ nha",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0138",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nha, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0143",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nha, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0153",
+      "scenarioFamily": "language_understanding:lang-negation-svc-factory-to-svc-build",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giùm anh, không phải Kiểm tra nhà xưởng, đổi sang Giám sát công trình",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát công trình. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0155",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Ê em, Quay lại chọn dịch vụ giùm anh",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0160",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Cho anh Tôi muốn quay lại chọn dịch vụ giúp chị",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0163",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giúp chị, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0168",
+      "scenarioFamily": "language_understanding:lang-negation-svc-build-to-svc-forest",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giúp chị, không phải Giám sát công trình, đổi sang Giám sát rừng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát rừng. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    }
+  ]
+}

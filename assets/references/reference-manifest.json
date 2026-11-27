@@ -1,0 +1,61 @@
+{
+  "campus": "FPT University Ho Chi Minh City (Saigon Hi-Tech Park, Thu Duc City)",
+  "architect": "VTN Architects (Vo Trong Nghia Architects)",
+  "note": "Only public web metadata/summaries returned via search were directly inspected in this session; full copyrighted image galleries behind external sites were not scraped or fabricated.",
+  "sources": [
+    {
+      "id": "SRC-A",
+      "name": "Ashui Awards — Trung tâm Đào tạo và Nghiên cứu Công nghệ ĐH FPT TP.HCM",
+      "url": "https://ashui.com/awards/trung-tam-dao-tao-va-nghien-cuu-cong-nghe-dai-hoc-fpt-tphcm-vtn-architects/",
+      "view_directions": ["aerial", "courtyard", "facade", "rooftop_terraces"],
+      "visible_details": "Stepped forested-mountain massing around central park courtyard, site ~22,540 m2, warm white concrete with tropical greenery",
+      "confidence": "HIGH",
+      "status": "SUMMARY_INSPECTED_VIA_WEB_SEARCH"
+    },
+    {
+      "id": "SRC-B1",
+      "name": "VTN Architects — FPT University Ho Chi Minh (VN)",
+      "url": "https://vtnarchitects.net/truong-dai-hoc-fpt-ho-chi-minh-p253.html",
+      "view_directions": ["aerial", "courtyard", "facade", "concept_diagram"],
+      "visible_details": "Forested mountain concept, undulating stepped floors rising to 3 corners, central green park courtyard, 22,500 m2 site, 29,000 m2 GFA",
+      "confidence": "HIGH",
+      "status": "SUMMARY_INSPECTED_VIA_WEB_SEARCH"
+    },
+    {
+      "id": "SRC-B2",
+      "name": "VTN Architects — Ho Chi Minh FPT University (EN)",
+      "url": "https://vtnarchitects.net/ho-chi-minh-fpt-university-pe253.html",
+      "view_directions": ["aerial", "courtyard", "terrace_gardens"],
+      "visible_details": "Staggered green floor plates, passive cooling vegetation, courtyard pond & social gathering park",
+      "confidence": "HIGH",
+      "status": "SUMMARY_INSPECTED_VIA_WEB_SEARCH"
+    },
+    {
+      "id": "SRC-C",
+      "name": "FPT University Official — Green Campus Tour",
+      "url": "https://daihoc.fpt.edu.vn/en/tin-tuc-chung-2/tham-quan-campus-xanh-cua-dai-hoc-fpt-tp-hcm/",
+      "view_directions": ["courtyard", "entrance", "walkways", "landscaping"],
+      "visible_details": "Completed campus courtyard lawns, tropical trees, pedestrian pathways, FPT orange branding and concrete frame",
+      "confidence": "HIGH",
+      "status": "SUMMARY_INSPECTED_VIA_WEB_SEARCH"
+    },
+    {
+      "id": "SRC-D",
+      "name": "ArchDaily — Vo Trong Nghia's FPT University HCMC",
+      "url": "https://www.archdaily.com/772769/vo-trong-nghias-fpt-university-ho-chi-minh-city-is-inspired-by-a-forested-mountain",
+      "view_directions": ["aerial", "section_concept", "courtyard"],
+      "visible_details": "Sloping stepped configuration wrapping central park courtyard with water pond and passive shading greenery",
+      "confidence": "HIGH",
+      "status": "SUMMARY_INSPECTED_VIA_WEB_SEARCH"
+    },
+    {
+      "id": "SRC-E",
+      "name": "FPT University HCMC Planning & Sustainability",
+      "url": "https://qhdn-hcmuni.fpt.edu.vn/2024/09/20/planning-and-expanding-new-fpt-university-campuses-ensuring-sustainability-and-responsible-land-use/",
+      "view_directions": ["campus_planning"],
+      "visible_details": "Distinguishes original academic building phase from later campus expansion",
+      "confidence": "MEDIUM",
+      "status": "REFERENCE_DOCUMENTED"
+    }
+  ]
+}

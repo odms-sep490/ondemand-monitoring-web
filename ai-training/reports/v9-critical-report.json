@@ -1,0 +1,69 @@
+{
+  "evaluatedAt": "2026-11-27T03:26:50.538Z",
+  "split": "v9-critical",
+  "sampleSize": 81,
+  "metrics": {
+    "overallPassRatePct": 96.3,
+    "questionUnderstandingPct": 96.3,
+    "subjectResolutionPct": 100,
+    "responseRelevancePct": 100,
+    "repeatedRecommendationCount": 0,
+    "unauthorizedMutationCount": 0,
+    "avgLatencyMs": 0.494,
+    "apiCostUsd": 0
+  },
+  "failureCount": 3,
+  "sampleFailures": [
+    {
+      "scenarioId": "v9-vietnamese_asr_consultation-0112",
+      "category": "vietnamese_asr_consultation",
+      "userMessage": "Quay phim trên cao là sao?",
+      "expected": {
+        "cat": "HOW",
+        "subj": "video_recording",
+        "actions": []
+      },
+      "actual": {
+        "handled": true,
+        "cat": "WHAT",
+        "subj": "video_recording",
+        "actions": [],
+        "violations": []
+      }
+    },
+    {
+      "scenarioId": "v9-vietnamese_asr_consultation-0113",
+      "category": "vietnamese_asr_consultation",
+      "userMessage": "Quay phim trên cao là sao nhé?",
+      "expected": {
+        "cat": "HOW",
+        "subj": "video_recording",
+        "actions": []
+      },
+      "actual": {
+        "handled": true,
+        "cat": "WHAT",
+        "subj": "video_recording",
+        "actions": [],
+        "violations": []
+      }
+    },
+    {
+      "scenarioId": "v9-vietnamese_asr_consultation-0114",
+      "category": "vietnamese_asr_consultation",
+      "userMessage": "Quay phim trên cao là sao vậy em?",
+      "expected": {
+        "cat": "HOW",
+        "subj": "video_recording",
+        "actions": []
+      },
+      "actual": {
+        "handled": true,
+        "cat": "WHAT",
+        "subj": "video_recording",
+        "actions": [],
+        "violations": []
+      }
+    }
+  ]
+}

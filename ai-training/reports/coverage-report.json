@@ -1,0 +1,80 @@
+{
+  "generatedAt": "2026-11-27T02:58:03.036Z",
+  "rawCount": 1200,
+  "validCount": 709,
+  "invalidCount": 0,
+  "duplicatesRemoved": 491,
+  "splits": {
+    "train": 561,
+    "dev": 71,
+    "heldOut": 77,
+    "criticalRegression": 120,
+    "adversarial": 73,
+    "voiceIntegration": 7
+  },
+  "familyCount": 85,
+  "byCategory": {
+    "language_understanding": 176,
+    "form_automation": 132,
+    "multi_turn": 102,
+    "consultation": 12,
+    "correction_undo": 87,
+    "multi_action": 44,
+    "voice_recognition": 7,
+    "memory_context": 32,
+    "failure_recovery": 33,
+    "business_validation": 44,
+    "authorization_safety": 28,
+    "noisy_unexpected": 12
+  },
+  "toolCoverage": {
+    "coveredCount": 20,
+    "totalAllowlisted": 37,
+    "coveredTools": [
+      "append_description",
+      "apply_description",
+      "autofill_account_contact",
+      "checklist_select_all",
+      "checklist_select_mandatory_only",
+      "checklist_set_videos",
+      "clarify_description",
+      "clear_service",
+      "improve_description",
+      "keep_previous",
+      "navigate_step",
+      "redo",
+      "reopen_selection",
+      "search_location",
+      "select_service",
+      "set_contact",
+      "set_description",
+      "set_flight_purpose",
+      "set_schedule",
+      "undo"
+    ],
+    "uncoveredTools": [
+      "go_back",
+      "continue_workflow",
+      "confirm_section",
+      "remove_description_content",
+      "clear_description",
+      "read_description",
+      "evaluate_description",
+      "clear_monitoring_area",
+      "open_map",
+      "checklist_clear_all",
+      "checklist_toggle_item",
+      "checklist_set_images",
+      "set_result_formats",
+      "validate_complete_draft",
+      "reset",
+      "submit",
+      "confirm_submit"
+    ]
+  },
+  "sectionCoverage": {
+    "coveredCount": 8,
+    "totalSections": 8,
+    "uncoveredSections": []
+  }
+}

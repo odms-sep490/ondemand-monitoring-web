@@ -1,0 +1,410 @@
+{
+  "timestamp": "2026-11-27T02:32:10.126Z",
+  "label": "v4",
+  "totalScenarios": 520,
+  "devCount": 352,
+  "heldoutCount": 168,
+  "overall": {
+    "total": 520,
+    "passed": 495,
+    "endToEndCompletionRate": 95.2,
+    "intentAccuracy": 96.9,
+    "toolCallingAccuracy": 96.9,
+    "argumentCorrectness": 99.2,
+    "navigationAccuracy": 92.6,
+    "finalStateCorrectness": 96.5,
+    "vietnameseUnderstanding": 96.8,
+    "contextRetention": 96.3,
+    "correctionHandling": 90.2,
+    "unnecessaryClarificationRate": 0.2,
+    "falseSuccessRate": 0,
+    "avgLatencyMs": 3.427,
+    "p95LatencyMs": 9.785,
+    "avgEstimatedTokens": 144
+  },
+  "dev": {
+    "total": 352,
+    "passed": 335,
+    "endToEndCompletionRate": 95.2,
+    "intentAccuracy": 96.6,
+    "toolCallingAccuracy": 96.6,
+    "argumentCorrectness": 99.1,
+    "navigationAccuracy": 90.8,
+    "finalStateCorrectness": 96.6,
+    "vietnameseUnderstanding": 96.2,
+    "contextRetention": 94.4,
+    "correctionHandling": 91.3,
+    "unnecessaryClarificationRate": 0.3,
+    "falseSuccessRate": 0,
+    "avgLatencyMs": 3.945,
+    "p95LatencyMs": 11.928,
+    "avgEstimatedTokens": 144
+  },
+  "heldout": {
+    "total": 168,
+    "passed": 160,
+    "endToEndCompletionRate": 95.2,
+    "intentAccuracy": 97.6,
+    "toolCallingAccuracy": 97.6,
+    "argumentCorrectness": 99.4,
+    "navigationAccuracy": 96.7,
+    "finalStateCorrectness": 96.4,
+    "vietnameseUnderstanding": 98,
+    "contextRetention": 100,
+    "correctionHandling": 87.9,
+    "unnecessaryClarificationRate": 0,
+    "falseSuccessRate": 0,
+    "avgLatencyMs": 2.341,
+    "p95LatencyMs": 7.31,
+    "avgEstimatedTokens": 144
+  },
+  "byCategory": {
+    "natural_vietnamese": {
+      "total": 36,
+      "passed": 34,
+      "passRate": 94.4
+    },
+    "regional_expressions": {
+      "total": 28,
+      "passed": 26,
+      "passRate": 92.9
+    },
+    "missing_accents": {
+      "total": 30,
+      "passed": 30,
+      "passRate": 100
+    },
+    "typos": {
+      "total": 28,
+      "passed": 28,
+      "passRate": 100
+    },
+    "asr_errors": {
+      "total": 32,
+      "passed": 31,
+      "passRate": 96.9
+    },
+    "multi_action": {
+      "total": 36,
+      "passed": 36,
+      "passRate": 100
+    },
+    "relative_references": {
+      "total": 30,
+      "passed": 28,
+      "passRate": 93.3
+    },
+    "ambiguous_references": {
+      "total": 24,
+      "passed": 24,
+      "passRate": 100
+    },
+    "negative_commands": {
+      "total": 28,
+      "passed": 22,
+      "passRate": 78.6
+    },
+    "user_corrections": {
+      "total": 28,
+      "passed": 27,
+      "passRate": 96.4
+    },
+    "reselection": {
+      "total": 26,
+      "passed": 24,
+      "passRate": 92.3
+    },
+    "interruptions": {
+      "total": 24,
+      "passed": 21,
+      "passRate": 87.5
+    },
+    "conditional_instructions": {
+      "total": 20,
+      "passed": 19,
+      "passRate": 95
+    },
+    "undo_redo": {
+      "total": 22,
+      "passed": 22,
+      "passRate": 100
+    },
+    "service_changes": {
+      "total": 26,
+      "passed": 26,
+      "passRate": 100
+    },
+    "context_retention": {
+      "total": 24,
+      "passed": 24,
+      "passRate": 100
+    },
+    "api_failures": {
+      "total": 18,
+      "passed": 15,
+      "passRate": 83.3
+    },
+    "manual_ui_changes": {
+      "total": 18,
+      "passed": 18,
+      "passRate": 100
+    },
+    "security_restrictions": {
+      "total": 22,
+      "passed": 22,
+      "passRate": 100
+    },
+    "submission_confirmation": {
+      "total": 20,
+      "passed": 18,
+      "passRate": 90
+    }
+  },
+  "sampleFailures": [
+    {
+      "id": "EVAL-022",
+      "split": "dev",
+      "category": "natural_vietnamese",
+      "input": "Tôi muốn khoanh vùng khu vực tại xã An Phú, huyện Củ Chi, TP Hồ Chí Minh",
+      "reasons": [
+        "expected_actions:[open_map] got:[]",
+        "unnecessary_clarification:Anh/chị muốn chọn dịch vụ nào: Giám sát rừng hay Giám sát khu vực?",
+        "nav_step:expected=2,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-035",
+      "split": "dev",
+      "category": "natural_vietnamese",
+      "input": "Mở màn hình xem lại để tôi kiểm tra bản nháp",
+      "reasons": [
+        "expected_actions:[reopen_selection] got:[validate_complete_draft]",
+        "arg_mismatch:target=review",
+        "nav_section:expected=review,got=undefined",
+        "nav_step:expected=6,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-055",
+      "split": "dev",
+      "category": "regional_expressions",
+      "input": "Lấy cái cuối cùng nha",
+      "reasons": [
+        "serviceId:expected=svc-area,got=svc-forest"
+      ]
+    },
+    {
+      "id": "EVAL-063",
+      "split": "heldout",
+      "category": "regional_expressions",
+      "input": "Nộp đơn giùm anh đi em",
+      "reasons": [
+        "expected_actions:[submit] got:[]"
+      ]
+    },
+    {
+      "id": "EVAL-153",
+      "split": "dev",
+      "category": "asr_errors",
+      "input": "sang bước sáu xem lại",
+      "reasons": [
+        "expected_actions:[navigate_step] got:[reopen_selection]"
+      ]
+    },
+    {
+      "id": "EVAL-198",
+      "split": "dev",
+      "category": "relative_references",
+      "input": "Chọn cái cuối cùng đi",
+      "reasons": [
+        "serviceId:expected=svc-area,got=svc-forest"
+      ]
+    },
+    {
+      "id": "EVAL-213",
+      "split": "dev",
+      "category": "relative_references",
+      "input": "chọn thẻ cuối cùng",
+      "reasons": [
+        "serviceId:expected=svc-area,got=svc-forest"
+      ]
+    },
+    {
+      "id": "EVAL-256",
+      "split": "heldout",
+      "category": "negative_commands",
+      "input": "Bỏ qua phần quay phim đi",
+      "reasons": [
+        "videosCount:expected=0,got=1"
+      ]
+    },
+    {
+      "id": "EVAL-258",
+      "split": "dev",
+      "category": "negative_commands",
+      "input": "Bỏ chọn hết các hạng mục đi",
+      "reasons": [
+        "expected_actions:[checklist_clear_all] got:[checklist_select_all]",
+        "checklistClearedAll_mismatch"
+      ]
+    },
+    {
+      "id": "EVAL-265",
+      "split": "heldout",
+      "category": "negative_commands",
+      "input": "Không phải cái này, chọn cái cuối cùng",
+      "reasons": [
+        "serviceId:expected=svc-area,got=svc-forest"
+      ]
+    },
+    {
+      "id": "EVAL-267",
+      "split": "dev",
+      "category": "negative_commands",
+      "input": "bỏ phần video giúp anh",
+      "reasons": [
+        "expected_actions:[checklist_set_videos] got:[]",
+        "videosCount:expected=0,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-268",
+      "split": "heldout",
+      "category": "negative_commands",
+      "input": "tắt quay video đi",
+      "reasons": [
+        "videosCount:expected=0,got=1"
+      ]
+    },
+    {
+      "id": "EVAL-269",
+      "split": "dev",
+      "category": "negative_commands",
+      "input": "không dùng video",
+      "reasons": [
+        "expected_actions:[checklist_set_videos] got:[select_service]",
+        "videosCount:expected=0,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-277",
+      "split": "dev",
+      "category": "user_corrections",
+      "input": "Đổi người liên hệ là Nguyễn Hoàng Minh",
+      "reasons": [
+        "expected_actions:[set_contact] got:[reopen_selection]",
+        "contactName:expected=Nguyễn Hoàng Minh,got=An"
+      ]
+    },
+    {
+      "id": "EVAL-309",
+      "split": "heldout",
+      "category": "reselection",
+      "input": "Mở lại bản đồ chọn lại khu vực",
+      "reasons": [
+        "expected_actions:[reopen_selection] got:[select_service,search_location]",
+        "arg_mismatch:target=location",
+        "nav_section:expected=location,got=undefined",
+        "serviceId:expected=svc-build,got=svc-area"
+      ]
+    },
+    {
+      "id": "EVAL-323",
+      "split": "dev",
+      "category": "reselection",
+      "input": "Chỉnh lại khu vực bay",
+      "reasons": [
+        "expected_actions:[reopen_selection] got:[select_service]",
+        "arg_mismatch:target=location",
+        "nav_section:expected=location,got=undefined",
+        "serviceId:expected=svc-build,got=svc-area"
+      ]
+    },
+    {
+      "id": "EVAL-330",
+      "split": "dev",
+      "category": "interruptions",
+      "input": "Khoan, quay lại sửa khu vực trên bản đồ trước",
+      "reasons": [
+        "expected_actions:[reopen_selection] got:[select_service]",
+        "arg_mismatch:target=location",
+        "nav_section:expected=location,got=schedule"
+      ]
+    },
+    {
+      "id": "EVAL-338",
+      "split": "heldout",
+      "category": "interruptions",
+      "input": "Dừng lại, không đổi dịch vụ nữa, giữ nguyên đi",
+      "reasons": [
+        "serviceId:expected=svc-build,got=svc-forest"
+      ]
+    },
+    {
+      "id": "EVAL-345",
+      "split": "dev",
+      "category": "interruptions",
+      "input": "Khoan, sang bước 3 xem lại hạng mục",
+      "reasons": [
+        "expected_actions:[navigate_step] got:[reopen_selection]"
+      ]
+    },
+    {
+      "id": "EVAL-357",
+      "split": "dev",
+      "category": "conditional_instructions",
+      "input": "Nếu không phải nhà xưởng thì chọn giám sát công trình",
+      "reasons": [
+        "expected_actions:[select_service] got:[]",
+        "serviceId:expected=svc-build,got=svc-factory"
+      ]
+    },
+    {
+      "id": "EVAL-449",
+      "split": "dev",
+      "category": "api_failures",
+      "input": "Đặt lịch bay từ 25/12/2026 đến 20/12/2026",
+      "reasons": [
+        "dateFrom:expected=,got=2026-12-04"
+      ]
+    },
+    {
+      "id": "EVAL-450",
+      "split": "dev",
+      "category": "api_failures",
+      "input": "Đặt lịch bay từ 30/12/2026 đến 10/12/2026",
+      "reasons": [
+        "dateFrom:expected=,got=2026-12-04"
+      ]
+    },
+    {
+      "id": "EVAL-460",
+      "split": "heldout",
+      "category": "api_failures",
+      "input": "Bỏ chọn hết checklist",
+      "reasons": [
+        "expected_actions:[checklist_clear_all] got:[checklist_select_all]"
+      ]
+    },
+    {
+      "id": "EVAL-517",
+      "split": "dev",
+      "category": "submission_confirmation",
+      "input": "Nộp đơn giúp mình",
+      "reasons": [
+        "expected_actions:[submit] got:[]",
+        "submitBlocked:expected=true,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-518",
+      "split": "heldout",
+      "category": "submission_confirmation",
+      "input": "Nộp đơn giúp mình",
+      "reasons": [
+        "expected_actions:[submit] got:[]",
+        "submitBlocked:expected=false,got=undefined"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "activeVersion": "v7.0.0",
+  "modelWeightFineTuningPerformed": false,
+  "optimizationMethods": [
+    "deterministic-parser-and-tool-schema-hardening",
+    "stateful-ui-section-visibility-fix",
+    "proactive-next-step-voice-guidance",
+    "compact-train-only-demonstration-selection"
+  ],
+  "versions": [
+    {
+      "version": "v5.0.0",
+      "description": "Initial V5 Universal Voice-to-Field engine across 7 sections"
+    },
+    {
+      "version": "v7.0.0",
+      "description": "V7 factory-validated parser fixes, reopen-service UI visibility fix, proactive next-step voice guidance, and compact train-only demonstration set"
+    }
+  ]
+}

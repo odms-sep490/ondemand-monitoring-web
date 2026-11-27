@@ -1549,7 +1549,9 @@
 
 .lp-editorial .lp2-hero .lpx-hero-media {
   animation: none;
-  object-position: 62% 48%;
+  object-position: 50% 45%;
+  transform-origin: 0% 0%;
+  transform: scale(1.16);
   filter: brightness(1.14) contrast(1.04) saturate(1.06);
 }
 
@@ -2119,7 +2121,8 @@
 
 .lp-editorial .lp3-hero-video {
   opacity: 0;
-  transform: scale(1.045);
+  transform-origin: 0% 0%;
+  transform: scale(1.2);
   z-index: 1;
   will-change: opacity, transform;
   transition:
@@ -2129,7 +2132,7 @@
 
 .lp-editorial .lp3-hero-video.is-active {
   opacity: 1;
-  transform: scale(1);
+  transform: scale(1.16);
   z-index: 2;
 }
 
@@ -3318,14 +3321,116 @@
   gap: 16px;
 }
 
+.lp-editorial .lp3-stage3d-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #132733;
+  border: 1px solid rgb(100 223 196 / 18%);
+}
+
+.lp-editorial .lp3-stage3d-mode-group,
+.lp-editorial .lp3-stage3d-sim-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lp-editorial .lp3-stage3d-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgb(241 245 249 / 16%);
+  background: rgb(13 27 38 / 72%);
+  color: #f1f5f9;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.lp-editorial .lp3-stage3d-chip:hover {
+  border-color: rgb(100 223 196 / 55%);
+  background: rgb(100 223 196 / 12%);
+}
+
+.lp-editorial .lp3-stage3d-chip.is-active {
+  border-color: #64dfc4;
+  background: rgb(100 223 196 / 20%);
+  color: #64dfc4;
+}
+
+.lp-editorial .lp3-stage3d-quality {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgb(241 245 249 / 18%);
+  background: #0d1b26;
+  color: #f1f5f9;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lp-editorial .lp3-stage3d-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(13 27 38 / 72%);
+  backdrop-filter: blur(6px);
+}
+
+.lp-editorial .lp3-stage3d-loader-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+  padding: 18px 22px;
+  border-radius: 14px;
+  background: #132733;
+  border: 1px solid rgb(100 223 196 / 32%);
+  color: #f1f5f9;
+  font-size: 13px;
+  text-align: center;
+}
+
+.lp-editorial .lp3-stage3d-loader-card strong {
+  font-family: var(--lp-font-mono);
+  font-size: 18px;
+  color: #64dfc4;
+}
+
+.lp-editorial .lp3-stage3d-loader-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  overflow: hidden;
+}
+
+.lp-editorial .lp3-stage3d-loader-bar span {
+  display: block;
+  height: 100%;
+  background: #64dfc4;
+  transition: width 160ms ease;
+}
+
 .lp-editorial .lp3-stage3d-viewport {
   position: relative;
-  height: 520px;
+  height: 560px;
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgb(125 211 252 / 48%);
-  background: radial-gradient(circle at 50% 14%, #5ba4cf 0%, #2f6c94 48%, #1d4663 100%);
-  box-shadow: 0 32px 80px rgb(0 0 0 / 28%);
+  border: 1px solid rgb(100 223 196 / 32%);
+  background: radial-gradient(circle at 50% 14%, #183649 0%, #0d1b26 100%);
+  box-shadow: 0 32px 80px rgb(0 0 0 / 34%);
 }
 
 .lp-editorial .lp3-stage3d-canvas {
@@ -3435,7 +3540,7 @@
 
 .lp-editorial .lp3-stage3d-presets {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 

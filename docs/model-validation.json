@@ -1,0 +1,69 @@
+{
+  "blender_version": "5.2.1 LTS",
+  "measured_geometry": {
+    "site_polygon_area_m2": 22500.0,
+    "building_ground_footprint_m2": 6764.0,
+    "building_coverage_ratio": 0.3006,
+    "total_gross_floor_area_m2": 29980.0,
+    "floor_areas_by_level_m2": {
+      "1": 6764.0,
+      "2": 7220.0,
+      "3": 5183.0,
+      "4": 3666.0,
+      "5": 2390.0,
+      "6": 1680.0,
+      "7": 1224.0,
+      "8": 872.0,
+      "9": 612.0,
+      "10": 225.0,
+      "11": 144.0
+    },
+    "peak_floors": [
+      6,
+      9,
+      11
+    ],
+    "max_model_height_m": 41.6,
+    "building_width_m": 118.11,
+    "building_length_m": 120.44,
+    "courtyard_width_m": 78.0,
+    "courtyard_length_m": 74.0,
+    "facade_modules": 1051,
+    "visual_mesh_count": 37,
+    "material_count": 22,
+    "master_triangle_count": 159150
+  },
+  "verified_targets_comparison": {
+    "site_area": {
+      "target_m2": 22500.0,
+      "actual_m2": 22500.0,
+      "diff_pct": -0.0,
+      "within_tolerance": true
+    },
+    "building_footprint": {
+      "target_m2": 6750.0,
+      "actual_m2": 6764.0,
+      "diff_pct": 0.21,
+      "within_tolerance": true
+    },
+    "gross_floor_area": {
+      "target_m2": 29926.0,
+      "actual_m2": 29980.0,
+      "diff_pct": 0.18,
+      "within_tolerance": true
+    },
+    "peak_floors": {
+      "target": [
+        6,
+        9,
+        11
+      ],
+      "actual": [
+        6,
+        9,
+        11
+      ],
+      "exact_match": true
+    }
+  }
+}

@@ -1,0 +1,646 @@
+{
+  "evaluatedAt": "2026-11-27T02:58:06.501Z",
+  "split": "dev",
+  "sampleSize": 71,
+  "metrics": {
+    "overallPassRatePct": 67.61,
+    "intentAccuracyPct": 67.61,
+    "toolSelectionAccuracyPct": 67.61,
+    "toolArgumentAccuracyPct": 84.51,
+    "finalStateCorrectnessPct": 84.51,
+    "falseSuccessCount": 0,
+    "unauthorizedStateChanges": 4,
+    "avgLatencyMs": 1.664,
+    "apiCostUsd": 0
+  },
+  "byCategory": {
+    "language_understanding": {
+      "total": 44,
+      "passed": 25,
+      "passRatePct": 56.82
+    },
+    "consultation": {
+      "total": 2,
+      "passed": 2,
+      "passRatePct": 100
+    },
+    "voice_recognition": {
+      "total": 2,
+      "passed": 2,
+      "passRatePct": 100
+    },
+    "memory_context": {
+      "total": 6,
+      "passed": 6,
+      "passRatePct": 100
+    },
+    "failure_recovery": {
+      "total": 1,
+      "passed": 1,
+      "passRatePct": 100
+    },
+    "business_validation": {
+      "total": 4,
+      "passed": 4,
+      "passRatePct": 100
+    },
+    "authorization_safety": {
+      "total": 8,
+      "passed": 8,
+      "passRatePct": 100
+    },
+    "noisy_unexpected": {
+      "total": 4,
+      "passed": 0,
+      "passRatePct": 0
+    }
+  },
+  "failureCount": 23,
+  "failuresByType": {
+    "tool_sequence_mismatch": 23,
+    "arg_mismatch:target": 11,
+    "visible_section_mismatch:null": 11,
+    "unauthorized_state_change": 4
+  },
+  "sampleFailures": [
+    {
+      "scenarioId": "v7-language_understanding-0030",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Mình muốn Quay lại chọn dịch vụ nha",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0035",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Ê em, Tôi muốn quay lại chọn dịch vụ nha",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0055",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Tao muốn Quay lại chọn dịch vụ giúp chị",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0060",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Làm ơn Tôi muốn quay lại chọn dịch vụ giúp chị",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0080",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Nhờ trợ lý Quay lại chọn dịch vụ luôn nhé",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0085",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Tôi muốn quay lại chọn dịch vụ với ạ",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0130",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Này em, Quay lại chọn dịch vụ nhé",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0135",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Alo bạn ơi, Tôi muốn quay lại chọn dịch vụ nha",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0155",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Ê em, Quay lại chọn dịch vụ giùm anh",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0160",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Cho anh Tôi muốn quay lại chọn dịch vụ giúp chị",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0180",
+      "scenarioFamily": "language_understanding:lang-reopen-service",
+      "category": "language_understanding",
+      "subcategory": "reopen_service_selection",
+      "userMessage": "Làm ơn Quay lại chọn dịch vụ đi em",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "arg_mismatch:target",
+        "visible_section_mismatch:null"
+      ],
+      "expectedToolSequences": [
+        [
+          "reopen_selection"
+        ]
+      ],
+      "actualToolSequence": [],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": ""
+    },
+    {
+      "scenarioId": "v7-language_understanding-0018",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nhé, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0038",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giùm anh, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0058",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giúp chị, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0078",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan luôn nhé, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0098",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan., không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0118",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0138",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nha, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0178",
+      "scenarioFamily": "language_understanding:lang-negation-svc-solar-to-svc-factory",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan đi em, không phải Giám sát điện mặt trời, đổi sang Kiểm tra nhà xưởng",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã chọn dịch vụ Kiểm tra nhà xưởng. Đã đặt mục đích bay: Kiểm tra công nghiệp / nhà xưởng."
+    },
+    {
+      "scenarioId": "v7-noisy_unexpected-0002",
+      "scenarioFamily": "noisy_unexpected:noisy-1",
+      "category": "noisy_unexpected",
+      "subcategory": "chitchat_or_noise",
+      "userMessage": "ờ ừm để xem đã",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "unauthorized_state_change"
+      ],
+      "expectedToolSequences": [
+        []
+      ],
+      "actualToolSequence": [
+        "set_description"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory"
+      },
+      "reply": "Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-noisy_unexpected-0008",
+      "scenarioFamily": "noisy_unexpected:noisy-1",
+      "category": "noisy_unexpected",
+      "subcategory": "chitchat_or_noise",
+      "userMessage": "ờ ừm để xem đã",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "unauthorized_state_change"
+      ],
+      "expectedToolSequences": [
+        []
+      ],
+      "actualToolSequence": [
+        "set_description"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest"
+      },
+      "reply": "Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-noisy_unexpected-0005",
+      "scenarioFamily": "noisy_unexpected:noisy-4",
+      "category": "noisy_unexpected",
+      "subcategory": "chitchat_or_noise",
+      "userMessage": "khoan chờ xíu nhé",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "unauthorized_state_change"
+      ],
+      "expectedToolSequences": [
+        []
+      ],
+      "actualToolSequence": [
+        "set_description"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build"
+      },
+      "reply": "Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-noisy_unexpected-0011",
+      "scenarioFamily": "noisy_unexpected:noisy-4",
+      "category": "noisy_unexpected",
+      "subcategory": "chitchat_or_noise",
+      "userMessage": "khoan chờ xíu nhé",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "unauthorized_state_change"
+      ],
+      "expectedToolSequences": [
+        []
+      ],
+      "actualToolSequence": [
+        "set_description"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    }
+  ]
+}

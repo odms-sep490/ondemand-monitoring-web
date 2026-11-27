@@ -1,0 +1,229 @@
+{
+  "version": "7.0.0",
+  "source": "src/features/customer/lib/createOrder/orderActionAgent.ts",
+  "totalTools": 37,
+  "tools": [
+    {
+      "name": "select_service",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "clear_service",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "reopen_selection",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "navigate_step",
+      "allowlisted": true,
+      "mutatesDraft": false,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "go_back",
+      "allowlisted": true,
+      "mutatesDraft": false,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "continue_workflow",
+      "allowlisted": true,
+      "mutatesDraft": false,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "confirm_section",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "keep_previous",
+      "allowlisted": true,
+      "mutatesDraft": false,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "set_flight_purpose",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "set_description",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "append_description",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "remove_description_content",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "clear_description",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "read_description",
+      "allowlisted": true,
+      "mutatesDraft": false,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "evaluate_description",
+      "allowlisted": true,
+      "mutatesDraft": false,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "clarify_description",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "improve_description",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "apply_description",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "search_location",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "clear_monitoring_area",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "open_map",
+      "allowlisted": true,
+      "mutatesDraft": false,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "checklist_select_all",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "checklist_clear_all",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "checklist_select_mandatory_only",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "checklist_toggle_item",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "checklist_set_images",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "checklist_set_videos",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "set_result_formats",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "set_contact",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "autofill_account_contact",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "set_schedule",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "validate_complete_draft",
+      "allowlisted": true,
+      "mutatesDraft": false,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "undo",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "redo",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    },
+    {
+      "name": "reset",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": true
+    },
+    {
+      "name": "submit",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": true
+    },
+    {
+      "name": "confirm_submit",
+      "allowlisted": true,
+      "mutatesDraft": true,
+      "requiresConfirmation": false
+    }
+  ]
+}

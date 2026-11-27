@@ -1,0 +1,435 @@
+{
+  "evaluatedAt": "2026-11-27T02:58:12.432Z",
+  "split": "held-out",
+  "sampleSize": 77,
+  "metrics": {
+    "overallPassRatePct": 80.52,
+    "intentAccuracyPct": 80.52,
+    "toolSelectionAccuracyPct": 80.52,
+    "toolArgumentAccuracyPct": 100,
+    "finalStateCorrectnessPct": 96.1,
+    "falseSuccessCount": 0,
+    "unauthorizedStateChanges": 0,
+    "avgLatencyMs": 1.589,
+    "apiCostUsd": 0
+  },
+  "byCategory": {
+    "language_understanding": {
+      "total": 17,
+      "passed": 9,
+      "passRatePct": 52.94
+    },
+    "form_automation": {
+      "total": 27,
+      "passed": 21,
+      "passRatePct": 77.78
+    },
+    "multi_action": {
+      "total": 1,
+      "passed": 0,
+      "passRatePct": 0
+    },
+    "failure_recovery": {
+      "total": 12,
+      "passed": 12,
+      "passRatePct": 100
+    },
+    "business_validation": {
+      "total": 20,
+      "passed": 20,
+      "passRatePct": 100
+    }
+  },
+  "failureCount": 15,
+  "failuresByType": {
+    "tool_sequence_mismatch": 15,
+    "preserved_field_clobbered:serviceId": 3
+  },
+  "sampleFailures": [
+    {
+      "scenarioId": "v7-language_understanding-0003",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0023",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nhé, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0043",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giùm anh, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0063",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan đi em, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0083",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan luôn nhé, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0103",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan., không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0143",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan nha, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-language_understanding-0163",
+      "scenarioFamily": "language_understanding:lang-negation-svc-forest-to-svc-solar",
+      "category": "language_understanding",
+      "subcategory": "negation_correction",
+      "userMessage": "Khoan giúp chị, không phải Giám sát rừng, đổi sang Giám sát điện mặt trời",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-solar"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát điện mặt trời. Đã đặt mục đích bay: Giám sát rừng & cây xanh."
+    },
+    {
+      "scenarioId": "v7-form_automation-0010",
+      "scenarioFamily": "form_automation:form-autofill-account",
+      "category": "form_automation",
+      "subcategory": "autofill_account_contact",
+      "userMessage": "Này em, Dùng số điện thoại đã đăng ký",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "preserved_field_clobbered:serviceId"
+      ],
+      "expectedToolSequences": [
+        [
+          "autofill_account_contact"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "autofill_account_contact"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã chọn dịch vụ Giám sát rừng. Đã lấy thông tin liên hệ từ tài khoản (0901234567)."
+    },
+    {
+      "scenarioId": "v7-form_automation-0028",
+      "scenarioFamily": "form_automation:form-autofill-account",
+      "category": "form_automation",
+      "subcategory": "autofill_account_contact",
+      "userMessage": "Cho anh Dùng số điện thoại đã đăng ký nha",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "autofill_account_contact"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "autofill_account_contact"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Dịch vụ Giám sát rừng đã được chọn sẵn. Đã lấy thông tin liên hệ từ tài khoản (0901234567)."
+    },
+    {
+      "scenarioId": "v7-form_automation-0046",
+      "scenarioFamily": "form_automation:form-autofill-account",
+      "category": "form_automation",
+      "subcategory": "autofill_account_contact",
+      "userMessage": "Này em, Dùng số điện thoại đã đăng ký giùm anh",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "preserved_field_clobbered:serviceId"
+      ],
+      "expectedToolSequences": [
+        [
+          "autofill_account_contact"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "autofill_account_contact"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã chọn dịch vụ Giám sát rừng. Đã lấy thông tin liên hệ từ tài khoản (0901234567)."
+    },
+    {
+      "scenarioId": "v7-form_automation-0064",
+      "scenarioFamily": "form_automation:form-autofill-account",
+      "category": "form_automation",
+      "subcategory": "autofill_account_contact",
+      "userMessage": "Cho anh Dùng số điện thoại đã đăng ký đi em",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "autofill_account_contact"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "autofill_account_contact"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Dịch vụ Giám sát rừng đã được chọn sẵn. Đã lấy thông tin liên hệ từ tài khoản (0901234567)."
+    },
+    {
+      "scenarioId": "v7-form_automation-0082",
+      "scenarioFamily": "form_automation:form-autofill-account",
+      "category": "form_automation",
+      "subcategory": "autofill_account_contact",
+      "userMessage": "Này em, Dùng số điện thoại đã đăng ký luôn nhé",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "preserved_field_clobbered:serviceId"
+      ],
+      "expectedToolSequences": [
+        [
+          "autofill_account_contact"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "autofill_account_contact"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã chọn dịch vụ Giám sát rừng. Đã lấy thông tin liên hệ từ tài khoản (0901234567)."
+    },
+    {
+      "scenarioId": "v7-form_automation-0100",
+      "scenarioFamily": "form_automation:form-autofill-account",
+      "category": "form_automation",
+      "subcategory": "autofill_account_contact",
+      "userMessage": "Cho anh Dùng số điện thoại đã đăng ký.",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "autofill_account_contact"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "autofill_account_contact"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Dịch vụ Giám sát rừng đã được chọn sẵn. Đã lấy thông tin liên hệ từ tài khoản (0901234567)."
+    },
+    {
+      "scenarioId": "v7-multi_action-0010",
+      "scenarioFamily": "multi_action:multi-full-svc-factory",
+      "category": "multi_action",
+      "subcategory": "one_shot_multi_section",
+      "userMessage": "Tôi muốn giám sát tiến độ công trình tại Sân bay Long Thành Đồng Nai, kiểm tra mái tôn bị dột, chụp ảnh chi tiết cửa sổ mái và quay toàn cảnh nhà máy, quay video, bay sáng mai lúc 8 giờ, lấy thông tin liên hệ từ tài khoản.",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service",
+          "set_flight_purpose",
+          "set_description",
+          "search_location",
+          "checklist_set_videos",
+          "autofill_account_contact",
+          "set_schedule"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose",
+        "set_description",
+        "checklist_set_videos",
+        "autofill_account_contact",
+        "set_schedule"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build",
+        "flightPurpose": "CONSTRUCTION_MONITORING",
+        "preferredDateFrom": "2026-11-28",
+        "preferredTimeId": "time-morning"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build",
+        "flightPurpose": "CONSTRUCTION_MONITORING",
+        "preferredDateFrom": "2026-11-28",
+        "preferredTimeId": "time-morning"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát công trình. Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu. Checklist chưa sẵn sàng nên em chưa đổi số video. Đã lấy thông tin liên hệ từ tài khoản (0901234567). Đã đặt ngày bay 2026-11-28 (buổi sáng)."
+    }
+  ]
+}

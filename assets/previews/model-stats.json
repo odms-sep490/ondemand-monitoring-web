@@ -1,0 +1,46 @@
+{
+  "version": "V2",
+  "blender_version": "5.2.1 LTS",
+  "facade_modules": 1051,
+  "high": {
+    "path": "public\\models\\fpt-campus.glb",
+    "bytes": 10403604,
+    "triangles": 159150,
+    "meshes": 37
+  },
+  "low": {
+    "path": "public\\models\\fpt-campus-low.glb",
+    "bytes": 6786728,
+    "triangles": 95054,
+    "meshes": 37
+  },
+  "blend_source": "assets\\blender\\fpt-campus.blend",
+  "previews": [
+    "assets\\previews\\aerial-view.png",
+    "assets\\previews\\courtyard-view.png",
+    "assets\\previews\\facade-view.png",
+    "assets\\previews\\entrance-view.png",
+    "assets\\previews\\top-view.png",
+    "assets\\previews\\front-elevation.png",
+    "assets\\previews\\rear-elevation.png",
+    "assets\\previews\\left-elevation.png",
+    "assets\\previews\\right-elevation.png"
+  ],
+  "scan_targets_blender_xyz": {
+    "SCAN_TARGET_PEAK_NW_11F": [
+      -48.0,
+      50.0,
+      44.5
+    ],
+    "SCAN_TARGET_PEAK_NE_9F": [
+      50.0,
+      47.0,
+      37.3
+    ],
+    "SCAN_TARGET_PEAK_SW_6F": [
+      -45.0,
+      -46.0,
+      26.5
+    ]
+  }
+}

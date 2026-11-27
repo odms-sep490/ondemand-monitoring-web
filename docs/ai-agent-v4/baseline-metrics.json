@@ -1,0 +1,455 @@
+{
+  "timestamp": "2026-11-27T02:17:05.131Z",
+  "label": "baseline",
+  "totalScenarios": 520,
+  "devCount": 352,
+  "heldoutCount": 168,
+  "overall": {
+    "total": 520,
+    "passed": 363,
+    "endToEndCompletionRate": 69.8,
+    "intentAccuracy": 71.9,
+    "toolCallingAccuracy": 76.2,
+    "argumentCorrectness": 98.7,
+    "navigationAccuracy": 76.8,
+    "finalStateCorrectness": 84.4,
+    "vietnameseUnderstanding": 76.6,
+    "contextRetention": 68.5,
+    "correctionHandling": 63.7,
+    "unnecessaryClarificationRate": 0.2,
+    "falseSuccessRate": 1,
+    "avgLatencyMs": 0.96,
+    "p95LatencyMs": 2.353,
+    "avgEstimatedTokens": 140
+  },
+  "dev": {
+    "total": 352,
+    "passed": 250,
+    "endToEndCompletionRate": 71,
+    "intentAccuracy": 73.6,
+    "toolCallingAccuracy": 77.3,
+    "argumentCorrectness": 98.9,
+    "navigationAccuracy": 80,
+    "finalStateCorrectness": 84.1,
+    "vietnameseUnderstanding": 76.9,
+    "contextRetention": 66.7,
+    "correctionHandling": 65.2,
+    "unnecessaryClarificationRate": 0.3,
+    "falseSuccessRate": 1.1,
+    "avgLatencyMs": 1.029,
+    "p95LatencyMs": 2.457,
+    "avgEstimatedTokens": 140
+  },
+  "heldout": {
+    "total": 168,
+    "passed": 113,
+    "endToEndCompletionRate": 67.3,
+    "intentAccuracy": 68.5,
+    "toolCallingAccuracy": 73.8,
+    "argumentCorrectness": 98.2,
+    "navigationAccuracy": 70,
+    "finalStateCorrectness": 85.1,
+    "vietnameseUnderstanding": 76,
+    "contextRetention": 72.2,
+    "correctionHandling": 60.6,
+    "unnecessaryClarificationRate": 0,
+    "falseSuccessRate": 0.6,
+    "avgLatencyMs": 0.814,
+    "p95LatencyMs": 2.204,
+    "avgEstimatedTokens": 140
+  },
+  "byCategory": {
+    "natural_vietnamese": {
+      "total": 36,
+      "passed": 31,
+      "passRate": 86.1
+    },
+    "regional_expressions": {
+      "total": 28,
+      "passed": 14,
+      "passRate": 50
+    },
+    "missing_accents": {
+      "total": 30,
+      "passed": 28,
+      "passRate": 93.3
+    },
+    "typos": {
+      "total": 28,
+      "passed": 26,
+      "passRate": 92.9
+    },
+    "asr_errors": {
+      "total": 32,
+      "passed": 19,
+      "passRate": 59.4
+    },
+    "multi_action": {
+      "total": 36,
+      "passed": 26,
+      "passRate": 72.2
+    },
+    "relative_references": {
+      "total": 30,
+      "passed": 16,
+      "passRate": 53.3
+    },
+    "ambiguous_references": {
+      "total": 24,
+      "passed": 15,
+      "passRate": 62.5
+    },
+    "negative_commands": {
+      "total": 28,
+      "passed": 20,
+      "passRate": 71.4
+    },
+    "user_corrections": {
+      "total": 28,
+      "passed": 18,
+      "passRate": 64.3
+    },
+    "reselection": {
+      "total": 26,
+      "passed": 23,
+      "passRate": 88.5
+    },
+    "interruptions": {
+      "total": 24,
+      "passed": 20,
+      "passRate": 83.3
+    },
+    "conditional_instructions": {
+      "total": 20,
+      "passed": 4,
+      "passRate": 20
+    },
+    "undo_redo": {
+      "total": 22,
+      "passed": 7,
+      "passRate": 31.8
+    },
+    "service_changes": {
+      "total": 26,
+      "passed": 26,
+      "passRate": 100
+    },
+    "context_retention": {
+      "total": 24,
+      "passed": 21,
+      "passRate": 87.5
+    },
+    "api_failures": {
+      "total": 18,
+      "passed": 13,
+      "passRate": 72.2
+    },
+    "manual_ui_changes": {
+      "total": 18,
+      "passed": 18,
+      "passRate": 100
+    },
+    "security_restrictions": {
+      "total": 22,
+      "passed": 0,
+      "passRate": 0
+    },
+    "submission_confirmation": {
+      "total": 20,
+      "passed": 18,
+      "passRate": 90
+    }
+  },
+  "sampleFailures": [
+    {
+      "id": "EVAL-019",
+      "split": "dev",
+      "category": "natural_vietnamese",
+      "input": "Mở bản đồ để tôi chọn khu vực tại Khu công nghệ cao Hòa Lạc, Thạch Thất, Hà Nội",
+      "reasons": [
+        "expected_actions:[open_map] got:[select_service]",
+        "nav_step:expected=2,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-020",
+      "split": "dev",
+      "category": "natural_vietnamese",
+      "input": "Chọn vị trí bay ở Khu công nghiệp VSIP 1, Thuận An, Bình Dương",
+      "reasons": [
+        "expected_actions:[open_map] got:[select_service]",
+        "nav_step:expected=2,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-021",
+      "split": "heldout",
+      "category": "natural_vietnamese",
+      "input": "Mở bản đồ xác định địa điểm công trình số 45 Nguyễn Văn Linh, Quận 7, TP HCM",
+      "reasons": [
+        "expected_actions:[open_map] got:[select_service]",
+        "nav_step:expected=2,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-022",
+      "split": "dev",
+      "category": "natural_vietnamese",
+      "input": "Tôi muốn khoanh vùng khu vực tại xã An Phú, huyện Củ Chi, TP Hồ Chí Minh",
+      "reasons": [
+        "expected_actions:[open_map] got:[]",
+        "unnecessary_clarification:Anh/chị muốn chọn dịch vụ nào: Giám sát rừng hay Giám sát khu vực?",
+        "nav_step:expected=2,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-036",
+      "split": "heldout",
+      "category": "natural_vietnamese",
+      "input": "Độ cao bay mong muốn là 60 mét",
+      "reasons": [
+        "expected_actions:[set_altitude] got:[]"
+      ]
+    },
+    {
+      "id": "EVAL-041",
+      "split": "dev",
+      "category": "regional_expressions",
+      "input": "Khỏi quay video nha em, để chụp hình thôi",
+      "reasons": [
+        "expected_actions:[checklist_set_videos] got:[]",
+        "videosCount:expected=0,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-043",
+      "split": "dev",
+      "category": "regional_expressions",
+      "input": "Tích ráo hết mấy mục checklist giùm anh đi",
+      "reasons": [
+        "expected_actions:[checklist_select_all] got:[]",
+        "checklistSelectedAll_mismatch"
+      ]
+    },
+    {
+      "id": "EVAL-044",
+      "split": "dev",
+      "category": "regional_expressions",
+      "input": "Quay lui lại bước trước giùm mình cái",
+      "reasons": [
+        "expected_actions:[go_back] got:[]"
+      ]
+    },
+    {
+      "id": "EVAL-045",
+      "split": "heldout",
+      "category": "regional_expressions",
+      "input": "Cho anh coi lại chỗ chọn dịch vụ cái coi",
+      "reasons": [
+        "expected_actions:[reopen_selection] got:[]",
+        "nav_section:expected=service,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-048",
+      "split": "heldout",
+      "category": "regional_expressions",
+      "input": "Coi lại màn hình tổng kết giùm anh đi",
+      "reasons": [
+        "expected_actions:[reopen_selection] got:[]",
+        "nav_section:expected=review,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-049",
+      "split": "dev",
+      "category": "regional_expressions",
+      "input": "Thôi giữ y nguyên mấy mục cũ đi nha",
+      "reasons": [
+        "expected_actions:[keep_previous] got:[]"
+      ]
+    },
+    {
+      "id": "EVAL-050",
+      "split": "dev",
+      "category": "regional_expressions",
+      "input": "Bỏ qua đi, đi tiếp luôn nha em",
+      "reasons": [
+        "expected_actions:[continue_workflow] got:[]"
+      ]
+    },
+    {
+      "id": "EVAL-053",
+      "split": "dev",
+      "category": "regional_expressions",
+      "input": "Lụm cái thứ hai giùm anh nha",
+      "reasons": [
+        "expected_actions:[select_service] got:[]",
+        "serviceId:expected=svc-build,got="
+      ]
+    },
+    {
+      "id": "EVAL-054",
+      "split": "heldout",
+      "category": "regional_expressions",
+      "input": "Bốc cái đầu tiên đi em",
+      "reasons": [
+        "expected_actions:[select_service] got:[]",
+        "serviceId:expected=svc-factory,got="
+      ]
+    },
+    {
+      "id": "EVAL-055",
+      "split": "dev",
+      "category": "regional_expressions",
+      "input": "Lấy cái cuối cùng nha",
+      "reasons": [
+        "serviceId:expected=svc-area,got=svc-forest"
+      ]
+    },
+    {
+      "id": "EVAL-056",
+      "split": "dev",
+      "category": "regional_expressions",
+      "input": "Hủy thao tác mới nãy giùm tui",
+      "reasons": [
+        "expected_actions:[undo] got:[]"
+      ]
+    },
+    {
+      "id": "EVAL-061",
+      "split": "dev",
+      "category": "regional_expressions",
+      "input": "Bật quay phim lại giùm chị nhé",
+      "reasons": [
+        "expected_actions:[checklist_set_videos] got:[]",
+        "videosCount:expected=1,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-062",
+      "split": "dev",
+      "category": "regional_expressions",
+      "input": "Bỏ ráo hết mấy mục checklist đi",
+      "reasons": [
+        "expected_actions:[checklist_clear_all] got:[]",
+        "checklistClearedAll_mismatch"
+      ]
+    },
+    {
+      "id": "EVAL-063",
+      "split": "heldout",
+      "category": "regional_expressions",
+      "input": "Nộp đơn giùm anh đi em",
+      "reasons": [
+        "expected_actions:[submit] got:[]"
+      ]
+    },
+    {
+      "id": "EVAL-081",
+      "split": "dev",
+      "category": "missing_accents",
+      "input": "ten la Nguyen Lan 0988111222",
+      "reasons": [
+        "contactName:expected=Nguyen Lan,got="
+      ]
+    },
+    {
+      "id": "EVAL-088",
+      "split": "heldout",
+      "category": "missing_accents",
+      "input": "quay lai",
+      "reasons": [
+        "expected_actions:[go_back] got:[]"
+      ]
+    },
+    {
+      "id": "EVAL-099",
+      "split": "dev",
+      "category": "typos",
+      "input": "bo quya video",
+      "reasons": [
+        "expected_actions:[checklist_set_videos] got:[]",
+        "videosCount:expected=0,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-113",
+      "split": "dev",
+      "category": "typos",
+      "input": "do cao 75m",
+      "reasons": [
+        "expected_actions:[set_altitude] got:[]",
+        "altitudeM:expected=75,got=60"
+      ]
+    },
+    {
+      "id": "EVAL-131",
+      "split": "heldout",
+      "category": "asr_errors",
+      "input": "bỏ quai vi đeo đi",
+      "reasons": [
+        "expected_actions:[checklist_set_videos] got:[]",
+        "videosCount:expected=0,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-132",
+      "split": "dev",
+      "category": "asr_errors",
+      "input": "không cần quai vi deo",
+      "reasons": [
+        "expected_actions:[checklist_set_videos] got:[]",
+        "videosCount:expected=0,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-137",
+      "split": "heldout",
+      "category": "asr_errors",
+      "input": "mở bản đồ khu vực số 12 Lê Lợi, phường Bến Nghé, Quận 1, TP HCM",
+      "reasons": [
+        "expected_actions:[open_map] got:[select_service]",
+        "nav_step:expected=2,got=undefined"
+      ]
+    },
+    {
+      "id": "EVAL-141",
+      "split": "dev",
+      "category": "asr_errors",
+      "input": "quai lại bước trước",
+      "reasons": [
+        "expected_actions:[go_back] got:[]"
+      ]
+    },
+    {
+      "id": "EVAL-142",
+      "split": "dev",
+      "category": "asr_errors",
+      "input": "hoàn tát thao tác vừa rồi",
+      "reasons": [
+        "expected_actions:[undo] got:[]"
+      ]
+    },
+    {
+      "id": "EVAL-146",
+      "split": "heldout",
+      "category": "asr_errors",
+      "input": "mục đít là theo dõi tiến độ thi công",
+      "reasons": [
+        "expected_actions:[set_flight_purpose] got:[]",
+        "flightPurpose:expected=CONSTRUCTION_MONITORING,got="
+      ]
+    },
+    {
+      "id": "EVAL-147",
+      "split": "dev",
+      "category": "asr_errors",
+      "input": "mục đít kiểm tra nhà xưởng",
+      "reasons": [
+        "expected_actions:[set_flight_purpose] got:[select_service]",
+        "flightPurpose:expected=INDUSTRIAL_INSPECTION,got="
+      ]
+    }
+  ]
+}

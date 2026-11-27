@@ -1,0 +1,179 @@
+{
+  "meta": {
+    "project": "FPT University Ho Chi Minh City — Academic Building Digital Twin V4",
+    "architect": "VTN Architects (Vo Trong Nghia Architects)",
+    "location": "Saigon Hi-Tech Park, Thu Duc City, Ho Chi Minh City, Vietnam",
+    "units": "METRIC (1 Blender Unit = 1 Three.js Unit = 1.0 meter)",
+    "disclaimer": "Only published site area, design GFA, and written peak floor references are classified VERIFIED. All envelope, wing depth, bay rhythm, and landscape dimensions are MEASURED_FROM_REFERENCE or ESTIMATED approximations — not survey-grade CAD/BIM drawings."
+  },
+  "dimensions": {
+    "site_area_design": {
+      "value": 22500.0,
+      "unit": "m2",
+      "source": "VTN Architects / ArchDaily published project brief",
+      "measurement_method": "Published architectural specification",
+      "confidence": "HIGH",
+      "classification": "VERIFIED"
+    },
+    "site_area_ashui": {
+      "value": 22540.0,
+      "unit": "m2",
+      "source": "Ashui Awards project listing (VTN Architects)",
+      "measurement_method": "Published award dossier",
+      "confidence": "HIGH",
+      "classification": "VERIFIED"
+    },
+    "gross_floor_area_design": {
+      "value": 29000.0,
+      "unit": "m2",
+      "source": "VTN Architects / FPT University published project data (29,000–29,926 m2)",
+      "measurement_method": "Published architectural specification",
+      "confidence": "HIGH",
+      "classification": "VERIFIED"
+    },
+    "site_width": {
+      "value": 156.0,
+      "unit": "m",
+      "source": "Derived non-square rectangular parcel matching 22,500 m2 site envelope",
+      "measurement_method": "Proportional parcel aspect ratio from aerial context",
+      "confidence": "MEDIUM",
+      "classification": "ESTIMATED"
+    },
+    "site_length": {
+      "value": 144.23,
+      "unit": "m",
+      "source": "Derived from 22,500 m2 / 156.0 m",
+      "measurement_method": "Area-constrained aspect calculation",
+      "confidence": "MEDIUM",
+      "classification": "ESTIMATED"
+    },
+    "building_width": {
+      "value": 116.0,
+      "unit": "m",
+      "source": "VTN aerial & courtyard-to-wing visual proportion analysis",
+      "measurement_method": "Proportional estimate within 110–125 m reference envelope",
+      "confidence": "MEDIUM",
+      "classification": "MEASURED_FROM_REFERENCE"
+    },
+    "building_length": {
+      "value": 112.0,
+      "unit": "m",
+      "source": "VTN aerial & courtyard-to-wing visual proportion analysis",
+      "measurement_method": "Proportional estimate within 105–125 m reference envelope",
+      "confidence": "MEDIUM",
+      "classification": "MEASURED_FROM_REFERENCE"
+    },
+    "building_wing_depth": {
+      "value": 19.0,
+      "unit": "m",
+      "source": "Classroom + double-loaded/semi-open corridor typological proportion",
+      "measurement_method": "Estimated from facade bay count and 30% site coverage constraint",
+      "confidence": "MEDIUM",
+      "classification": "ESTIMATED"
+    },
+    "courtyard_width": {
+      "value": 78.0,
+      "unit": "m",
+      "source": "Building width (116 m) minus 2 x wing depth (19 m)",
+      "measurement_method": "Derived from ring envelope and aerial courtyard ratio",
+      "confidence": "MEDIUM",
+      "classification": "MEASURED_FROM_REFERENCE"
+    },
+    "courtyard_length": {
+      "value": 74.0,
+      "unit": "m",
+      "source": "Building length (112 m) minus 2 x wing depth (19 m)",
+      "measurement_method": "Derived from ring envelope and aerial courtyard ratio",
+      "confidence": "MEDIUM",
+      "classification": "MEASURED_FROM_REFERENCE"
+    },
+    "primary_peak_floors": {
+      "value": [6, 9, 11],
+      "unit": "floors",
+      "source": "VTN Architects & FPT University written project documentation",
+      "measurement_method": "Published architectural specification + photo count check",
+      "confidence": "HIGH",
+      "classification": "VERIFIED"
+    },
+    "ground_floor_height": {
+      "value": 4.5,
+      "unit": "m",
+      "source": "Standard university ground-floor breezeway/lobby height",
+      "measurement_method": "Architectural typological estimate",
+      "confidence": "MEDIUM",
+      "classification": "ESTIMATED"
+    },
+    "typical_floor_height": {
+      "value": 3.6,
+      "unit": "m",
+      "source": "Standard academic classroom floor-to-floor height",
+      "measurement_method": "Architectural typological estimate",
+      "confidence": "MEDIUM",
+      "classification": "ESTIMATED"
+    },
+    "slab_thickness": {
+      "value": 0.32,
+      "unit": "m",
+      "source": "Reinforced concrete academic slab standard",
+      "measurement_method": "Architectural typological estimate",
+      "confidence": "MEDIUM",
+      "classification": "ESTIMATED"
+    },
+    "structural_bay_width": {
+      "value": 4.0,
+      "unit": "m",
+      "source": "Facade window-pier rhythm from completed-campus photographs",
+      "measurement_method": "Bay count division along wing length",
+      "confidence": "MEDIUM",
+      "classification": "MEASURED_FROM_REFERENCE"
+    },
+    "window_width": {
+      "value": 2.1,
+      "unit": "m",
+      "source": "Recessed classroom window proportion relative to 4.0 m structural bay",
+      "measurement_method": "Visual proportion from facade photos",
+      "confidence": "MEDIUM",
+      "classification": "ESTIMATED"
+    },
+    "window_height": {
+      "value": 1.65,
+      "unit": "m",
+      "source": "Recessed classroom window proportion relative to 3.6 m floor height",
+      "measurement_method": "Visual proportion from facade photos",
+      "confidence": "MEDIUM",
+      "classification": "ESTIMATED"
+    },
+    "corridor_width": {
+      "value": 2.8,
+      "unit": "m",
+      "source": "Semi-open shaded courtyard circulation gallery",
+      "measurement_method": "Architectural typological estimate",
+      "confidence": "MEDIUM",
+      "classification": "ESTIMATED"
+    },
+    "parapet_and_railing_height": {
+      "value": 1.1,
+      "unit": "m",
+      "source": "Vietnam building safety code parapet/railing standard",
+      "measurement_method": "Regulatory architectural standard",
+      "confidence": "HIGH",
+      "classification": "ESTIMATED"
+    },
+    "planter_height": {
+      "value": 0.55,
+      "unit": "m",
+      "source": "Integrated concrete facade & terrace planter boxes",
+      "measurement_method": "Visual proportion relative to 1.1 m parapet",
+      "confidence": "MEDIUM",
+      "classification": "ESTIMATED"
+    },
+    "terrace_setback": {
+      "value": 3.6,
+      "unit": "m",
+      "source": "Floor-by-floor stepped terrace profile",
+      "measurement_method": "Derived from mountain silhouette slope across 6/9/11 floors",
+      "confidence": "MEDIUM",
+      "classification": "ESTIMATED"
+    }
+  }
+}

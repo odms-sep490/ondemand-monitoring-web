@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { Icon } from '../../../shared/components/Icon'
 
 export type Stage3DPreset = {
@@ -10,6 +12,9 @@ export type Stage3DPreset = {
   metricLabel: string
   metricValue: string
 }
+
+type VisualizationMode = 'realistic' | 'digital-twin' | 'scan' | 'wireframe'
+type QualityLevel = 'HIGH' | 'MEDIUM' | 'LOW'
 
 type Props = {
   eyebrow: string
@@ -22,40 +27,54 @@ type Props = {
   ctaHref: string
 }
 
-type CameraRig = {
-  pos: [number, number, number]
-  target: [number, number, number]
-  scanColor: number
-  droneY: number
+type CameraView = {
+  pos: THREE.Vector3
+  target: THREE.Vector3
 }
 
-const CAMERA_RIGS: readonly CameraRig[] = [
-  {
-    pos: [5.4, 3.3, 6.2],
-    target: [0, 0.9, 0],
-    scanColor: 0x65dfba,
-    droneY: 2.05,
-  },
-  {
-    pos: [0.4, 6.4, 5.8],
-    target: [0, 0.2, 0],
-    scanColor: 0x38bdf8,
-    droneY: 2.35,
-  },
-  {
-    pos: [-6.2, 2.7, 5.2],
-    target: [0.4, 0.7, -0.3],
-    scanColor: 0x65dfba,
-    droneY: 1.9,
-  },
-  {
-    pos: [2.5, 2.45, 2.8],
-    target: [0, 1.95, 0],
-    scanColor: 0xf59e0b,
-    droneY: 2.0,
-  },
+type CollisionPeak = {
+  x: number
+  z: number
+  halfW: number
+  halfD: number
+  topY: number
+}
+
+// Synthetic inspection peaks in Three.js Y-up meters (glTF converts Blender (x, y, z) -> (x, z, -y))
+const DEFAULT_PEAK_TARGETS: readonly {
+  id: string
+  label: string
+  pos: [number, number, number]
+}[] = [
+  { id: 'SCAN_TARGET_PEAK_NW_11F', label: 'Điểm A · Khối 11 tầng (40.5m)', pos: [-48, 44.5, -50] },
+  { id: 'SCAN_TARGET_PEAK_NE_9F', label: 'Điểm B · Khối 9 tầng (33.3m)', pos: [50, 37.3, -47] },
+  { id: 'SCAN_TARGET_PEAK_SW_6F', label: 'Điểm C · Khối 6 tầng (22.5m)', pos: [-45, 26.5, 46] },
 ]
 
+// Simplified collision envelopes matching the 3 stepped architectural peaks (6 / 9 / 11 floors)
+const PEAK_COLLISION_HULLS: readonly CollisionPeak[] = [
+  { x: -48, z: -50, halfW: 16, halfD: 14, topY: 42 },
+  { x: 50, z: -47, halfW: 15, halfD: 14, topY: 35 },
+  { x: -45, z: 46, halfW: 15, halfD: 13, topY: 24 },
+]
+
+const VISUAL_MODES: readonly { id: VisualizationMode; label: string }[] = [
+  { id: 'realistic', label: 'Kiến trúc thực tế' },
+  { id: 'digital-twin', label: 'Digital Twin' },
+  { id: 'scan', label: 'Chế độ quét Drone' },
+  { id: 'wireframe', label: 'Wireframe' },
+]
+
+const SPEED_OPTIONS = [0.5, 1, 2] as const
+
+function detectInitialQuality(): QualityLevel {
+  if (typeof window === 'undefined') return 'MEDIUM'
+  if (window.innerWidth < 768) return 'LOW'
+  if (window.innerWidth < 1280) return 'MEDIUM'
+  return 'HIGH'
+}
+
+/** Preserved industrial quadcopter builder scaled for the 148m campus digital twin. */
 function buildIndustrialDrone(): {
   group: THREE.Group
   rotors: THREE.Object3D[]
@@ -90,7 +109,6 @@ function buildIndustrialDrone(): {
     metalness: 0.25,
   })
 
-  // Main chassis core + sculpted top shell
   const core = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.22, 1.25), carbonMat)
   group.add(core)
 
@@ -109,7 +127,6 @@ function buildIndustrialDrone(): {
   statusStrip.position.set(0, 0.18, 0.56)
   group.add(statusStrip)
 
-  // Landing skids
   for (const side of [-1, 1]) {
     const legA = new THREE.Mesh(
       new THREE.CylinderGeometry(0.024, 0.024, 0.48, 8),
@@ -132,7 +149,6 @@ function buildIndustrialDrone(): {
     group.add(rail)
   }
 
-  // 4 carbon arms, motors, spinning blades & aviation LEDs
   const armAngles = [
     Math.PI * 0.25,
     Math.PI * 0.75,
@@ -142,7 +158,7 @@ function buildIndustrialDrone(): {
   const blurDiscMat = new THREE.MeshBasicMaterial({
     color: 0x6ee7b7,
     transparent: true,
-    opacity: 0.26,
+    opacity: 0.28,
     side: THREE.DoubleSide,
     depthWrite: false,
   })
@@ -182,32 +198,30 @@ function buildIndustrialDrone(): {
 
     const bladeA = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.014, 0.08), bladeMat)
     const bladeB = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.014, 0.92), bladeMat)
-    const blurDisc = new THREE.Mesh(new THREE.RingGeometry(0.12, 0.47, 28), blurDiscMat)
+    const blurDisc = new THREE.Mesh(new THREE.RingGeometry(0.12, 0.47, 24), blurDiscMat)
     blurDisc.rotation.x = -Math.PI / 2
     rotorHub.add(bladeA, bladeB, blurDisc)
     group.add(rotorHub)
     rotors.push(rotorHub)
 
-    // Front arms mint-green LED, rear arms amber-red LED
     const isFront = idx === 0 || idx === 3
     const ledMat = new THREE.MeshBasicMaterial({
       color: isFront ? 0x65dfba : 0xf97316,
     })
-    const led = new THREE.Mesh(new THREE.SphereGeometry(0.036, 10, 10), ledMat)
+    const led = new THREE.Mesh(new THREE.SphereGeometry(0.042, 10, 10), ledMat)
     led.position.set(tipX, 0.02, tipZ)
     group.add(led)
     navLeds.push(led)
   })
 
-  // Under-belly optical gimbal + glowing lens
   const gimbal = new THREE.Group()
   gimbal.position.set(0, -0.22, 0.34)
   const housing = new THREE.Mesh(
-    new THREE.SphereGeometry(0.16, 18, 18),
+    new THREE.SphereGeometry(0.16, 16, 16),
     darkMetalMat,
   )
   const lensRing = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.095, 0.095, 0.12, 18),
+    new THREE.CylinderGeometry(0.095, 0.095, 0.12, 16),
     accentMat,
   )
   lensRing.rotation.x = Math.PI / 2
@@ -215,10 +229,10 @@ function buildIndustrialDrone(): {
   gimbal.add(housing, lensRing)
   group.add(gimbal)
 
-  // Volumetric LiDAR scan cone beneath gimbal
-  const beamGeo = new THREE.ConeGeometry(1.75, 2.35, 32, 1, true)
+  // Volumetric scanning cone beneath gimbal (clear without obscuring architecture)
+  const beamGeo = new THREE.ConeGeometry(2.6, 5.2, 28, 1, true)
   const beamMat = new THREE.MeshBasicMaterial({
-    color: 0x34d399,
+    color: 0x64dfc4,
     transparent: true,
     opacity: 0.22,
     side: THREE.DoubleSide,
@@ -226,164 +240,68 @@ function buildIndustrialDrone(): {
     blending: THREE.AdditiveBlending,
   })
   const scanBeam = new THREE.Mesh(beamGeo, beamMat)
-  scanBeam.position.set(0, -1.35, 0.34)
+  scanBeam.position.set(0, -2.85, 0.34)
   group.add(scanBeam)
 
+  group.scale.setScalar(2.15)
   return { group, rotors, gimbal, scanBeam, navLeds }
 }
 
-function buildTerrainAndSite(): {
-  group: THREE.Group
-  scanRing: THREE.Mesh
-  waypoints: THREE.Mesh[]
-  flightCurve: THREE.CatmullRomCurve3
-} {
-  const group = new THREE.Group()
+/** Computes camera presets dynamically from the loaded campus bounding box. */
+function computeCampusCameraViews(box: THREE.Box3): Record<string, CameraView> {
+  const center = new THREE.Vector3()
+  const size = new THREE.Vector3()
+  box.getCenter(center)
+  box.getSize(size)
+  const span = Math.max(size.x, size.z, 120)
 
-  // Procedural topographic grid mesh
-  const planeGeo = new THREE.PlaneGeometry(16, 16, 44, 44)
-  planeGeo.rotateX(-Math.PI / 2)
-  const pos = planeGeo.attributes.position
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i)
-    const z = pos.getZ(i)
-    const dist = Math.hypot(x, z)
-    const ridge =
-      Math.sin(x * 0.45) * Math.cos(z * 0.45) * 0.35 +
-      Math.max(0, (dist - 3.6) * 0.16)
-    pos.setY(i, ridge - 0.15)
+  return {
+    overview: {
+      pos: new THREE.Vector3(center.x + span * 0.86, size.y * 1.72, center.z + span * 0.90),
+      target: new THREE.Vector3(center.x, size.y * 0.22, center.z - 2),
+    },
+    topdown: {
+      pos: new THREE.Vector3(center.x, span * 1.24, center.z + 18),
+      target: new THREE.Vector3(center.x, 4, center.z),
+    },
+    facade: {
+      pos: new THREE.Vector3(center.x - span * 0.16, size.y * 0.56, center.z + span * 0.84),
+      target: new THREE.Vector3(center.x - 4, size.y * 0.32, center.z + 6),
+    },
+    courtyard: {
+      pos: new THREE.Vector3(center.x + 18, 14, center.z + 32),
+      target: new THREE.Vector3(center.x - 10, 14, center.z - 16),
+    },
+    drone: {
+      pos: new THREE.Vector3(center.x + 28, 52, center.z + 36),
+      target: new THREE.Vector3(center.x, 30, center.z),
+    },
+    free: {
+      pos: new THREE.Vector3(center.x + span * 0.64, size.y * 1.32, center.z + span * 0.68),
+      target: new THREE.Vector3(center.x, size.y * 0.22, center.z),
+    },
   }
-  planeGeo.computeVertexNormals()
+}
 
-  const terrainWire = new THREE.Mesh(
-    planeGeo,
-    new THREE.MeshBasicMaterial({
-      color: 0x52b788,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.42,
-    }),
-  )
-  group.add(terrainWire)
-
-  const terrainSolid = new THREE.Mesh(
-    planeGeo,
-    new THREE.MeshStandardMaterial({
-      color: 0x2d6a4f,
-      roughness: 0.82,
-      metalness: 0.04,
-    }),
-  )
-  terrainSolid.position.y = -0.02
-  group.add(terrainSolid)
-
-  // Architectural industrial structures (bright concrete + amber roof edge + vivid sapphire solar arrays)
-  const buildingMat = new THREE.MeshStandardMaterial({
-    color: 0xdbe4ee,
-    roughness: 0.44,
-    metalness: 0.1,
-  })
-  const buildingEdgeMat = new THREE.LineBasicMaterial({
-    color: 0xf59e0b,
-    transparent: true,
-    opacity: 0.75,
-  })
-  const solarMat = new THREE.MeshStandardMaterial({
-    color: 0x1d4ed8,
-    emissive: 0x2563eb,
-    emissiveIntensity: 0.48,
-    roughness: 0.2,
-    metalness: 0.22,
-  })
-
-  const blocks: [number, number, number, number, number, number][] = [
-    [-1.4, 0.24, -0.8, 2.2, 0.55, 1.4],
-    [1.35, 0.18, -0.4, 1.8, 0.42, 1.6],
-    [-0.1, 0.15, 1.45, 2.5, 0.36, 1.05],
-  ]
-
-  for (const [x, y, z, w, h, d] of blocks) {
-    const boxGeo = new THREE.BoxGeometry(w, h, d)
-    const b = new THREE.Mesh(boxGeo, buildingMat)
-    b.position.set(x, y, z)
-    group.add(b)
-
-    const edges = new THREE.LineSegments(
-      new THREE.EdgesGeometry(boxGeo),
-      buildingEdgeMat,
-    )
-    edges.position.set(x, y, z)
-    group.add(edges)
-
-    const panel = new THREE.Mesh(
-      new THREE.BoxGeometry(w * 0.82, 0.03, d * 0.72),
-      solarMat,
-    )
-    panel.position.set(x, y + h / 2 + 0.025, z)
-    group.add(panel)
+/** Simplified collision avoidance: guarantees safe vertical clearance above peak roofs & terrain. */
+function enforceDroneClearance(pos: THREE.Vector3): void {
+  let minY = 16.0
+  for (const hull of PEAK_COLLISION_HULLS) {
+    const dx = Math.abs(pos.x - hull.x)
+    const dz = Math.abs(pos.z - hull.z)
+    if (dx <= hull.halfW + 6 && dz <= hull.halfD + 6) {
+      minY = Math.max(minY, hull.topY + 6.5)
+    }
   }
-
-  // Glowing ground lidar scan ring
-  const scanRing = new THREE.Mesh(
-    new THREE.RingGeometry(1.15, 1.35, 48),
-    new THREE.MeshBasicMaterial({
-      color: 0x65dfba,
-      transparent: true,
-      opacity: 0.72,
-      side: THREE.DoubleSide,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    }),
-  )
-  scanRing.rotation.x = -Math.PI / 2
-  scanRing.position.y = 0.08
-  group.add(scanRing)
-
-  // Glowing 3D flight spline path + inspection waypoint beacons
-  const flightCurve = new THREE.CatmullRomCurve3(
-    [
-      new THREE.Vector3(-2.6, 2.0, -1.6),
-      new THREE.Vector3(0.1, 2.25, -2.0),
-      new THREE.Vector3(2.4, 1.95, -0.2),
-      new THREE.Vector3(1.5, 2.15, 2.1),
-      new THREE.Vector3(-1.8, 2.0, 1.8),
-    ],
-    true,
-  )
-  const curvePoints = flightCurve.getPoints(96)
-  const pathGeo = new THREE.BufferGeometry().setFromPoints(curvePoints)
-  const pathLine = new THREE.Line(
-    pathGeo,
-    new THREE.LineBasicMaterial({
-      color: 0x7de7c7,
-      transparent: true,
-      opacity: 0.85,
-    }),
-  )
-  group.add(pathLine)
-
-  const waypoints: THREE.Mesh[] = []
-  const wpPositions: [number, number, number][] = [
-    [-1.4, 0.75, -0.8],
-    [1.35, 0.62, -0.4],
-    [-0.1, 0.56, 1.45],
-  ]
-  const wpMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 })
-  for (const [x, y, z] of wpPositions) {
-    const beacon = new THREE.Mesh(new THREE.OctahedronGeometry(0.11, 0), wpMat)
-    beacon.position.set(x, y, z)
-    group.add(beacon)
-    waypoints.push(beacon)
+  if (pos.y < minY) {
+    pos.y = minY
   }
-
-  return { group, scanRing, waypoints, flightCurve }
 }
 
 /**
- * Interactive WebGL Three.js 3D Drone Inspection Diorama.
- * Features pointer-driven 3D camera orbit, 4 animated mission viewpoints,
- * a sculpted quadcopter with spinning rotors & volumetric LiDAR scan cone,
- * offscreen auto-pause, reduced-motion safety, and complete resource disposal.
+ * Interactive WebGL Three.js 3D Digital Twin of FPT University HCMC
+ * with procedural Blender GLB asset loading, OrbitControls, 6 camera presets,
+ * 4 visualization modes, 3 quality tiers, and synthetic drone scanning simulation.
  */
 export function Interactive3DDroneStage({
   eyebrow,
@@ -397,12 +315,58 @@ export function Interactive3DDroneStage({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
+  const [visualMode, setVisualMode] = useState<VisualizationMode>('realistic')
+  const [quality, setQuality] = useState<QualityLevel>(() => detectInitialQuality())
+  const [paused, setPaused] = useState(false)
+  const [simSpeed, setSimSpeed] = useState<number>(1)
+  const [scanProgress, setScanProgress] = useState(0)
+  const [activeTargetLabel, setActiveTargetLabel] = useState(DEFAULT_PEAK_TARGETS[0].label)
+  const [loadProgress, setLoadProgress] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadNonce, setReloadNonce] = useState(0)
+  const [resetViewNonce, setResetViewNonce] = useState(0)
+  const [resetSimNonce, setResetSimNonce] = useState(0)
   const [webglReady, setWebglReady] = useState(true)
-  const activeIndexRef = useRef(0)
+
+  const activePresetIdRef = useRef<string>(presets[0]?.id ?? 'overview')
+  const visualModeRef = useRef<VisualizationMode>(visualMode)
+  const pausedRef = useRef(paused)
+  const simSpeedRef = useRef(simSpeed)
+  const cameraTransitionRef = useRef(true)
+  const simProgressRef = useRef(0)
 
   useEffect(() => {
-    activeIndexRef.current = activeIndex
-  }, [activeIndex])
+    const nextId = presets[activeIndex]?.id ?? 'overview'
+    activePresetIdRef.current = nextId
+    cameraTransitionRef.current = true
+  }, [activeIndex, presets])
+
+  useEffect(() => {
+    visualModeRef.current = visualMode
+  }, [visualMode])
+
+  useEffect(() => {
+    pausedRef.current = paused
+  }, [paused])
+
+  useEffect(() => {
+    simSpeedRef.current = simSpeed
+  }, [simSpeed])
+
+  useEffect(() => {
+    if (resetViewNonce > 0) {
+      cameraTransitionRef.current = true
+    }
+  }, [resetViewNonce])
+
+  useEffect(() => {
+    if (resetSimNonce > 0) {
+      simProgressRef.current = 0
+      setScanProgress(0)
+      setPaused(false)
+    }
+  }, [resetSimNonce])
 
   useEffect(() => {
     const mount = containerRef.current
@@ -418,114 +382,262 @@ export function Interactive3DDroneStage({
     let renderer: THREE.WebGLRenderer
     try {
       renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true,
-        powerPreference: 'high-performance',
+        antialias: quality !== 'LOW',
+        alpha: false,
+        powerPreference: quality === 'LOW' ? 'default' : 'high-performance',
       })
     } catch {
       setWebglReady(false)
       return
     }
 
-    const width = mount.clientWidth || 720
-    const height = mount.clientHeight || 480
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+    const dprLimit = quality === 'HIGH' ? 2 : quality === 'MEDIUM' ? 1.5 : 1
+    const width = mount.clientWidth || 960
+    const height = mount.clientHeight || 560
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, dprLimit))
     renderer.setSize(width, height)
+    renderer.outputColorSpace = THREE.SRGBColorSpace
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.15
+    renderer.toneMappingExposure = 1.02
+    renderer.shadowMap.enabled = quality !== 'LOW'
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap
     mount.appendChild(renderer.domElement)
 
     const scene = new THREE.Scene()
-    scene.fog = new THREE.FogExp2(0x1e4560, 0.014)
+    // Natural warm-neutral tropical daylight sky for Kiến trúc thực tế (matching Blender AgX/Nishita)
+    const daylightBg = new THREE.Color(0xc9dff0)
+    const twinBg = new THREE.Color(0x091620)
+    scene.background = daylightBg.clone()
+    scene.fog = new THREE.FogExp2(0xc9dff0, 0.0014)
 
-    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 60)
-    camera.position.set(...CAMERA_RIGS[0].pos)
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.5, 950)
+    camera.position.set(112, 74, 118)
 
-    // Balanced daylight-studio 3-point lighting (clear shading, no blow-out)
-    const ambient = new THREE.AmbientLight(0xdbeafe, 0.75)
-    const hemi = new THREE.HemisphereLight(0xf0f9ff, 0x1e3a4c, 1.15)
-    const keyLight = new THREE.DirectionalLight(0xfffbeb, 1.9)
-    keyLight.position.set(6, 10, 6)
-    const fillLight = new THREE.DirectionalLight(0x93c5fd, 0.9)
-    fillLight.position.set(-7, 6, 4)
-    const rimLight = new THREE.PointLight(0x34d399, 5, 18)
-    rimLight.position.set(-4, 4.5, -3)
-    scene.add(ambient, hemi, keyLight, fillLight, rimLight)
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.enableDamping = true
+    controls.dampingFactor = 0.065
+    controls.maxPolarAngle = Math.PI * 0.485
+    controls.minDistance = 18
+    controls.maxDistance = 300
+    controls.target.set(-4, 14, -2)
 
+    const onControlStart = () => {
+      // Hand camera smoothly to user as soon as they drag/zoom
+      cameraTransitionRef.current = false
+    }
+    controls.addEventListener('start', onControlStart)
+
+    // Balanced tropical daylight lighting (neutral/warm sun + sky hemisphere, no cyan cast)
+    const hemiLight = new THREE.HemisphereLight(0xf4f8fc, 0x5c6e58, 1.12)
+    const sunLight = new THREE.DirectionalLight(0xfff7ea, 2.25)
+    sunLight.position.set(95, 138, 82)
+    if (quality !== 'LOW') {
+      sunLight.castShadow = true
+      const shadowRes = quality === 'HIGH' ? 2048 : 1024
+      sunLight.shadow.mapSize.set(shadowRes, shadowRes)
+      sunLight.shadow.camera.near = 20
+      sunLight.shadow.camera.far = 360
+      const d = 115
+      sunLight.shadow.camera.left = -d
+      sunLight.shadow.camera.right = d
+      sunLight.shadow.camera.top = d
+      sunLight.shadow.camera.bottom = -d
+      sunLight.shadow.bias = -0.0005
+    }
+    const fillLight = new THREE.DirectionalLight(0xe2eef8, 0.52)
+    fillLight.position.set(-90, 58, -72)
+    scene.add(hemiLight, sunLight, fillLight)
+
+    // Digital Twin ground grid accent (visible in Digital Twin & Scan modes)
+    const twinGrid = new THREE.GridHelper(210, 42, 0x64dfc4, 0x1e3a4c)
+    twinGrid.position.y = -0.08
+    ;(twinGrid.material as THREE.Material).transparent = true
+    ;(twinGrid.material as THREE.Material).opacity = 0.28
+    twinGrid.visible = false
+    scene.add(twinGrid)
+
+    // Preserved Drone + Scan overlays
     const drone = buildIndustrialDrone()
-    drone.group.position.set(0, 2.05, 0)
+    drone.group.position.set(-40, 50, -32)
     scene.add(drone.group)
 
-    const terrain = buildTerrainAndSite()
-    scene.add(terrain.group)
-
-    // Floating atmospheric dust/telemetry particles
-    const particleCount = 120
-    const particlePositions = new Float32Array(particleCount * 3)
-    for (let i = 0; i < particleCount; i++) {
-      particlePositions[i * 3] = (Math.random() - 0.5) * 14
-      particlePositions[i * 3 + 1] = Math.random() * 5.2 + 0.3
-      particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 14
-    }
-    const particleGeo = new THREE.BufferGeometry()
-    particleGeo.setAttribute(
-      'position',
-      new THREE.BufferAttribute(particlePositions, 3),
+    const scanRing = new THREE.Mesh(
+      new THREE.RingGeometry(4.5, 6.2, 40),
+      new THREE.MeshBasicMaterial({
+        color: 0x64dfc4,
+        transparent: true,
+        opacity: 0.72,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      }),
     )
-    const particleMat = new THREE.PointsMaterial({
-      color: 0x65dfba,
-      size: 0.045,
+    scanRing.rotation.x = -Math.PI / 2
+    scanRing.position.set(-40, 44.5, -32)
+    scene.add(scanRing)
+
+    // Synthetic closed flight curve orbiting all 3 peaks & central courtyard
+    let targetCoords = DEFAULT_PEAK_TARGETS.map((t) => ({
+      ...t,
+      vec: new THREE.Vector3(...t.pos),
+    }))
+
+    const buildFlightPath = () => {
+      const p0 = targetCoords[0].vec
+      const p1 = targetCoords[1].vec
+      const p2 = targetCoords[2].vec
+      return new THREE.CatmullRomCurve3(
+        [
+          new THREE.Vector3(p0.x, p0.y + 8, p0.z),
+          new THREE.Vector3(0, 44, -36),
+          new THREE.Vector3(p1.x, p1.y + 8, p1.z),
+          new THREE.Vector3(34, 34, 24),
+          new THREE.Vector3(0, 26, 26),
+          new THREE.Vector3(p2.x, p2.y + 8, p2.z),
+          new THREE.Vector3(-44, 38, 0),
+        ],
+        true,
+      )
+    }
+
+    let flightCurve = buildFlightPath()
+    const pathMat = new THREE.LineBasicMaterial({
+      color: 0x64dfc4,
       transparent: true,
-      opacity: 0.45,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
+      opacity: 0.6,
     })
-    const particles = new THREE.Points(particleGeo, particleMat)
-    scene.add(particles)
+    const pathLine = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(flightCurve.getPoints(120)),
+      pathMat,
+    )
+    scene.add(pathLine)
 
-    // Pointer orbit offset (smoothly damped)
-    let pointerX = 0
-    let pointerY = 0
-    let dragYaw = 0
-    let dragPitch = 0
-    let isDragging = false
-    let lastClientX = 0
-    let lastClientY = 0
+    // 3 Virtual inspection markers
+    const markersGroup = new THREE.Group()
+    const markerMeshes: THREE.Mesh[] = []
+    const markerRings: THREE.Mesh[] = []
+    const markerGeo = new THREE.OctahedronGeometry(2.1, 0)
+    const markerRingGeo = new THREE.RingGeometry(2.8, 3.6, 28)
 
-    const onPointerDown = (e: PointerEvent) => {
-      isDragging = true
-      lastClientX = e.clientX
-      lastClientY = e.clientY
-    }
-    const onPointerMove = (e: PointerEvent) => {
-      const rect = mount.getBoundingClientRect()
-      if (rect.width > 0 && rect.height > 0) {
-        pointerX = ((e.clientX - rect.left) / rect.width - 0.5) * 2
-        pointerY = ((e.clientY - rect.top) / rect.height - 0.5) * 2
-      }
-      if (isDragging) {
-        dragYaw += (e.clientX - lastClientX) * 0.0055
-        dragPitch = Math.max(
-          -0.45,
-          Math.min(0.45, dragPitch + (e.clientY - lastClientY) * 0.004),
+    targetCoords.forEach((t) => {
+      const mat = new THREE.MeshBasicMaterial({ color: 0xf59e0b })
+      const m = new THREE.Mesh(markerGeo, mat)
+      m.position.copy(t.vec)
+      markersGroup.add(m)
+      markerMeshes.push(m)
+
+      const rMat = new THREE.MeshBasicMaterial({
+        color: 0x64dfc4,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+      })
+      const ring = new THREE.Mesh(markerRingGeo, rMat)
+      ring.rotation.x = -Math.PI / 2
+      ring.position.set(t.vec.x, t.vec.y - 1.2, t.vec.z)
+      markersGroup.add(ring)
+      markerRings.push(ring)
+    })
+    scene.add(markersGroup)
+
+    // Campus model container + visualization mode helper collections
+    const campusRoot = new THREE.Group()
+    scene.add(campusRoot)
+    const campusMeshes: THREE.Mesh[] = []
+    const twinEdgeLines: THREE.LineSegments[] = []
+    let cameraViews = computeCampusCameraViews(
+      new THREE.Box3(new THREE.Vector3(-74, 0, -72), new THREE.Vector3(74, 42, 72)),
+    )
+
+    let disposed = false
+    const modelUrl =
+      quality === 'LOW' ? '/models/fpt-campus-low.glb?v=4' : '/models/fpt-campus.glb?v=4'
+
+    setLoading(true)
+    setLoadError(null)
+    setLoadProgress(5)
+
+    const loader = new GLTFLoader()
+    loader.load(
+      modelUrl,
+      (gltf) => {
+        if (disposed) return
+        const root = gltf.scene
+        campusRoot.add(root)
+
+        const edgeMat = new THREE.LineBasicMaterial({
+          color: 0x64dfc4,
+          transparent: true,
+          opacity: 0.36,
+        })
+
+        root.traverse((obj) => {
+          if (obj instanceof THREE.Mesh) {
+            obj.castShadow = quality !== 'LOW'
+            obj.receiveShadow = quality !== 'LOW'
+            campusMeshes.push(obj)
+
+            // Build lightweight architectural outline accents for Digital Twin mode (skip foliage)
+            const lower = obj.name.toLowerCase()
+            if (
+              !lower.includes('vegetation') &&
+              !lower.includes('foliage') &&
+              !lower.includes('trunk')
+            ) {
+              const edgesGeo = new THREE.EdgesGeometry(obj.geometry, 32)
+              const line = new THREE.LineSegments(edgesGeo, edgeMat)
+              line.visible = false
+              obj.add(line)
+              twinEdgeLines.push(line)
+            }
+          }
+          // Extract exported Blender SCAN_TARGET empties if present
+          const matchedIdx = targetCoords.findIndex((t) => t.id === obj.name)
+          if (matchedIdx >= 0) {
+            const worldPos = new THREE.Vector3()
+            obj.updateWorldMatrix(true, false)
+            obj.getWorldPosition(worldPos)
+            targetCoords[matchedIdx].vec.copy(worldPos)
+            markerMeshes[matchedIdx]?.position.copy(worldPos)
+            markerRings[matchedIdx]?.position.set(worldPos.x, worldPos.y - 1.2, worldPos.z)
+          }
+        })
+
+        // Rebuild flight spline using exact GLB target coordinates
+        flightCurve = buildFlightPath()
+        pathLine.geometry.dispose()
+        pathLine.geometry = new THREE.BufferGeometry().setFromPoints(
+          flightCurve.getPoints(120),
         )
-        lastClientX = e.clientX
-        lastClientY = e.clientY
-      }
-    }
-    const onPointerUp = () => {
-      isDragging = false
-    }
 
-    const domEl = renderer.domElement
-    domEl.addEventListener('pointerdown', onPointerDown)
-    window.addEventListener('pointermove', onPointerMove, { passive: true })
-    window.addEventListener('pointerup', onPointerUp)
+        // Frame camera dynamically from actual campus bounding box
+        const bbox = new THREE.Box3().setFromObject(root)
+        if (!bbox.isEmpty()) {
+          cameraViews = computeCampusCameraViews(bbox)
+          cameraTransitionRef.current = true
+        }
+
+        setLoadProgress(100)
+        setLoading(false)
+      },
+      (evt) => {
+        if (disposed) return
+        if (evt.total > 0) {
+          setLoadProgress(Math.min(99, Math.round((evt.loaded / evt.total) * 100)))
+        }
+      },
+      () => {
+        if (disposed) return
+        setLoading(false)
+        setLoadError('Không tải được mô hình 3D Đại học FPT TP.HCM. Vui lòng thử lại.')
+      },
+    )
 
     const onContextLost = (e: Event) => {
       e.preventDefault()
       setWebglReady(false)
     }
+    const domEl = renderer.domElement
     domEl.addEventListener('webglcontextlost', onContextLost)
 
     const resizeObserver =
@@ -554,12 +666,49 @@ export function Interactive3DDroneStage({
         : null
     intersectionObserver?.observe(mount)
 
-    const desiredPos = new THREE.Vector3()
-    const currentTarget = new THREE.Vector3(...CAMERA_RIGS[0].target)
-    const desiredTarget = new THREE.Vector3()
-    const targetColor = new THREE.Color()
+    // Pre-allocated scratch vectors (zero per-frame allocations)
+    const droneNextPos = new THREE.Vector3()
+    const droneLookPos = new THREE.Vector3()
+    const desiredCamPos = new THREE.Vector3()
+    const desiredCamTarget = new THREE.Vector3()
     const clock = new THREE.Clock()
     let rafId = 0
+    let lastUiSync = 0
+    let lastAppliedMode: VisualizationMode | null = null
+
+    const applyVisualMode = (mode: VisualizationMode) => {
+      const isWire = mode === 'wireframe'
+      const isTwin = mode === 'digital-twin'
+      const isScan = mode === 'scan'
+
+      campusMeshes.forEach((mesh) => {
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+        mats.forEach((m) => {
+          if ('wireframe' in m) {
+            ;(m as THREE.MeshStandardMaterial).wireframe = isWire
+          }
+        })
+      })
+
+      twinEdgeLines.forEach((line) => {
+        line.visible = isTwin
+      })
+      twinGrid.visible = isTwin || isScan || isWire
+      pathLine.visible = isScan || isTwin || activePresetIdRef.current === 'topdown' || activePresetIdRef.current === 'drone'
+      markersGroup.visible = isScan || isTwin || activePresetIdRef.current !== 'courtyard'
+      ;(drone.scanBeam.material as THREE.MeshBasicMaterial).opacity = isScan ? 0.34 : 0.16
+      scanRing.visible = isScan || isTwin
+
+      if (isTwin || isWire) {
+        ;(scene.background as THREE.Color).copy(twinBg)
+        if (scene.fog instanceof THREE.FogExp2) scene.fog.color.copy(twinBg)
+        sunLight.intensity = 1.45
+      } else {
+        ;(scene.background as THREE.Color).copy(daylightBg)
+        if (scene.fog instanceof THREE.FogExp2) scene.fog.color.copy(daylightBg)
+        sunLight.intensity = 2.2
+      }
+    }
 
     const animate = () => {
       rafId = window.requestAnimationFrame(animate)
@@ -567,83 +716,111 @@ export function Interactive3DDroneStage({
 
       const dt = Math.min(clock.getDelta(), 0.05)
       const elapsed = clock.elapsedTime
-      const rig = CAMERA_RIGS[activeIndexRef.current] ?? CAMERA_RIGS[0]
+      const mode = visualModeRef.current
 
-      // Spin all 4 rotors smoothly
+      if (mode !== lastAppliedMode) {
+        applyVisualMode(mode)
+        lastAppliedMode = mode
+      }
+
+      // Spin propellers continuously (slow idle when paused)
+      const rotorSpeed = pausedRef.current ? 10 : 34 * Math.max(0.7, simSpeedRef.current)
       drone.rotors.forEach((r, idx) => {
-        r.rotation.y += dt * (idx % 2 === 0 ? 34 : -34)
+        r.rotation.y += dt * (idx % 2 === 0 ? rotorSpeed : -rotorSpeed)
       })
 
-      // Gentle flight hover + subtle roll/pitch along inspection corridor
-      const hoverX = Math.sin(elapsed * 0.55) * 0.42
-      const hoverZ = Math.cos(elapsed * 0.42) * 0.36
-      const hoverY = rig.droneY + Math.sin(elapsed * 1.6) * 0.08
-      drone.group.position.x += (hoverX - drone.group.position.x) * 0.06
-      drone.group.position.z += (hoverZ - drone.group.position.z) * 0.06
-      drone.group.position.y += (hoverY - drone.group.position.y) * 0.06
-      drone.group.rotation.z = -hoverX * 0.14
-      drone.group.rotation.x = hoverZ * 0.12
-      drone.group.rotation.y = Math.sin(elapsed * 0.35) * 0.25
+      // Advance synthetic flight along closed campus spline
+      if (!pausedRef.current) {
+        simProgressRef.current = (simProgressRef.current + dt * 0.024 * simSpeedRef.current) % 1
+      }
+      const u = simProgressRef.current
+      flightCurve.getPointAt(u, droneNextPos)
+      droneNextPos.y += Math.sin(elapsed * 2.1) * 0.65
+      enforceDroneClearance(droneNextPos)
+      drone.group.position.lerp(droneNextPos, 0.12)
 
-      // Gimbal keeps scanning below
-      drone.gimbal.rotation.y = Math.sin(elapsed * 0.9) * 0.35
+      flightCurve.getPointAt((u + 0.02) % 1, droneLookPos)
+      drone.group.lookAt(droneLookPos.x, drone.group.position.y, droneLookPos.z)
+      drone.gimbal.rotation.y = Math.sin(elapsed * 1.1) * 0.35
 
-      // Pulse ground lidar ring & color shift per mode
-      const pulse = 1 + Math.sin(elapsed * 2.2) * 0.14
-      terrain.scanRing.scale.set(pulse, pulse, 1)
-      terrain.scanRing.position.x = drone.group.position.x
-      terrain.scanRing.position.z = drone.group.position.z + 0.34
-
-      targetColor.setHex(rig.scanColor)
-      ;(drone.scanBeam.material as THREE.MeshBasicMaterial).color.lerp(
-        targetColor,
-        0.08,
-      )
-      ;(terrain.scanRing.material as THREE.MeshBasicMaterial).color.lerp(
-        targetColor,
-        0.08,
+      // Scan ring projects below the drone
+      const pulse = 1 + Math.sin(elapsed * 2.6) * 0.14
+      scanRing.scale.set(pulse, pulse, 1)
+      scanRing.position.set(
+        drone.group.position.x,
+        Math.max(0.5, drone.group.position.y - 16),
+        drone.group.position.z,
       )
 
-      // Rotate inspection waypoint beacons
-      terrain.waypoints.forEach((wp, i) => {
-        wp.rotation.y = elapsed * 1.4 + i
-        wp.position.y += Math.sin(elapsed * 2.4 + i) * 0.0012
+      // Animate 3 virtual inspection markers & track nearest target
+      let nearestIdx = 0
+      let nearestDist = Infinity
+      markerMeshes.forEach((m, i) => {
+        m.rotation.y = elapsed * 1.5 + i
+        const ring = markerRings[i]
+        if (ring) {
+          const rp = 1 + Math.sin(elapsed * 2.4 + i) * 0.18
+          ring.scale.set(rp, rp, 1)
+        }
+        const dist = drone.group.position.distanceTo(targetCoords[i].vec)
+        if (dist < nearestDist) {
+          nearestDist = dist
+          nearestIdx = i
+        }
       })
 
-      particles.rotation.y = elapsed * 0.03
+      // Throttled React HUD sync (~4 Hz) so there is zero React re-render pressure
+      if (elapsed - lastUiSync > 0.25) {
+        lastUiSync = elapsed
+        setScanProgress(Math.round(u * 100))
+        setActiveTargetLabel(targetCoords[nearestIdx].label)
+      }
 
-      // Smoothly interpolate camera rig + pointer parallax + user drag orbit
-      const basePos = new THREE.Vector3(...rig.pos)
-      const radius = Math.hypot(basePos.x, basePos.z)
-      const baseAngle = Math.atan2(basePos.x, basePos.z)
-      const orbitAngle = baseAngle + dragYaw + pointerX * 0.22
-      desiredPos.set(
-        Math.sin(orbitAngle) * radius,
-        Math.max(1.1, basePos.y - pointerY * 0.45 + dragPitch * 2.2),
-        Math.cos(orbitAngle) * radius,
-      )
-      camera.position.lerp(desiredPos, 0.055)
+      // Camera preset interpolation or Drone follow-cam
+      const presetId = activePresetIdRef.current
+      if (presetId === 'drone') {
+        desiredCamTarget.copy(drone.group.position)
+        desiredCamPos.set(
+          drone.group.position.x + 24,
+          drone.group.position.y + 12,
+          drone.group.position.z + 24,
+        )
+        camera.position.lerp(desiredCamPos, 0.06)
+        controls.target.lerp(desiredCamTarget, 0.08)
+      } else if (cameraTransitionRef.current && presetId !== 'free') {
+        const view = cameraViews[presetId] ?? cameraViews.overview
+        camera.position.lerp(view.pos, 0.07)
+        controls.target.lerp(view.target, 0.08)
+        if (
+          camera.position.distanceTo(view.pos) < 0.35 &&
+          controls.target.distanceTo(view.target) < 0.35
+        ) {
+          cameraTransitionRef.current = false
+        }
+      }
 
-      desiredTarget.set(...rig.target)
-      currentTarget.lerp(desiredTarget, 0.07)
-      camera.lookAt(currentTarget)
-
+      controls.update()
       renderer.render(scene, camera)
     }
 
     rafId = window.requestAnimationFrame(animate)
 
     return () => {
+      disposed = true
       window.cancelAnimationFrame(rafId)
       resizeObserver?.disconnect()
       intersectionObserver?.disconnect()
-      domEl.removeEventListener('pointerdown', onPointerDown)
-      window.removeEventListener('pointermove', onPointerMove)
-      window.removeEventListener('pointerup', onPointerUp)
+      controls.removeEventListener('start', onControlStart)
+      controls.dispose()
       domEl.removeEventListener('webglcontextlost', onContextLost)
 
       scene.traverse((obj) => {
-        if (obj instanceof THREE.Mesh || obj instanceof THREE.Line || obj instanceof THREE.Points) {
+        if (
+          obj instanceof THREE.Mesh ||
+          obj instanceof THREE.Line ||
+          obj instanceof THREE.LineSegments ||
+          obj instanceof THREE.Points
+        ) {
           obj.geometry.dispose()
           if (Array.isArray(obj.material)) {
             obj.material.forEach((m) => m.dispose())
@@ -657,7 +834,7 @@ export function Interactive3DDroneStage({
         mount.removeChild(domEl)
       }
     }
-  }, [])
+  }, [quality, reloadNonce])
 
   const activePreset = presets[activeIndex] ?? presets[0]
 
@@ -683,6 +860,71 @@ export function Interactive3DDroneStage({
           <p className="lp3-stage3d-sub">{subtitle}</p>
         </div>
 
+        {/* Compact aerospace control bar: Visualization Modes + Drone Simulation + Quality */}
+        <div className="lp3-stage3d-toolbar" role="toolbar" aria-label="Điều khiển mô hình 3D">
+          <div className="lp3-stage3d-mode-group" role="group" aria-label="Chế độ hiển thị">
+            {VISUAL_MODES.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                className={`lp3-stage3d-chip${visualMode === m.id ? ' is-active' : ''}`}
+                aria-pressed={visualMode === m.id}
+                onClick={() => setVisualMode(m.id)}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="lp3-stage3d-sim-group">
+            <button
+              type="button"
+              className="lp3-stage3d-chip"
+              onClick={() => setPaused((p) => !p)}
+            >
+              {paused ? 'Tiếp tục bay' : 'Tạm dừng'}
+            </button>
+            <button
+              type="button"
+              className="lp3-stage3d-chip"
+              onClick={() => {
+                const idx = SPEED_OPTIONS.indexOf(simSpeed as 0.5 | 1 | 2)
+                setSimSpeed(SPEED_OPTIONS[(idx + 1) % SPEED_OPTIONS.length])
+              }}
+              title="Đổi tốc độ mô phỏng"
+            >
+              Tốc độ {simSpeed}×
+            </button>
+            <button
+              type="button"
+              className="lp3-stage3d-chip"
+              onClick={() => setResetSimNonce((n) => n + 1)}
+            >
+              Đặt lại bay
+            </button>
+            <button
+              type="button"
+              className="lp3-stage3d-chip"
+              onClick={() => {
+                setActiveIndex(0)
+                setResetViewNonce((n) => n + 1)
+              }}
+            >
+              Đặt lại góc nhìn
+            </button>
+            <select
+              className="lp3-stage3d-quality"
+              aria-label="Mức chất lượng đồ họa"
+              value={quality}
+              onChange={(e) => setQuality(e.target.value as QualityLevel)}
+            >
+              <option value="HIGH">Chất lượng: Cao (Desktop)</option>
+              <option value="MEDIUM">Chất lượng: Trung bình</option>
+              <option value="LOW">Chất lượng: Nhẹ (Mobile)</option>
+            </select>
+          </div>
+        </div>
+
         <div className="lp3-stage3d-shell">
           <div className="lp3-stage3d-viewport">
             {webglReady ? (
@@ -699,10 +941,37 @@ export function Interactive3DDroneStage({
               </div>
             )}
 
+            {webglReady && loading && (
+              <div className="lp3-stage3d-overlay" role="status" aria-live="polite">
+                <div className="lp3-stage3d-loader-card">
+                  <span>Đang tải Digital Twin ĐH FPT TP.HCM…</span>
+                  <strong>{loadProgress}%</strong>
+                  <div className="lp3-stage3d-loader-bar">
+                    <span style={{ width: `${loadProgress}%` }} />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {webglReady && loadError && (
+              <div className="lp3-stage3d-overlay" role="alert">
+                <div className="lp3-stage3d-loader-card">
+                  <span>{loadError}</span>
+                  <button
+                    type="button"
+                    className="lp3-stage3d-chip is-active"
+                    onClick={() => setReloadNonce((n) => n + 1)}
+                  >
+                    Tải lại mô hình
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="lp3-stage3d-hud-top" aria-hidden="true">
               <span className="lp3-stage3d-live">
                 <span className="lp3-stage3d-live-dot" />
-                THREE.JS · INTERACTIVE 3D
+                DIGITAL TWIN 3D · ĐH FPT TP.HCM
               </span>
               <span className="lp3-stage3d-drag">{dragHint}</span>
             </div>
@@ -710,8 +979,16 @@ export function Interactive3DDroneStage({
             {activePreset && (
               <div className="lp3-stage3d-hud-bottom">
                 <div className="lp3-stage3d-metric">
-                  <span>{activePreset.metricLabel}</span>
-                  <strong>{activePreset.metricValue}</strong>
+                  <span>
+                    {visualMode === 'scan'
+                      ? `TIẾN ĐỘ QUÉT MÔ PHỎNG · ${scanProgress}%`
+                      : activePreset.metricLabel}
+                  </span>
+                  <strong>
+                    {visualMode === 'scan'
+                      ? activeTargetLabel
+                      : activePreset.metricValue}
+                  </strong>
                 </div>
                 <a className="lpx-cta-mint lp3-stage3d-cta" href={ctaHref}>
                   <span>{ctaLabel}</span>

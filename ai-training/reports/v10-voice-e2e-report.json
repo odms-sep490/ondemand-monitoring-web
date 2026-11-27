@@ -1,0 +1,300 @@
+{
+  "evaluatedAt": "2026-11-27T03:42:31.339Z",
+  "asrProvider": "Qwen3-ASR-0.6B (production speech_transcription.py)",
+  "totalRealAudioTests": 16,
+  "totalPassed": 16,
+  "overallVoiceSemanticAccuracyPct": 100,
+  "cleanVoiceSemanticAccuracyPct": 100,
+  "noisyVoiceSemanticAccuracyPct": 100,
+  "cleanAvgWer": 0.0184,
+  "noisyAvgWer": 0.0098,
+  "avgAsrLatencyMs": 34164.1313,
+  "results": [
+    {
+      "id": "v10-aud-01",
+      "category": "service_selection",
+      "condition": "clean",
+      "speaker": "vi_normal",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\clean\\v10-aud-01_vi_normal.wav",
+      "referenceTranscript": "Chọn giám sát công trình.",
+      "recognizedTranscript": "chọn giám sát công trình",
+      "wer": 0,
+      "asrLatencyMs": 39784.1,
+      "expectedTools": [
+        "select_service"
+      ],
+      "actualTools": [
+        "select_service"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-01-noisy",
+      "category": "service_selection",
+      "condition": "noisy",
+      "speaker": "vi_normal",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\noisy\\v10-aud-01_vi_normal_snr15.wav",
+      "referenceTranscript": "Chọn giám sát công trình.",
+      "recognizedTranscript": "chọn giám sát công trình",
+      "wer": 0,
+      "asrLatencyMs": 34904.5,
+      "expectedTools": [
+        "select_service"
+      ],
+      "actualTools": [
+        "select_service"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-02",
+      "category": "flight_purpose",
+      "condition": "clean",
+      "speaker": "vi_fast",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\clean\\v10-aud-02_vi_fast.wav",
+      "referenceTranscript": "Tôi muốn theo dõi tiến độ xây dựng.",
+      "recognizedTranscript": "tôi muốn theo dõi tiến độ xây dựng",
+      "wer": 0,
+      "asrLatencyMs": 34138,
+      "expectedTools": [
+        "set_flight_purpose"
+      ],
+      "actualTools": [
+        "set_flight_purpose"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-02-noisy",
+      "category": "flight_purpose",
+      "condition": "noisy",
+      "speaker": "vi_fast",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\noisy\\v10-aud-02_vi_fast_snr12.wav",
+      "referenceTranscript": "Tôi muốn theo dõi tiến độ xây dựng.",
+      "recognizedTranscript": "tôi muốn theo dõi tiến độ xây dựng",
+      "wer": 0,
+      "asrLatencyMs": 31908.6,
+      "expectedTools": [
+        "set_flight_purpose"
+      ],
+      "actualTools": [
+        "set_flight_purpose"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-03",
+      "category": "mission_description",
+      "condition": "clean",
+      "speaker": "vi_slow",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\clean\\v10-aud-03_vi_slow.wav",
+      "referenceTranscript": "Tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công.",
+      "recognizedTranscript": "tôi muốn quay toàn cảnh tòa nhà kiểm tra máy và ghi nhận tiến độ thi công",
+      "wer": 0.0588,
+      "asrLatencyMs": 32909.5,
+      "expectedTools": [
+        "set_description"
+      ],
+      "actualTools": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-03-noisy",
+      "category": "mission_description",
+      "condition": "noisy",
+      "speaker": "vi_slow",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\noisy\\v10-aud-03_vi_slow_snr15.wav",
+      "referenceTranscript": "Tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công.",
+      "recognizedTranscript": "tôi muốn quay toàn cảnh tòa nhà kiểm tra máy và ghi nhận tiến độ thi công",
+      "wer": 0.0588,
+      "asrLatencyMs": 32412.6,
+      "expectedTools": [
+        "set_description"
+      ],
+      "actualTools": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-04",
+      "category": "location_search",
+      "condition": "clean",
+      "speaker": "vi_normal_2",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\clean\\v10-aud-04_vi_normal_2.wav",
+      "referenceTranscript": "Địa chỉ tại Đại học FPT cơ sở Hồ Chí Minh.",
+      "recognizedTranscript": "địa chỉ tại đại học fpt cơ sở hồ chí minh",
+      "wer": 0,
+      "asrLatencyMs": 29713.2,
+      "expectedTools": [
+        "search_location"
+      ],
+      "actualTools": [
+        "search_location"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-04-noisy",
+      "category": "location_search",
+      "condition": "noisy",
+      "speaker": "vi_normal_2",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\noisy\\v10-aud-04_vi_normal_2_snr12.wav",
+      "referenceTranscript": "Địa chỉ tại Đại học FPT cơ sở Hồ Chí Minh.",
+      "recognizedTranscript": "địa chỉ tại đại học fpt cơ sở hồ chí minh",
+      "wer": 0,
+      "asrLatencyMs": 34054.1,
+      "expectedTools": [
+        "search_location"
+      ],
+      "actualTools": [
+        "search_location"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-05",
+      "category": "checklist_control",
+      "condition": "clean",
+      "speaker": "vi_normal",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\clean\\v10-aud-05_vi_normal.wav",
+      "referenceTranscript": "Chỉ lấy những mục bắt buộc.",
+      "recognizedTranscript": "chỉ lấy những mục bắt buộc",
+      "wer": 0,
+      "asrLatencyMs": 35657.4,
+      "expectedTools": [
+        "checklist_select_mandatory_only"
+      ],
+      "actualTools": [
+        "checklist_select_mandatory_only"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-05-noisy",
+      "category": "checklist_control",
+      "condition": "noisy",
+      "speaker": "vi_normal",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\noisy\\v10-aud-05_vi_normal_snr15.wav",
+      "referenceTranscript": "Chỉ lấy những mục bắt buộc.",
+      "recognizedTranscript": "chỉ lấy những mục bắt buộc",
+      "wer": 0,
+      "asrLatencyMs": 29716,
+      "expectedTools": [
+        "checklist_select_mandatory_only"
+      ],
+      "actualTools": [
+        "checklist_select_mandatory_only"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-06",
+      "category": "spoken_numbers_contact",
+      "condition": "clean",
+      "speaker": "vi_fast",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\clean\\v10-aud-06_vi_fast.wav",
+      "referenceTranscript": "Số điện thoại là không chín không, một hai ba, bốn năm sáu bảy.",
+      "recognizedTranscript": "số điện thoại là không chín không một hai ba bốn năm sáu bảy",
+      "wer": 0,
+      "asrLatencyMs": 29773.4,
+      "expectedTools": [
+        "set_contact"
+      ],
+      "actualTools": [
+        "set_contact"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-06-noisy",
+      "category": "spoken_numbers_contact",
+      "condition": "noisy",
+      "speaker": "vi_fast",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\noisy\\v10-aud-06_vi_fast_snr12.wav",
+      "referenceTranscript": "Số điện thoại là không chín không, một hai ba, bốn năm sáu bảy.",
+      "recognizedTranscript": "số điện thoại là không chín không một hai ba bốn năm sáu bảy",
+      "wer": 0,
+      "asrLatencyMs": 31301.6,
+      "expectedTools": [
+        "set_contact"
+      ],
+      "actualTools": [
+        "set_contact"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-07",
+      "category": "schedule_spoken_time",
+      "condition": "clean",
+      "speaker": "vi_slow",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\clean\\v10-aud-07_vi_slow.wav",
+      "referenceTranscript": "Bay sáng mai lúc tám giờ rưỡi sáng.",
+      "recognizedTranscript": "bay sáng mai lúc tám giờ dưới sáng",
+      "wer": 0.125,
+      "asrLatencyMs": 31681.1,
+      "expectedTools": [
+        "set_schedule"
+      ],
+      "actualTools": [
+        "set_schedule"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-08",
+      "category": "voice_self_correction",
+      "condition": "clean",
+      "speaker": "vi_normal_2",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\clean\\v10-aud-08_vi_normal_2.wav",
+      "referenceTranscript": "Chọn giám sát rừng, à không, giám sát công trình.",
+      "recognizedTranscript": "chọn giám sát rừng à không giám sát công trình",
+      "wer": 0,
+      "asrLatencyMs": 47850,
+      "expectedTools": [
+        "select_service"
+      ],
+      "actualTools": [
+        "select_service"
+      ],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-09",
+      "category": "v9_consultation_question",
+      "condition": "clean",
+      "speaker": "vi_normal",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\clean\\v10-aud-09_vi_normal.wav",
+      "referenceTranscript": "Quay video như thế nào?",
+      "recognizedTranscript": "quay video như thế nào",
+      "wer": 0,
+      "asrLatencyMs": 37403.5,
+      "expectedTools": [],
+      "actualTools": [],
+      "semanticPassed": true
+    },
+    {
+      "id": "v10-aud-10",
+      "category": "barge_in_reopen",
+      "condition": "interruption",
+      "speaker": "vi_fast",
+      "audioPath": "C:\\Users\\ACER\\Documents\\GitHub\\doan\\ondemand-monitoring-web\\ai-training\\audio\\interruption\\v10-aud-10_vi_fast.wav",
+      "referenceTranscript": "Khoan, tôi muốn quay lại chọn dịch vụ.",
+      "recognizedTranscript": "khoan tôi muốn quay lại chọn dịch vụ",
+      "wer": 0,
+      "asrLatencyMs": 33418.5,
+      "expectedTools": [
+        "reopen_selection"
+      ],
+      "actualTools": [
+        "reopen_selection"
+      ],
+      "semanticPassed": true
+    }
+  ]
+}

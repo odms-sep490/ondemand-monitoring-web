@@ -1,0 +1,61 @@
+{
+  "evaluatedAt": "2026-11-27T03:00:42.261Z",
+  "split": "dev",
+  "sampleSize": 71,
+  "metrics": {
+    "overallPassRatePct": 100,
+    "intentAccuracyPct": 100,
+    "toolSelectionAccuracyPct": 100,
+    "toolArgumentAccuracyPct": 100,
+    "finalStateCorrectnessPct": 100,
+    "falseSuccessCount": 0,
+    "unauthorizedStateChanges": 0,
+    "avgLatencyMs": 2.158,
+    "apiCostUsd": 0
+  },
+  "byCategory": {
+    "language_understanding": {
+      "total": 44,
+      "passed": 44,
+      "passRatePct": 100
+    },
+    "consultation": {
+      "total": 2,
+      "passed": 2,
+      "passRatePct": 100
+    },
+    "voice_recognition": {
+      "total": 2,
+      "passed": 2,
+      "passRatePct": 100
+    },
+    "memory_context": {
+      "total": 6,
+      "passed": 6,
+      "passRatePct": 100
+    },
+    "failure_recovery": {
+      "total": 1,
+      "passed": 1,
+      "passRatePct": 100
+    },
+    "business_validation": {
+      "total": 4,
+      "passed": 4,
+      "passRatePct": 100
+    },
+    "authorization_safety": {
+      "total": 8,
+      "passed": 8,
+      "passRatePct": 100
+    },
+    "noisy_unexpected": {
+      "total": 4,
+      "passed": 4,
+      "passRatePct": 100
+    }
+  },
+  "failureCount": 0,
+  "failuresByType": {},
+  "sampleFailures": []
+}

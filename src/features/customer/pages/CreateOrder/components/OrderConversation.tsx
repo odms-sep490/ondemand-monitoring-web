@@ -2,15 +2,39 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Alert, Button, Input, Modal, Space } from 'antd'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { ApiError, apiRequest } from '../../../../../shared/api/httpClient'
+import { authSession } from '../../../../auth/api/authSession'
 import type {
   ServiceDeliverableOption,
   ServiceOption,
+  ServicePricingEstimate,
 } from '../../../api/customerApi'
 import {
   applyConfirmedAgentChanges,
   type OrderAgentSession,
 } from '../../../lib/createOrder/orderAgent'
-import type { ChecklistInput } from '../../../lib/checklist/types'
+import type { ChecklistInput, ChecklistRow } from '../../../lib/checklist/types'
+import {
+  DraftHistory,
+  TranscriptGuard,
+  agentChangesToActions,
+  executeFormActions,
+  parseUtterance,
+  replyFromResults,
+  submitBlockers,
+  type ActionResult,
+  type AgentAction,
+  type ExecutorHandlers,
+  type SectionTarget,
+} from '../../../lib/createOrder/orderActionAgent'
+import {
+  planAutonomousTurn,
+  runVerifiedExecutionLoop,
+} from '../../../lib/createOrder/autonomousAgentV3'
+import {
+  createTopicState,
+  handleConversationalTurnV9,
+} from '../../../lib/createOrder/conversationalIntelligenceV9'
+import { SessionMemoryStore } from '../../../lib/createOrder/agentMemory'
 import { FLIGHT_PURPOSES, type FlightPurpose, type FormState, type Step } from '../../../lib/createOrder/types'
 import { clearStoredDraft, createDefaultForm } from '../../../lib/createOrder/draftStorage'
 import { isValidCoverageArea } from '../../../lib/createOrder/coverageGeometry'
@@ -40,6 +64,14 @@ import {
   resolveServiceMicroWorldTheme,
 } from './ServiceMicroWorld'
 import { resolveSeedAudioUrl } from './aiSeedAudio'
+import {
+  FALLBACK_ERRORS,
+  startBrowserRecognition,
+  type BrowserRecognitionSession,
+} from '../../../../../shared/lib/browserSpeechRecognition'
+import { speakWithBrowser, warmUpBrowserVoices } from '../../../../../shared/lib/browserSpeechSynthesis'
+
+warmUpBrowserVoices()
 
 
 const labels: Record<Step, string> = {
@@ -64,7 +96,6 @@ const guidedPromptMarker = '\n\n[ONDEMAND_GUIDED_PROMPT]\n'
 /** Module-level TTS audio cache so prepared/repeated prompts play instantaneously (0ms). */
 const MAX_SPEECH_CACHE = 48
 const speechBlobCache = new Map<string, Blob>()
-const speechInFlight = new Map<string, Promise<Blob>>()
 
 function rememberSpeechBlob(key: string, blob: Blob) {
   if (speechBlobCache.size >= MAX_SPEECH_CACHE) {
@@ -72,35 +103,6 @@ function rememberSpeechBlob(key: string, blob: Blob) {
     if (oldestKey !== undefined) speechBlobCache.delete(oldestKey)
   }
   speechBlobCache.set(key, blob)
-}
-
-function fetchCachedSpeechBlob(
-  activeSessionId: string,
-  chunkText: string,
-  signal?: AbortSignal,
-): Promise<Blob> {
-  const key = chunkText.trim()
-  const cached = speechBlobCache.get(key)
-  if (cached) return Promise.resolve(cached)
-
-  const existing = speechInFlight.get(key)
-  if (existing && !signal) return existing
-
-  const promise = apiRequest<Blob>(`${base}/${activeSessionId}/speech`, {
-    method: 'POST',
-    body: { text: chunkText },
-    responseType: 'blob',
-    signal,
-  }).then((blob) => {
-    if (!blob.size) throw new Error('Máy chủ chưa trả về nội dung âm thanh.')
-    rememberSpeechBlob(key, blob)
-    return blob
-  }).finally(() => {
-    if (speechInFlight.get(key) === promise) speechInFlight.delete(key)
-  })
-
-  if (!signal) speechInFlight.set(key, promise)
-  return promise
 }
 
 function visibleConversationMessage(content: string) {
@@ -261,7 +263,13 @@ type Props = {
   onOpenStep: (step: Step) => void
   onManualStepChange?: (step: Step | undefined) => void
   preferredTimes?: Array<{ id: string; name: string }>
+  pricingEstimate?: ServicePricingEstimate | null
+  checklistRows?: ChecklistRow[]
   serviceSelectionStep?: boolean
+  /** Same checklist handlers the manual editor uses, exposed to the action agent. */
+  checklistActions?: ExecutorHandlers & {
+    checklistClearOptional?: () => number | null
+  }
 }
 
 export function OrderConversation(p: Props) {
@@ -379,6 +387,7 @@ export function OrderConversation(p: Props) {
   async function speak(text: string, requestedSessionId?: string) {
     stopVoice()
     setVoiceError('')
+    transcriptGuard.current.rememberSpoken(text) // never act on our own TTS echo
     if (!voiceEnabledRef.current || !dialogOpen.current) return
     const activeSessionId = requestedSessionId ?? session?.id ?? sessionId.current
     if (!activeSessionId) {
@@ -394,6 +403,41 @@ export function OrderConversation(p: Props) {
     voiceRequest.current = controller
     // Never show "Đang chuẩn bị giọng nói..." for pre-seeded or cached audio!
     const firstCached = Boolean(seedUrl) || speechBlobCache.has(chunks[0].trim())
+    // Server TTS can take minutes on this GPU; speak instantly with the browser's Vietnamese voice
+    // when there is no recorded/cached audio. Server TTS stays the fallback.
+    if (!seedUrl) {
+      const isCurrent = () => voiceRequest.current === controller && !controller.signal.aborted
+      const started = speakWithBrowser(text, {
+        onStart: () => {
+          if (!isCurrent()) return
+          setVoiceLoading(false)
+          speakingRef.current = true
+          setSpeaking(true)
+          setAssistantState('RESPONDING')
+        },
+        onEnd: () => {
+          if (!isCurrent()) return
+          voiceRequest.current = null
+          speakingRef.current = false
+          setSpeaking(false)
+          setVoiceLoading(false)
+          setAssistantState((current) => (current === 'ERROR' ? current : 'IDLE'))
+        },
+        onError: () => {
+          if (!isCurrent()) return
+          voiceRequest.current = null
+          speakingRef.current = false
+          setSpeaking(false)
+          setVoiceLoading(false)
+          setVoiceError('Trình duyệt chưa đọc được câu này. Bạn vẫn có thể đọc nội dung trên màn hình.')
+        },
+      })
+      if (!started) {
+        if (voiceRequest.current === controller) voiceRequest.current = null
+        setVoiceError('Trình duyệt chưa có giọng tiếng Việt. Bạn vẫn có thể đọc nội dung trên màn hình.')
+      }
+      return // server TTS removed: too slow on this GPU
+    }
     if (!firstCached) setVoiceLoading(true)
 
     // Reuse ONE AudioContext + AnalyserNode across all chunks to eliminate inter-sentence gaps.
@@ -430,7 +474,7 @@ export function OrderConversation(p: Props) {
 
     type PreparedChunk = { blob: Blob; buffer: AudioBuffer | null }
 
-    const fetchSeedOrLiveBlob = async (chunkText: string): Promise<Blob> => {
+    const fetchSeedOrLiveBlob = async (_chunkText: string): Promise<Blob> => {
       if (seedUrl) {
         const cached = speechBlobCache.get(seedUrl)
         if (cached) return cached
@@ -450,7 +494,7 @@ export function OrderConversation(p: Props) {
           // Fall back cleanly to live TTS if static file isn't available
         }
       }
-      return fetchCachedSpeechBlob(activeSessionId, chunkText, controller.signal)
+      throw new Error('Chưa phát được giọng nói. Bạn vẫn có thể đọc nội dung trên màn hình.')
     }
 
     const fetchAndDecode = async (chunkText: string): Promise<PreparedChunk> => {
@@ -592,7 +636,9 @@ export function OrderConversation(p: Props) {
       const ensurePrefetched = (startIndex: number) => {
         for (let k = startIndex; k < Math.min(chunks.length, startIndex + PREFETCH_AHEAD + 1); k++) {
           if (!pending.has(k)) {
-            pending.set(k, fetchAndDecode(chunks[k]))
+            const prefetched = fetchAndDecode(chunks[k])
+            void prefetched.catch(() => undefined)
+            pending.set(k, prefetched)
           }
         }
       }
@@ -645,6 +691,7 @@ export function OrderConversation(p: Props) {
   const [text, setText] = useState('')
   const [editingPurpose, setEditingPurpose] = useState(false)
   const [editingDescription, setEditingDescription] = useState(false)
+  const [reselectingService, setReselectingService] = useState(false)
   const [descriptionHelpOpen, setDescriptionHelpOpen] = useState(false)
   const [guidedStage, setGuidedStage] = useState<Step>()
   const [busy, setBusy] = useState(false)
@@ -659,6 +706,20 @@ export function OrderConversation(p: Props) {
   }>()
   const [recording, setRecording] = useState(false)
   const [resetRetry, setResetRetry] = useState(false)
+  const draftHistory = useRef(new DraftHistory())
+  const transcriptGuard = useRef(new TranscriptGuard())
+  const submitInFlight = useRef(false)
+  const latestTurnId = useRef(0)
+  const memoryStore = useRef(new SessionMemoryStore('customer', 'active'))
+  const topicStateRef = useRef(createTopicState())
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
+  // Manual edits bump the draft version so stale AI results cannot overwrite them.
+  useEffect(() => {
+    draftHistory.current.observe(p.form)
+    setCanUndo(draftHistory.current.canUndo)
+    setCanRedo(draftHistory.current.canRedo)
+  }, [p.form])
   const reduceMotion = useReducedMotion()
   const activeServices = p.services.filter((s) => s.isActive !== false)
   const selectedService = activeServices.find((s) => s.id === p.form.serviceId) ?? null
@@ -678,7 +739,10 @@ export function OrderConversation(p: Props) {
   const [robotPointDirection, setRobotPointDirection] = useState<AIMascotPointDirection>('down')
 
   const isServiceIntroActive =
-    open && !session?.state.messages.length && p.serviceSelectionStep !== false && activeServices.length > 0
+    open &&
+    (reselectingService || !session?.state.messages.length) &&
+    p.serviceSelectionStep !== false &&
+    activeServices.length > 0
 
   const mascotState: AIMascotState = resolveMascotState({
     hasError: assistantState === 'ERROR',
@@ -788,6 +852,9 @@ export function OrderConversation(p: Props) {
   const recorder = useRef<MediaRecorder | null>(null)
   const recordingTimer = useRef<number | undefined>(undefined)
   const keepRecording = useRef(false)
+  // Browser (Web Speech) recognition: live transcript; server ASR is the fallback.
+  const browserRecognition = useRef<BrowserRecognitionSession | null>(null)
+  const browserSpeechUnavailable = useRef(false)
   const abort = useRef<AbortController | null>(null)
   const operationActive = useRef(false)
   const dialogOpen = useRef(false)
@@ -805,6 +872,8 @@ export function OrderConversation(p: Props) {
       abort.current?.abort()
       keepRecording.current = false
       window.clearTimeout(recordingTimer.current)
+      browserRecognition.current?.abort()
+      browserRecognition.current = null
       recorder.current?.stream.getTracks().forEach((t) => t.stop())
       voiceRequest.current?.abort()
       window.speechSynthesis?.cancel()
@@ -851,6 +920,8 @@ export function OrderConversation(p: Props) {
     keepRecording.current = false
     window.clearTimeout(recordingTimer.current)
     window.clearTimeout(portalTimerRef.current)
+    browserRecognition.current?.abort()
+    browserRecognition.current = null
     if (recorder.current?.state === 'recording') recorder.current.stop()
     setRecording(false)
     setBusy(false)
@@ -1078,9 +1149,34 @@ export function OrderConversation(p: Props) {
     choice?: string,
     guidedPrompt?: string,
   ) {
+    // Latest explicit user intent interrupts active speech and cancels obsolete in-flight AI turns.
+    if (!resend && choice === undefined && guidedPrompt === undefined) {
+      stopVoice()
+      if (browserRecognition.current) {
+        window.clearTimeout(recordingTimer.current)
+        browserRecognition.current.abort()
+        browserRecognition.current = null
+        setRecording(false)
+      }
+      if (operationActive.current) {
+        abort.current?.abort()
+        operationActive.current = false
+        setBusy(false)
+        setPendingMessage(undefined)
+      }
+      if (text.trim() && runActionAgent(text)) return
+    }
     if (operationActive.current) return
     stopVoice()
+    if (browserRecognition.current) {
+      // Sending ends dictation; a late transcript must not refill the cleared input.
+      window.clearTimeout(recordingTimer.current)
+      browserRecognition.current.abort()
+      browserRecognition.current = null
+      setRecording(false)
+    }
     if (!session || (!resend && !(choice ?? text).trim())) return
+    const turnId = ++latestTurnId.current
     const message =
       resend && retry
         ? retry
@@ -1122,6 +1218,7 @@ export function OrderConversation(p: Props) {
     })
     setResponseReceived(false)
     setAssistantState('SENDING')
+    const expectedVersion = draftHistory.current.current
     await perform(async () => {
       const value = await request(`${base}/${session.id}/messages`, message)
       // Form actions follow the wizard copy even when an older worker returns a free-form reply.
@@ -1134,8 +1231,33 @@ export function OrderConversation(p: Props) {
         )
       }
       if (!dialogOpen.current || sessionId.current !== session.id) return
+      if (turnId !== latestTurnId.current) return // Latest user intent wins over stale AI response
       if (live.current.form.orderAgentSessionId &&
           live.current.form.orderAgentSessionId !== session.id) return
+      // Execute schema-validated backend proposals through the same controlled executor,
+      // guarding against stale responses if the user edited the draft in the meantime.
+      const backendActions = !choice ? agentChangesToActions(value.state.pendingChanges) : []
+      if (backendActions.length && draftHistory.current.canApply(expectedVersion)) {
+        const before = live.current.form
+        const executed = executeFormActions(before, backendActions, {
+          services: activeServices,
+          purposeLabels: requestInfoPanelMessages.vi.flightPurposes,
+          handlers: { ...p.checklistActions, openStep: (step) => openStep(step) },
+        })
+        if (executed.form !== before) {
+          p.setForm(() => executed.form)
+          draftHistory.current.record(before, executed.form)
+          setCanUndo(draftHistory.current.canUndo)
+          if (executed.form.serviceId !== before.serviceId) {
+            dispatchRobotEvent('SERVICE_SELECTED')
+            setHoveredService(null)
+            setGuidedStage(1)
+            setEditingPurpose(!executed.form.flightPurpose)
+            setEditingDescription(false)
+            setReviewedChecklistKey(undefined)
+          }
+        }
+      }
       sessionId.current=value.id
       setSession(value)
       setPendingMessage(undefined)
@@ -1148,6 +1270,638 @@ export function OrderConversation(p: Props) {
       setRetry(undefined)
       setText('')
     })
+  }
+  function appendLocalTurn(userText: string, reply: string) {
+    setSession((current) => current && {
+      ...current,
+      state: {
+        ...current.state,
+        messages: [
+          ...current.state.messages,
+          { role: 'user', content: userText },
+          { role: 'assistant', content: reply },
+        ],
+      },
+    })
+  }
+  function reopenSection(target: SectionTarget) {
+    memoryStore.current.observeForm(live.current.form, manualStep ?? nextStep, target)
+    memoryStore.current.setPendingIntention(target)
+    setHighlightedDraftKey(target === 'review' ? null : target)
+    window.clearTimeout(draftHighlightTimer.current)
+    draftHighlightTimer.current = window.setTimeout(() => setHighlightedDraftKey(null), 1600)
+    if (target === 'service') {
+      setManualStep(undefined)
+      setGuidedStage(1)
+      setEditingPurpose(false)
+      setEditingDescription(false)
+      setReselectingService(true)
+      p.onOpenStep(1)
+      return
+    }
+    setReselectingService(false)
+    if (target === 'purpose') {
+      setManualStep(undefined)
+      setGuidedStage(1)
+      setEditingPurpose(true)
+      setEditingDescription(false)
+      p.onOpenStep(1)
+      return
+    }
+    if (target === 'description') {
+      setManualStep(undefined)
+      setGuidedStage(1)
+      setEditingPurpose(false)
+      setEditingDescription(true)
+      p.onOpenStep(1)
+      return
+    }
+    const stepMap: Record<'location' | 'checklist' | 'contact' | 'schedule' | 'review', Step> = {
+      location: 2,
+      checklist: 3,
+      contact: 4,
+      schedule: 5,
+      review: 6,
+    }
+    const targetStep = stepMap[target]
+    setGuidedStage(targetStep)
+    openStep(targetStep)
+  }
+
+  /**
+   * Runs allowlisted actions on the shared draft. Returns true when the utterance was handled
+   * (executed, ignored as a duplicate/echo, or answered with one clarifying question).
+   */
+  function runActionAgent(utterance: string): boolean {
+    const spoken = utterance.trim()
+    if (!transcriptGuard.current.accept(spoken)) {
+      setText('')
+      return true
+    }
+    // Voice-first interruption: stop outdated speech output as soon as a new user instruction arrives.
+    stopVoice()
+    const currentStep = manualStep ?? nextStep
+    const currentSection: SectionTarget =
+      reselectingService
+        ? 'service'
+        : purposeBeforeMap
+          ? 'purpose'
+          : descriptionBeforeMap
+            ? 'description'
+            : currentStep === 2
+              ? 'location'
+              : currentStep === 3
+                ? 'checklist'
+                : currentStep === 4
+                  ? 'contact'
+                  : currentStep === 5
+                    ? 'schedule'
+                    : currentStep === 6
+                      ? 'review'
+                      : 'service'
+    memoryStore.current.observeForm(live.current.form, currentStep, currentSection)
+    const memSnap = memoryStore.current.snapshot
+
+    // V9 Deep Conversational Intelligence: Question Understanding, Multi-Turn Topic Tracking,
+    // Follow-Up Resolution, Conversational Repair & Verified Domain Knowledge (Answer First, Workflow Second).
+    const selectedSvc = activeServices.find((s) => s.id === live.current.form.serviceId)
+    const v9 = handleConversationalTurnV9(spoken, {
+      form: live.current.form,
+      services: activeServices,
+      selectedService: selectedSvc,
+      activeSection: currentSection,
+      completedCount: [
+        Boolean(live.current.form.serviceId),
+        Boolean(live.current.form.flightPurpose && (live.current.form.flightPurpose !== 'OTHER' || live.current.form.otherFlightPurpose.trim())),
+        Boolean(live.current.form.description.trim()),
+        live.current.form.locationStatus === 'confirmed',
+        Boolean(live.current.checklistValid),
+        Boolean(live.current.form.siteContactName.trim() && live.current.form.siteContactPhone.trim()),
+        Boolean(live.current.form.preferredDateFrom && live.current.form.preferredTimeId),
+      ].filter(Boolean).length,
+      pricingEstimate: p.pricingEstimate,
+      checklistRows: p.checklistRows,
+      topicState: topicStateRef.current,
+    })
+    topicStateRef.current = v9.nextTopicState
+    if (v9.handled) {
+      latestTurnId.current += 1
+      if (v9.actions.length > 0 && !v9.analysis.forbidMutation) {
+        const beforeV9 = live.current.form
+        const execV9 = executeFormActions(beforeV9, v9.actions, {
+          services: activeServices,
+          purposeLabels: requestInfoPanelMessages.vi.flightPurposes,
+          handlers: {
+            ...p.checklistActions,
+            preferredTimes: p.preferredTimes,
+          },
+        })
+        if (execV9.form !== beforeV9) {
+          p.setForm(() => execV9.form)
+          draftHistory.current.record(beforeV9, execV9.form)
+          setCanUndo(draftHistory.current.canUndo)
+          setCanRedo(draftHistory.current.canRedo)
+        }
+      }
+      appendLocalTurn(spoken, v9.reply)
+      reactMascot('idle')
+      setText('')
+      if (v9.reply) void speak(v9.reply, session?.id)
+      return true
+    }
+    const plan = parseUtterance(spoken, {
+      services: activeServices,
+      displayedServices: activeServices,
+      preferredTimes: p.preferredTimes,
+      memory: {
+        ...memSnap,
+        activeStep: currentStep,
+        activeSection: currentSection,
+        currentServiceId: live.current.form.serviceId,
+        hasFlightPurpose: Boolean(live.current.form.flightPurpose),
+        hasDescription: Boolean(live.current.form.description.trim()),
+        hasActiveDescriptionQuestion: Boolean(
+          session?.state.descriptionReview?.serviceId === live.current.form.serviceId &&
+            session?.state.descriptionReview?.nextQuestion,
+        ),
+        hasGeneratedDescription: Boolean(
+          session?.state.descriptionReview?.serviceId === live.current.form.serviceId &&
+            session?.state.descriptionReview?.generatedDescription,
+        ),
+        awaitingSubmitConfirm: Boolean(
+          (memoryStore.current.snapshot as { awaitingSubmitConfirm?: boolean }).awaitingSubmitConfirm,
+        ),
+        canRedo: draftHistory.current.canRedo,
+      },
+    })
+    // V3 Business-Aware Autonomous Layer: pricing Q&A, conditional rules, smart service recommendations,
+    // show_draft, and 7-day lead-time enforcement on relative dates.
+    // Never hijack concrete V5 form-filling actions (e.g. mission description, contact, schedule, location).
+    const authUser = authSession.getUser()
+    const v3Ctx = {
+      services: activeServices,
+      displayedServices: activeServices,
+      preferredTimes: p.preferredTimes,
+      pricingEstimate: p.pricingEstimate,
+      checklistRows: p.checklistRows,
+      accountContact: authUser ? { fullName: authUser.fullName, phone: authUser.phone, email: authUser.email } : undefined,
+      checklistValid: live.current.checklistValid,
+      purposeLabels: requestInfoPanelMessages.vi.flightPurposes,
+      memory: {
+        ...memSnap,
+        activeStep: currentStep,
+        activeSection: currentSection,
+        currentServiceId: live.current.form.serviceId,
+        hasFlightPurpose: Boolean(live.current.form.flightPurpose),
+      },
+    }
+    const v3Plan = planAutonomousTurn(spoken, v3Ctx)
+    const isV3Exclusive =
+      v3Plan.handledLocally &&
+      (v3Plan.actions.some(
+        (a) =>
+          a.type === 'query_pricing' ||
+          a.type === 'checklist_clear_optional' ||
+          a.type === 'show_draft',
+      ) ||
+        (plan.actions.length === 0 &&
+          (v3Plan.actions.some((a) => a.type === 'recommend_service' || a.type === 'use_account_contact') ||
+            Boolean(v3Plan.clarification))))
+    if (isV3Exclusive) {
+      memoryStore.current.cancelPendingIntention()
+      latestTurnId.current += 1
+      const before = live.current.form
+      const loopResult = runVerifiedExecutionLoop(before, v3Plan, {
+        ...v3Ctx,
+        handlers: {
+          ...p.checklistActions,
+          openStep: (step) => {
+            setReselectingService(false)
+            setGuidedStage(step)
+            openStep(step)
+          },
+          reopenSection,
+        },
+      })
+      if (loopResult.form !== before) {
+        p.setForm(() => loopResult.form)
+        draftHistory.current.record(before, loopResult.form)
+        setCanUndo(draftHistory.current.canUndo)
+        setCanRedo(draftHistory.current.canRedo)
+      }
+      appendLocalTurn(spoken, loopResult.reply)
+      reactMascot(loopResult.outcomes.length && loopResult.outcomes.every((o) => o.ok) ? 'success' : 'idle')
+      setText('')
+      if (loopResult.reply) void speak(loopResult.reply, session?.id)
+      return true
+    }
+    if (!plan.actions.length && !plan.clarification) return false
+    memoryStore.current.cancelPendingIntention()
+    latestTurnId.current += 1
+    const expectedVersion = draftHistory.current.current
+    const results: ActionResult[] = []
+    const asyncTypes = new Set([
+      'undo',
+      'redo',
+      'submit',
+      'confirm_submit',
+      'reset',
+      'search_location',
+      'evaluate_description',
+      'clarify_description',
+      'improve_description',
+      'apply_description',
+      'validate_complete_draft',
+    ])
+    const formActions = plan.actions.filter((a) => !asyncTypes.has(a.type))
+    if (plan.actions.some((a) => a.type === 'undo')) {
+      const undone = draftHistory.current.undo()
+      if (undone.ok) p.setForm(() => undone.form)
+      setCanUndo(draftHistory.current.canUndo)
+      setCanRedo(draftHistory.current.canRedo)
+      results.push({ action: { type: 'undo' }, ok: undone.ok, message: undone.ok ? 'Đã hoàn tác thao tác gần nhất của trợ lý.' : undone.reason })
+    }
+    if (plan.actions.some((a) => a.type === 'redo')) {
+      const redone = draftHistory.current.redo()
+      if (redone.ok) p.setForm(() => redone.form)
+      setCanUndo(draftHistory.current.canUndo)
+      setCanRedo(draftHistory.current.canRedo)
+      results.push({ action: { type: 'redo' }, ok: redone.ok, message: redone.ok ? 'Đã áp dụng lại thao tác vừa hoàn tác.' : redone.reason })
+    }
+    if (plan.actions.some((a) => a.type === 'reset')) {
+      Modal.confirm({
+        title: 'Xóa bản nháp hiện tại?',
+        content: 'Thao tác này sẽ xóa toàn bộ thông tin đã nhập trong bản nháp yêu cầu. Anh/chị xác nhận làm lại từ đầu chứ?',
+        okText: 'Làm lại từ đầu',
+        cancelText: 'Giữ lại',
+        onOk: () => void resetConversation(),
+      })
+      results.push({ action: { type: 'reset' }, ok: true, message: 'Anh/chị xác nhận trong hộp thoại để xóa bản nháp và làm lại từ đầu.' })
+    }
+    let latestForm = live.current.form
+    if (formActions.length) {
+      const before = live.current.form
+      if (!draftHistory.current.canApply(expectedVersion)) {
+        results.push({ action: formActions[0], ok: false, message: 'Bản nháp vừa thay đổi nên em chưa áp dụng; anh/chị nói lại giúp em nhé.' })
+      } else {
+        const executed = executeFormActions(before, formActions, {
+          services: activeServices,
+          purposeLabels: requestInfoPanelMessages.vi.flightPurposes,
+          handlers: {
+            ...p.checklistActions,
+            preferredTimes: p.preferredTimes,
+            getAccountContact: () => {
+              const user = authSession.getUser()
+              if (!user) return null
+              return {
+                name: user.fullName,
+                phone: user.phone,
+                email: user.email,
+              }
+            },
+            confirmSection: () => {
+              if (purposeBeforeMap && live.current.form.flightPurpose) {
+                setEditingPurpose(false)
+                setEditingDescription(true)
+                return 'Đã xác nhận mục đích bay. Anh/chị mô tả yêu cầu giám sát giúp em nhé.'
+              }
+              if (descriptionBeforeMap && live.current.form.description.trim()) {
+                setEditingPurpose(false)
+                setEditingDescription(false)
+                setGuidedStage(2)
+                openStep(2)
+                return 'Đã xác nhận mô tả nhiệm vụ và chuyển sang bước chọn khu vực giám sát.'
+              }
+              const nextIncomplete = nextGuidedStep(
+                live.current.form,
+                guidedChecklist,
+                live.current.checklistValid,
+                checklistReviewed,
+              )
+              setGuidedStage(nextIncomplete)
+              if (nextIncomplete >= 2) openStep(nextIncomplete)
+              return `Đã xác nhận và chuyển sang bước ${nextIncomplete}: ${labels[nextIncomplete]}.`
+            },
+            openStep: (step) => {
+              setReselectingService(false)
+              setGuidedStage(step)
+              openStep(step)
+            },
+            reopenSection,
+            goBack: () => {
+              const prev = Math.max(1, (manualStep ?? nextStep) - 1) as Step
+              if (prev === 1) {
+                reopenSection('service')
+                return 1
+              }
+              setReselectingService(false)
+              setGuidedStage(prev)
+              openStep(prev)
+              return prev
+            },
+            continueWorkflow: () => {
+              setReselectingService(false)
+              setManualStep(undefined)
+              const nextIncomplete = nextGuidedStep(
+                live.current.form,
+                guidedChecklist,
+                live.current.checklistValid,
+                checklistReviewed,
+              )
+              setGuidedStage(nextIncomplete)
+              if (nextIncomplete >= 2) openStep(nextIncomplete)
+              return nextIncomplete
+            },
+          },
+        })
+        results.push(...executed.results)
+        if (formActions.some((a) => a.type === 'keep_previous')) {
+          setReselectingService(false)
+        }
+        if (executed.form !== before) {
+          latestForm = executed.form
+          p.setForm(() => executed.form)
+          draftHistory.current.record(before, executed.form)
+          setCanUndo(draftHistory.current.canUndo)
+          setCanRedo(draftHistory.current.canRedo)
+          if (executed.form.serviceId !== before.serviceId) {
+            dispatchRobotEvent('SERVICE_SELECTED')
+            setHoveredService(null)
+            setReselectingService(false)
+            setGuidedStage(1)
+            setEditingPurpose(Boolean(executed.form.serviceId) && !executed.form.flightPurpose)
+            setEditingDescription(
+              Boolean(executed.form.serviceId) &&
+                Boolean(executed.form.flightPurpose) &&
+                !executed.form.description.trim(),
+            )
+            setReviewedChecklistKey(undefined)
+          } else if (
+            executed.form.flightPurpose &&
+            executed.form.flightPurpose !== before.flightPurpose &&
+            !executed.form.description.trim()
+          ) {
+            setEditingPurpose(false)
+            setEditingDescription(true)
+          }
+        }
+        for (const r of executed.results) {
+          memoryStore.current.recordAction(r.action, r.ok, r.message, before.serviceId, executed.form.serviceId)
+        }
+      }
+    }
+
+    // Async V5 actions: geocoding search, 4-stage description refinement, validation & submit
+    const searchAction = plan.actions.find(
+      (a): a is Extract<AgentAction, { type: 'search_location' }> => a.type === 'search_location',
+    )
+    if (searchAction) {
+      results.push({
+        action: searchAction,
+        ok: true,
+        message: `Đang tìm vị trí "${searchAction.query}" trên bản đồ…`,
+      })
+      void (async () => {
+        try {
+          const params = new URLSearchParams({ q: searchAction.query })
+          const data = await apiRequest<{
+            latitude?: number
+            longitude?: number
+            displayName?: string
+          }>(`/api/geocoding/search?${params.toString()}`).catch(() => null)
+          const lat = Number(data?.latitude)
+          const lng = Number(data?.longitude)
+          if (!data || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+            appendLocalTurn(
+              `Tìm vị trí: ${searchAction.query}`,
+              `Chưa tìm thấy tọa độ chính xác cho "${searchAction.query}". Anh/chị thử nêu rõ đường/phường/quận hoặc chọn trực tiếp trên bản đồ nhé.`,
+            )
+            return
+          }
+          const resolvedAddress = data.displayName?.trim() || searchAction.query
+          const beforeLoc = live.current.form
+          const updatedLoc: FormState = {
+            ...beforeLoc,
+            address: resolvedAddress,
+            normalizedAddress: resolvedAddress,
+            latitude: lat.toFixed(7),
+            longitude: lng.toFixed(7),
+            locationSource: 'search',
+            locationConfirmedAt: new Date().toISOString(),
+            locationStatus: 'confirmed',
+          }
+          p.setForm(() => updatedLoc)
+          draftHistory.current.record(beforeLoc, updatedLoc)
+          setCanUndo(draftHistory.current.canUndo)
+          setCanRedo(draftHistory.current.canRedo)
+          setGuidedStage(2)
+          openStep(2)
+          const locMsg = `Đã định vị "${resolvedAddress}" trên bản đồ. Anh/chị khoanh vùng giám sát trên bản đồ để hoàn tất bước khu vực nhé.`
+          appendLocalTurn(`Định vị: ${searchAction.query}`, locMsg)
+          void speak(locMsg, session?.id)
+        } catch {
+          appendLocalTurn(
+            `Tìm vị trí: ${searchAction.query}`,
+            'Chưa kết nối được dịch vụ tìm địa chỉ. Anh/chị có thể chọn trực tiếp trên bản đồ.',
+          )
+        }
+      })()
+    }
+
+    const descEval = plan.actions.find(
+      (a) =>
+        a.type === 'evaluate_description' ||
+        a.type === 'clarify_description' ||
+        a.type === 'improve_description',
+    )
+    if (descEval && session && live.current.form.serviceId) {
+      const descText = live.current.form.description.trim()
+      if (!descText) {
+        results.push({
+          action: descEval,
+          ok: false,
+          message: 'Chưa có mô tả nhiệm vụ để đánh giá. Anh/chị nói nội dung cần giám sát giúp em nhé.',
+        })
+      } else {
+        const reviewAction = descEval.type === 'improve_description' ? 'generate' : 'review'
+        const reviewAnswer =
+          descEval.type === 'clarify_description'
+            ? descEval.answer
+            : descEval.type === 'improve_description' && descEval.mode === 'shorten'
+              ? 'Hãy rút gọn mô tả ngắn gọn, súc tích hơn.'
+              : ''
+        results.push({
+          action: descEval,
+          ok: true,
+          message:
+            reviewAction === 'generate'
+              ? 'Đang hoàn thiện bản mô tả chuyên nghiệp cho anh/chị…'
+              : 'Đang đánh giá mô tả nhiệm vụ…',
+        })
+        void perform(async () => {
+          const value = await request(`${base}/${session.id}/description-review`, {
+            revision: session.revision,
+            serviceId: live.current.form.serviceId,
+            originalText: session.state.descriptionReview?.originalText ?? descText,
+            answer: reviewAnswer,
+            action: reviewAction,
+          })
+          if (dialogOpen.current && sessionId.current === value.id) {
+            setSession(value)
+            setResponseReceived(true)
+            const reviewData = value.state.descriptionReview
+            const nextMsg = reviewData?.nextQuestion?.trim()
+              ? reviewData.nextQuestion.trim()
+              : reviewData?.generatedDescription?.trim()
+                ? `Em đã hoàn thiện mô tả: "${reviewData.generatedDescription.trim()}". Anh/chị nói "Áp dụng đi" để đưa vào đơn nhé.`
+                : 'Đã đánh giá xong mô tả nhiệm vụ.'
+            appendLocalTurn(spoken, nextMsg)
+            void speak(nextMsg, value.id)
+          }
+        })
+      }
+    }
+
+    if (plan.actions.some((a) => a.type === 'apply_description')) {
+      const generated = session?.state.descriptionReview?.generatedDescription?.trim()
+      const currentDesc = live.current.form.description.trim()
+      const finalDesc = generated || currentDesc
+      if (!finalDesc) {
+        results.push({
+          action: { type: 'apply_description' },
+          ok: false,
+          message: 'Chưa có mô tả để áp dụng. Anh/chị đọc nội dung mô tả giúp em nhé.',
+        })
+      } else {
+        const beforeDesc = live.current.form
+        const appliedForm = applyConfirmedAgentChanges(beforeDesc, { description: finalDesc })
+        p.setForm(() => appliedForm)
+        draftHistory.current.record(beforeDesc, appliedForm)
+        setCanUndo(draftHistory.current.canUndo)
+        setCanRedo(draftHistory.current.canRedo)
+        setEditingPurpose(false)
+        setEditingDescription(false)
+        setGuidedStage(2)
+        openStep(2)
+        results.push({
+          action: { type: 'apply_description' },
+          ok: true,
+          message: 'Đã áp dụng mô tả vào biểu mẫu và chuyển sang bước chọn khu vực giám sát.',
+        })
+      }
+    }
+
+    if (plan.actions.some((a) => a.type === 'validate_complete_draft')) {
+      const missing = submitBlockers(live.current.stepValidity, live.current.checklistValid) as Step[]
+      results.push({
+        action: { type: 'validate_complete_draft' },
+        ok: missing.length === 0,
+        message:
+          missing.length === 0
+            ? 'Tất cả các mục bắt buộc đã hợp lệ. Anh/chị có thể nói "Gửi yêu cầu" để xác nhận tạo đơn.'
+            : `Bản nháp còn thiếu: ${missing.map((s) => labels[s].toLowerCase()).join('; ')}.`,
+      })
+    }
+
+    if (plan.actions.some((a) => a.type === 'confirm_submit')) {
+      ;(memoryStore.current.snapshot as { awaitingSubmitConfirm?: boolean }).awaitingSubmitConfirm = false
+      const missing = submitBlockers(live.current.stepValidity, live.current.checklistValid) as Step[]
+      if (missing.length) {
+        results.push({
+          action: { type: 'confirm_submit' },
+          ok: false,
+          message: `Chưa gửi được, còn thiếu: ${missing.map((s) => labels[s].toLowerCase()).join('; ')}.`,
+        })
+      } else if (submitInFlight.current) {
+        results.push({
+          action: { type: 'confirm_submit' },
+          ok: false,
+          message: 'Yêu cầu đang được gửi, em không gửi lại.',
+        })
+      } else {
+        submitInFlight.current = true
+        void validate().finally(() => {
+          submitInFlight.current = false
+        })
+        results.push({
+          action: { type: 'confirm_submit' },
+          ok: true,
+          message: 'Đang gửi yêu cầu giám sát của anh/chị…',
+        })
+      }
+    }
+
+    if (plan.actions.some((a) => a.type === 'submit')) {
+      const submitRes = requestSubmit()
+      if (submitRes.ok) {
+        ;(memoryStore.current.snapshot as { awaitingSubmitConfirm?: boolean }).awaitingSubmitConfirm = true
+      }
+      results.push(submitRes)
+    }
+    const baseReply = replyFromResults(results, plan.clarification)
+    const shouldPromptNext =
+      !plan.clarification &&
+      results.some((r) => r.ok) &&
+      !plan.actions.some(
+        (a) =>
+          a.type === 'undo' ||
+          a.type === 'redo' ||
+          a.type === 'reset' ||
+          a.type === 'submit' ||
+          a.type === 'confirm_submit' ||
+          a.type === 'reopen_selection' ||
+          a.type === 'clear_service' ||
+          a.type === 'read_description' ||
+          a.type === 'search_location' ||
+          a.type === 'evaluate_description' ||
+          a.type === 'clarify_description' ||
+          a.type === 'improve_description' ||
+          a.type === 'validate_complete_draft',
+      )
+    const nextStepPrompt = shouldPromptNext
+      ? !latestForm.serviceId
+        ? 'Anh/chị muốn chọn dịch vụ giám sát nào ạ?'
+        : !latestForm.flightPurpose
+          ? 'Tiếp theo, mục đích chuyến bay của anh/chị là gì ạ? Ví dụ: theo dõi tiến độ thi công, kiểm tra hiện trạng hay khảo sát khu vực?'
+          : !latestForm.description.trim()
+            ? 'Tiếp theo, anh/chị mô tả ngắn gọn yêu cầu giám sát (khu vực, hạng mục cần quay chụp) để em điền vào đơn nhé.'
+            : latestForm.locationStatus !== 'confirmed'
+              ? 'Tiếp theo, anh/chị đọc địa chỉ hoặc tên khu vực cần giám sát để em tìm trên bản đồ nhé.'
+              : !latestForm.siteContactName.trim() || !latestForm.siteContactPhone.trim()
+                ? 'Tiếp theo, anh/chị cho em tên người liên hệ và số điện thoại tại hiện trường (hoặc nói "Lấy thông tin từ tài khoản") nhé.'
+                : !latestForm.preferredDateFrom || !latestForm.preferredTimeId
+                  ? 'Tiếp theo, anh/chị muốn bay vào ngày nào và khung giờ nào (ví dụ: sáng mai lúc 8 giờ)?'
+                  : 'Các thông tin chính đã đầy đủ. Anh/chị có muốn em kiểm tra lại toàn bộ đơn hoặc gửi yêu cầu không ạ?'
+      : ''
+    const reply = nextStepPrompt ? `${baseReply} ${nextStepPrompt}`.trim() : baseReply
+    appendLocalTurn(spoken, reply)
+    reactMascot(results.length && results.every((r) => r.ok) ? 'success' : 'idle')
+    setText('')
+    if (reply) void speak(reply, session?.id)
+    return true
+  }
+  function requestSubmit(): ActionResult {
+    const action = { type: 'submit' } as const
+    const missing = submitBlockers(live.current.stepValidity, live.current.checklistValid) as Step[]
+    if (missing.length)
+      return { action, ok: false, message: `Chưa gửi được, còn thiếu: ${missing.map((s) => labels[s].toLowerCase()).join('; ')}.` }
+    if (submitInFlight.current) return { action, ok: false, message: 'Yêu cầu đang được gửi, em không gửi lại.' }
+    Modal.confirm({
+      title: 'Gửi yêu cầu?',
+      content: 'Trợ lý sẽ gửi yêu cầu với bản nháp hiện tại. Anh/chị xác nhận gửi chứ?',
+      okText: 'Gửi yêu cầu',
+      cancelText: 'Chưa gửi',
+      onOk: async () => {
+        if (submitInFlight.current) return
+        submitInFlight.current = true
+        try {
+          await validate()
+        } finally {
+          submitInFlight.current = false
+        }
+      },
+    })
+    return { action, ok: true, message: 'Bản nháp đã đủ. Anh/chị xác nhận trong hộp thoại để gửi yêu cầu.' }
   }
   async function validate() {
     if (!session) return
@@ -1163,10 +1917,73 @@ export function OrderConversation(p: Props) {
   }
   async function microphone() {
     if (recording) {
-      recorder.current?.stop()
+      if (browserRecognition.current) {
+        browserRecognition.current.stop() // onEnd keeps the final transcript in the input
+      } else {
+        recorder.current?.stop()
+      }
       setRecording(false)
       return
     }
+    if (microphonePending.current) return
+    if (!browserSpeechUnavailable.current && startBrowserSpeech()) return
+    await startServerRecording()
+  }
+
+  /**
+   * Live recognition in the browser: words appear in the input while the customer speaks, and the
+   * customer still sends the editable text. Returns false when the browser has no Web Speech support.
+   */
+  function startBrowserSpeech(): boolean {
+    // Each dictation replaces the input so an earlier sentence is never carried into the new one.
+    const withPrefix = (spoken: string) => spoken.trim()
+    setText('')
+    let heard = false
+    const session = startBrowserRecognition({
+      onTranscript: (spoken) => {
+        heard = heard || spoken.length > 0
+        if (dialogOpen.current) setText(withPrefix(spoken))
+      },
+      onEnd: (finalText) => {
+        window.clearTimeout(recordingTimer.current)
+        browserRecognition.current = null
+        setRecording(false)
+        if (!dialogOpen.current) return
+        if (finalText) setText(withPrefix(finalText))
+        else if (!heard) {
+          setErrorKind('speech')
+          setError('Chưa nghe rõ nội dung. Hãy nói lại hoặc nhập bằng bàn phím.')
+        }
+      },
+      onError: (error) => {
+        if (error === 'aborted' || error === 'no-speech') return
+        if (error === 'not-allowed' || error === 'audio-capture') {
+          browserRecognition.current = null
+          setRecording(false)
+          setErrorKind('speech')
+          setError('Không mở được micro. Bạn có thể nhập câu hỏi bằng bàn phím.')
+          return
+        }
+        if (FALLBACK_ERRORS.has(error)) {
+          // Browser speech service unusable here: switch to the server recognizer for this and later turns.
+          browserSpeechUnavailable.current = true
+          browserRecognition.current?.abort()
+          browserRecognition.current = null
+          setRecording(false)
+          void startServerRecording()
+        }
+      },
+    })
+    if (!session) return false
+    browserRecognition.current = session
+    setError('')
+    setRecording(true)
+    recordingTimer.current = window.setTimeout(() => browserRecognition.current?.stop(), 60_000)
+    return true
+  }
+
+  /** Fallback: record audio and transcribe it on the server (Qwen3-ASR). */
+  async function startServerRecording() {
     if (microphonePending.current) return
     microphonePending.current = true
     try {
@@ -1251,8 +2068,13 @@ export function OrderConversation(p: Props) {
     (step) => p.stepValidity?.[step] === false,
   )
   const nextStep = Math.min(guidedStage ?? requiredStep, firstInvalidStep ?? 6) as Step
-  const purposeBeforeMap = editingPurpose || nextStep === 1 && Boolean(p.form.serviceId) &&
-    (!p.form.flightPurpose || p.form.flightPurpose === 'OTHER')
+  const purposeBeforeMap =
+    !reselectingService &&
+    (editingPurpose ||
+      (nextStep === 1 &&
+        Boolean(p.form.serviceId) &&
+        (!p.form.flightPurpose ||
+          (p.form.flightPurpose === 'OTHER' && !p.form.otherFlightPurpose.trim()))))
   const descriptionBeforeMap = !purposeBeforeMap && (editingDescription || nextStep === 1 && Boolean(p.form.serviceId) &&
     !purposeBeforeMap && !p.form.description.trim())
   const nextStepLabel = purposeBeforeMap
@@ -1302,6 +2124,7 @@ export function OrderConversation(p: Props) {
     launchFlyingChip('service', service.name, sourceEl)
     const selectedForm = { ...p.form, serviceId: service.id }
     setHoveredService(null)
+    setReselectingService(false)
     setGuidedStage(1)
     setEditingPurpose(true)
     setEditingDescription(false)
@@ -1472,7 +2295,33 @@ export function OrderConversation(p: Props) {
             </AnimatePresence>
             {busy && errorKind === 'speech' && <p className="order-chat-status" role="status">Đang nhận giọng nói…</p>}
             {busy && errorKind === 'reset' && <p className="order-chat-status" role="status">Đang xóa và tạo cuộc trò chuyện mới…</p>}
-            {session && Boolean(session.state.messages.length) && !busy && <motion.section
+            {reselectingService && Boolean(session?.state.messages.length) && p.serviceSelectionStep !== false && !busy && <motion.section
+              className="order-chat-welcome order-chat-active-choice"
+              initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <div className="order-chat-active-choice-head">
+                <strong>Chọn dịch vụ giám sát</strong>
+              </div>
+              <div
+                ref={(node) => registerTarget('services', node)}
+                className="order-chat-service-grid"
+              >
+                {activeServices.map((service, idx) => (
+                  <AnimatedServiceCard
+                    key={service.id}
+                    service={service}
+                    index={idx}
+                    selected={p.form.serviceId === service.id}
+                    disabled={busy}
+                    onSelect={selectService}
+                    onHoverChange={setHoveredService}
+                  />
+                ))}
+              </div>
+            </motion.section>}
+            {session && Boolean(session.state.messages.length) && !busy && !reselectingService && <motion.section
               className="order-chat-welcome order-chat-active-choice"
               initial={reduceMotion ? false : { opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1567,7 +2416,48 @@ export function OrderConversation(p: Props) {
         />
       </div>
       <div className="order-chat-compose">
-        <Input.TextArea id="order-chat-input" aria-label="Nội dung trao đổi" value={text} onChange={e=>setText(e.target.value)} autoSize={{minRows:1,maxRows:3}} placeholder="Nói hoặc nhập nhu cầu của bạn…"/>
+        <Input.TextArea
+          id="order-chat-input"
+          aria-label="Nội dung trao đổi"
+          value={text}
+          onChange={e=>setText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              void send()
+            }
+          }}
+          autoSize={{minRows:1,maxRows:3}}
+          placeholder="Nói hoặc nhập nhu cầu của bạn…"
+        />
+        {canUndo && (
+          <Button
+            disabled={busy}
+            onClick={() => {
+              const undone = draftHistory.current.undo()
+              if (undone.ok) p.setForm(() => undone.form)
+              setCanUndo(draftHistory.current.canUndo)
+              setCanRedo(draftHistory.current.canRedo)
+              appendLocalTurn('Hoàn tác', undone.ok ? 'Đã hoàn tác thao tác gần nhất của trợ lý.' : undone.reason)
+            }}
+          >
+            Hoàn tác
+          </Button>
+        )}
+        {canRedo && (
+          <Button
+            disabled={busy}
+            onClick={() => {
+              const redone = draftHistory.current.redo()
+              if (redone.ok) p.setForm(() => redone.form)
+              setCanUndo(draftHistory.current.canUndo)
+              setCanRedo(draftHistory.current.canRedo)
+              appendLocalTurn('Làm lại', redone.ok ? 'Đã áp dụng lại thao tác vừa hoàn tác.' : redone.reason)
+            }}
+          >
+            Làm lại
+          </Button>
+        )}
         <Button className={recording ? 'is-recording' : undefined} disabled={busy} onClick={()=>void microphone()}>{recording?'Dừng nói':'Nói với trợ lý'}</Button>
         <Button aria-label={voiceEnabled ? 'Tắt giọng trợ lý' : 'Bật giọng trợ lý'} aria-pressed={voiceEnabled} onClick={toggleVoice}>{voiceEnabled ? 'Tắt giọng' : 'Bật giọng'}</Button>
         <Button type="primary" disabled={busy||!text.trim()||!session} onClick={()=>void send()}>Gửi</Button>

@@ -1,0 +1,185 @@
+{
+  "meta": {
+    "project": "FPT University Ho Chi Minh City Campus — Architectural Digital Twin V2",
+    "architect": "VTN Architects (Vo Trong Nghia Architects)",
+    "units": "METRIC (1 unit = 1 meter)",
+    "disclaimer": "Only published site/GFA/peak floor counts are VERIFIED. Envelope, wing depths, bay rhythms, and landscape coordinates are MEASURED_FROM_REFERENCE or ESTIMATED approximations."
+  },
+  "verified_targets": {
+    "provenance": "VERIFIED",
+    "site_area_m2": 22500.0,
+    "building_footprint_target_m2": 6750.0,
+    "total_gross_floor_area_target_m2": 29926.0,
+    "building_coverage_target": 0.30,
+    "primary_peak_floors": [6, 9, 11],
+    "max_floors": 11,
+    "tolerances": {
+      "site_area_pct": 3.0,
+      "building_footprint_pct": 5.0,
+      "gross_floor_area_pct": 5.0
+    }
+  },
+  "site": {
+    "provenance": "ESTIMATED",
+    "width_m": 156.0,
+    "length_m": 144.230769,
+    "seed": 20260417
+  },
+  "envelope": {
+    "provenance": "MEASURED_FROM_REFERENCE",
+    "outer_width_m": 116.0,
+    "outer_length_m": 112.0,
+    "courtyard_width_m": 78.0,
+    "courtyard_length_m": 74.0,
+    "wing_depth_m": 19.0,
+    "entrance_portal_width_m": 24.0
+  },
+  "vertical": {
+    "provenance": "ESTIMATED",
+    "ground_floor_height_m": 4.5,
+    "typical_floor_height_m": 3.6,
+    "slab_thickness_m": 0.32,
+    "parapet_height_m": 1.1,
+    "railing_height_m": 1.1,
+    "planter_height_m": 0.55,
+    "structural_bay_m": 4.0,
+    "window_width_m": 2.2,
+    "window_height_m": 1.75,
+    "window_recess_m": 0.38,
+    "corridor_width_m": 2.8
+  },
+  "palette_srgb": {
+    "provenance": "MEASURED_FROM_REFERENCE",
+    "concrete_white": "#F0EEE6",
+    "concrete_off_white": "#F0EEE6",
+    "concrete_light_gray": "#D3D0C8",
+    "concrete_weathered": "#BDB8AE",
+    "fpt_orange": "#F37021",
+    "orange_facade_accent": "#E87524",
+    "orange_dark": "#CE591C",
+    "corridor_shade": "#737773",
+    "glass_neutral": "#68777B",
+    "window_frame": "#474B49",
+    "metal_railing": "#646864",
+    "grass_green": "#76974E",
+    "foliage_dark": "#426638",
+    "foliage_medium": "#52763C",
+    "foliage_light": "#7E9A4E",
+    "soil": "#88705A",
+    "courtyard_terracotta": "#BC6243",
+    "courtyard_ochre": "#D6B365",
+    "pavement": "#BDB8AE",
+    "asphalt": "#505553",
+    "pond_water": "#4E7468",
+    "trunk_bark": "#6B5744",
+    "wood_bench": "#9B6E47"
+  },
+  "floors": [
+    {
+      "level": 1,
+      "label": "Ground Floor (4.5m) — Continuous Ring with South Entrance Breezeway",
+      "rects": [
+        { "id": "F1_WEST",  "x0": -58.0, "x1": -39.0, "y0": -56.0, "y1": 56.0 },
+        { "id": "F1_EAST",  "x0":  39.0, "x1":  58.0, "y0": -56.0, "y1": 56.0 },
+        { "id": "F1_NORTH", "x0": -39.0, "x1":  39.0, "y0":  37.0, "y1": 56.0 },
+        { "id": "F1_SW_S",  "x0": -39.0, "x1": -12.0, "y0": -56.0, "y1": -37.0 },
+        { "id": "F1_SE_S",  "x0":  12.0, "x1":  39.0, "y0": -56.0, "y1": -37.0 }
+      ]
+    },
+    {
+      "level": 2,
+      "label": "Floor 2 — Full Connected Courtyard Ring + South Entrance Bridge",
+      "rects": [
+        { "id": "F2_WEST",  "x0": -58.0, "x1": -39.0, "y0": -56.0, "y1": 56.0 },
+        { "id": "F2_EAST",  "x0":  39.0, "x1":  58.0, "y0": -56.0, "y1": 56.0 },
+        { "id": "F2_NORTH", "x0": -39.0, "x1":  39.0, "y0":  37.0, "y1": 56.0 },
+        { "id": "F2_SOUTH", "x0": -39.0, "x1":  39.0, "y0": -56.0, "y1": -37.0 }
+      ]
+    },
+    {
+      "level": 3,
+      "label": "Floor 3 — Stepped Saddles Opening to Courtyard Light",
+      "rects": [
+        { "id": "F3_WEST",  "x0": -58.0, "x1": -39.0, "y0": -56.0, "y1": 56.0 },
+        { "id": "F3_EAST",  "x0":  39.0, "x1":  58.0, "y0": -18.0, "y1": 56.0 },
+        { "id": "F3_NORTH", "x0": -39.0, "x1":  39.0, "y0":  39.0, "y1": 56.0 },
+        { "id": "F3_SW",    "x0": -39.0, "x1": -20.0, "y0": -56.0, "y1": -39.0 }
+      ]
+    },
+    {
+      "level": 4,
+      "label": "Floor 4 — Three Rising Mountain Shoulders (NW, NE, SW)",
+      "rects": [
+        { "id": "F4_NW",   "x0": -58.0, "x1": -39.0, "y0":  14.0, "y1": 56.0 },
+        { "id": "F4_N",    "x0": -39.0, "x1":  39.0, "y0":  42.0, "y1": 56.0 },
+        { "id": "F4_NE",   "x0":  39.0, "x1":  58.0, "y0":   8.0, "y1": 56.0 },
+        { "id": "F4_SW",   "x0": -58.0, "x1": -26.0, "y0": -56.0, "y1": -38.0 },
+        { "id": "F4_SW_W", "x0": -58.0, "x1": -42.0, "y0": -38.0, "y1": -20.0 }
+      ]
+    },
+    {
+      "level": 5,
+      "label": "Floor 5 — Asymmetric Stepped Terraces",
+      "rects": [
+        { "id": "F5_NW",   "x0": -58.0, "x1": -38.0, "y0":  22.0, "y1": 56.0 },
+        { "id": "F5_NW_N", "x0": -38.0, "x1": -18.0, "y0":  43.0, "y1": 56.0 },
+        { "id": "F5_NE",   "x0":  38.0, "x1":  58.0, "y0":  16.0, "y1": 56.0 },
+        { "id": "F5_NE_N", "x0":  22.0, "x1":  38.0, "y0":  43.0, "y1": 56.0 },
+        { "id": "F5_SW",   "x0": -58.0, "x1": -32.0, "y0": -56.0, "y1": -39.0 }
+      ]
+    },
+    {
+      "level": 6,
+      "label": "Floor 6 — SW Peak Crown (22.5m) + Rising NW & NE Peaks",
+      "rects": [
+        { "id": "F6_NW",      "x0": -58.0, "x1": -36.0, "y0":  28.0, "y1": 56.0 },
+        { "id": "F6_NW_N",    "x0": -36.0, "x1": -24.0, "y0":  44.0, "y1": 56.0 },
+        { "id": "F6_NE",      "x0":  38.0, "x1":  58.0, "y0":  24.0, "y1": 56.0 },
+        { "id": "F6_SW_PEAK", "x0": -56.0, "x1": -36.0, "y0": -54.0, "y1": -40.0 }
+      ]
+    },
+    {
+      "level": 7,
+      "label": "Floor 7 — Dual Upper Mountain Peaks (NW & NE)",
+      "rects": [
+        { "id": "F7_NW", "x0": -58.0, "x1": -34.0, "y0": 30.0, "y1": 56.0 },
+        { "id": "F7_NE", "x0":  38.0, "x1":  58.0, "y0": 26.0, "y1": 56.0 }
+      ]
+    },
+    {
+      "level": 8,
+      "label": "Floor 8 — NW & NE Stepped Upper Terraces",
+      "rects": [
+        { "id": "F8_NW", "x0": -56.0, "x1": -36.0, "y0": 34.0, "y1": 56.0 },
+        { "id": "F8_NE", "x0":  40.0, "x1":  58.0, "y0": 32.0, "y1": 56.0 }
+      ]
+    },
+    {
+      "level": 9,
+      "label": "Floor 9 — NE Peak Crown (33.3m) + Rising NW Peak",
+      "rects": [
+        { "id": "F9_NW",      "x0": -56.0, "x1": -38.0, "y0": 38.0, "y1": 56.0 },
+        { "id": "F9_NE_PEAK", "x0":  42.0, "x1":  58.0, "y0": 38.0, "y1": 56.0 }
+      ]
+    },
+    {
+      "level": 10,
+      "label": "Floor 10 — NW Primary Peak Setback",
+      "rects": [
+        { "id": "F10_NW", "x0": -55.0, "x1": -40.0, "y0": 41.0, "y1": 56.0 }
+      ]
+    },
+    {
+      "level": 11,
+      "label": "Floor 11 — NW Primary Peak Crown (40.5m)",
+      "rects": [
+        { "id": "F11_NW_PEAK", "x0": -54.0, "x1": -42.0, "y0": 44.0, "y1": 56.0 }
+      ]
+    }
+  ],
+  "scan_peaks": [
+    { "id": "SCAN_TARGET_PEAK_NW_11F", "floors": 11, "x": -48.0, "y": 50.0 },
+    { "id": "SCAN_TARGET_PEAK_NE_9F",  "floors": 9,  "x":  50.0, "y": 47.0 },
+    { "id": "SCAN_TARGET_PEAK_SW_6F",  "floors": 6,  "x": -45.0, "y": -46.0 }
+  ]
+}

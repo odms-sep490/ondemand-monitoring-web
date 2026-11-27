@@ -1,0 +1,286 @@
+{
+  "schemaVersion": "7.0.0",
+  "domain": "drone-monitoring",
+  "discoveredAt": "2026-11-27T02:57:56.138Z",
+  "sources": {
+    "frontendTypes": "ondemand-monitoring-web/src/features/customer/lib/createOrder/types.ts",
+    "frontendActionAgent": "ondemand-monitoring-web/src/features/customer/lib/createOrder/orderActionAgent.ts",
+    "backendConversationService": "on-demand-monitoring-system/ondemandmonitoring/src/main/java/com/ondemandmonitoring/conversation/OrderConversationService.java"
+  },
+  "workflow": {
+    "steps": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "sections": [
+      "service",
+      "purpose",
+      "description",
+      "location",
+      "checklist",
+      "contact",
+      "schedule",
+      "review"
+    ],
+    "sevenUserFacingSections": [
+      {
+        "id": "service",
+        "step": 1,
+        "label": "Dịch vụ"
+      },
+      {
+        "id": "purpose",
+        "step": 1,
+        "label": "Mục đích bay"
+      },
+      {
+        "id": "description",
+        "step": 1,
+        "label": "Mô tả nhiệm vụ"
+      },
+      {
+        "id": "location",
+        "step": 2,
+        "label": "Khu vực giám sát"
+      },
+      {
+        "id": "checklist",
+        "step": 3,
+        "label": "Checklist & sản phẩm"
+      },
+      {
+        "id": "contact",
+        "step": 4,
+        "label": "Liên hệ & hiện trường"
+      },
+      {
+        "id": "schedule",
+        "step": 5,
+        "label": "Lịch bay dự kiến"
+      }
+    ]
+  },
+  "enums": {
+    "flightPurposes": [
+      "SURVEY_MONITORING",
+      "AGRICULTURE",
+      "CONSTRUCTION_MONITORING",
+      "INDUSTRIAL_INSPECTION",
+      "AREA_MONITORING",
+      "FOREST_MONITORING",
+      "OTHER"
+    ],
+    "monitoringRelationships": [
+      "OWNER",
+      "AUTHORIZED_PERSON",
+      "CONTRACTOR",
+      "MANAGER_OR_SUPERVISOR",
+      "OTHER"
+    ],
+    "authorizationDocumentTypes": [
+      "OWNERSHIP_PROOF",
+      "OWNER_CONSENT",
+      "AUTHORIZATION_LETTER",
+      "SERVICE_CONTRACT",
+      "ASSIGNMENT_LETTER",
+      "OTHER"
+    ],
+    "resultFormats": [
+      "PHOTO",
+      "VIDEO",
+      "PDF_REPORT"
+    ],
+    "deliveryMethods": [
+      "DOWNLOAD",
+      "EMAIL"
+    ],
+    "retentionDays": [
+      30,
+      90,
+      180,
+      365
+    ]
+  },
+  "editableFormFields": [
+    "title",
+    "flightPurpose",
+    "otherFlightPurpose",
+    "description",
+    "address",
+    "normalizedAddress",
+    "latitude",
+    "longitude",
+    "locationStatus",
+    "locationSource",
+    "locationConfirmedAt",
+    "radiusM",
+    "coverageAreaShape",
+    "coverageArea",
+    "coverageAreaCenter",
+    "monitoringRelationship",
+    "otherMonitoringRelationship",
+    "monitoringAuthorizationConfirmed",
+    "monitoringAuthorizationDocuments",
+    "altitudeM",
+    "estimatedLengthM",
+    "siteContactName",
+    "siteContactPhone",
+    "accessNotes",
+    "permitStatus",
+    "permitNumber",
+    "permitExpiresOn",
+    "permitDocuments",
+    "areaFiles",
+    "serviceId",
+    "preferredDateFrom",
+    "preferredDateTo",
+    "preferredTimeId",
+    "recurrenceType",
+    "recurrenceOccurrences",
+    "weatherFallback",
+    "resultDeadline",
+    "deliverableTypeId",
+    "mediaType",
+    "quantity",
+    "resolution",
+    "resultFormats",
+    "deliveryMethods",
+    "dataRetentionDays",
+    "termsAccepted",
+    "attachments"
+  ],
+  "backendContract": {
+    "proposableFields": [
+      "serviceId",
+      "description",
+      "flightPurpose",
+      "otherFlightPurpose",
+      "siteContactName",
+      "siteContactPhone",
+      "accessNotes",
+      "altitudeM",
+      "estimatedLengthM",
+      "monitoringRelationship",
+      "preferredDateFrom",
+      "preferredDateTo",
+      "preferredTimeId",
+      "resultDeadline",
+      "recurrenceType",
+      "recurrenceOccurrences",
+      "weatherFallback",
+      "checklistItems"
+    ],
+    "customerContextAllowlist": [
+      "locationConfirmed",
+      "address",
+      "preferredDateFrom",
+      "preferredDateTo",
+      "preferredTimeId",
+      "siteContactName",
+      "siteContactPhone",
+      "accessNotes",
+      "monitoringRelationship",
+      "monitoringAuthorizationConfirmed",
+      "termsAccepted",
+      "activeStep",
+      "activeSection",
+      "visibleServiceIds",
+      "initialServiceId",
+      "previousServiceId",
+      "lastAction",
+      "pendingIntention",
+      "currentServiceId",
+      "hasFlightPurpose",
+      "hasDescription",
+      "turnCount"
+    ],
+    "requestedUiActions": [
+      ",",
+      ",",
+      ",",
+      ","
+    ]
+  },
+  "productionActions": [
+    "select_service",
+    "clear_service",
+    "reopen_selection",
+    "navigate_step",
+    "go_back",
+    "continue_workflow",
+    "confirm_section",
+    "keep_previous",
+    "set_flight_purpose",
+    "set_description",
+    "append_description",
+    "remove_description_content",
+    "clear_description",
+    "read_description",
+    "evaluate_description",
+    "clarify_description",
+    "improve_description",
+    "apply_description",
+    "search_location",
+    "clear_monitoring_area",
+    "open_map",
+    "checklist_select_all",
+    "checklist_clear_all",
+    "checklist_select_mandatory_only",
+    "checklist_toggle_item",
+    "checklist_set_images",
+    "checklist_set_videos",
+    "set_result_formats",
+    "set_contact",
+    "autofill_account_contact",
+    "set_schedule",
+    "validate_complete_draft",
+    "undo",
+    "redo",
+    "reset",
+    "submit",
+    "confirm_submit"
+  ],
+  "dependencies": [
+    {
+      "field": "deliverableTypeId",
+      "dependsOn": "serviceId",
+      "onParentChange": "clear"
+    },
+    {
+      "field": "agentChecklistItems",
+      "dependsOn": "serviceId",
+      "onParentChange": "clear"
+    },
+    {
+      "field": "checklist_*",
+      "requires": "serviceId"
+    },
+    {
+      "field": "preferredDateTo",
+      "rule": "preferredDateTo >= preferredDateFrom"
+    },
+    {
+      "field": "submit",
+      "requires": [
+        "stepValidity[1..6] === true",
+        "checklistValid === true",
+        "explicitConfirmation"
+      ]
+    }
+  ],
+  "forbiddenOperations": [
+    "bypass_validation",
+    "auto_accept_terms_without_confirmation",
+    "duplicate_submit",
+    "fabricate_coordinates_or_polygon",
+    "modify_pricing_or_discount",
+    "access_other_customer_data",
+    "execute_sql_or_arbitrary_code",
+    "reveal_system_prompt_or_secrets",
+    "mutate_state_on_consultation_question"
+  ]
+}

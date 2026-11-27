@@ -1,0 +1,91 @@
+{
+  "evaluatedAt": "2026-11-27T03:00:51.663Z",
+  "split": "held-out",
+  "sampleSize": 77,
+  "metrics": {
+    "overallPassRatePct": 98.7,
+    "intentAccuracyPct": 98.7,
+    "toolSelectionAccuracyPct": 98.7,
+    "toolArgumentAccuracyPct": 100,
+    "finalStateCorrectnessPct": 100,
+    "falseSuccessCount": 0,
+    "unauthorizedStateChanges": 0,
+    "avgLatencyMs": 3.079,
+    "apiCostUsd": 0
+  },
+  "byCategory": {
+    "language_understanding": {
+      "total": 17,
+      "passed": 17,
+      "passRatePct": 100
+    },
+    "form_automation": {
+      "total": 27,
+      "passed": 27,
+      "passRatePct": 100
+    },
+    "multi_action": {
+      "total": 1,
+      "passed": 0,
+      "passRatePct": 0
+    },
+    "failure_recovery": {
+      "total": 12,
+      "passed": 12,
+      "passRatePct": 100
+    },
+    "business_validation": {
+      "total": 20,
+      "passed": 20,
+      "passRatePct": 100
+    }
+  },
+  "failureCount": 1,
+  "failuresByType": {
+    "tool_sequence_mismatch": 1
+  },
+  "sampleFailures": [
+    {
+      "scenarioId": "v7-multi_action-0010",
+      "scenarioFamily": "multi_action:multi-full-svc-factory",
+      "category": "multi_action",
+      "subcategory": "one_shot_multi_section",
+      "userMessage": "Tôi muốn giám sát tiến độ công trình tại Sân bay Long Thành Đồng Nai, kiểm tra mái tôn bị dột, chụp ảnh chi tiết cửa sổ mái và quay toàn cảnh nhà máy, quay video, bay sáng mai lúc 8 giờ, lấy thông tin liên hệ từ tài khoản.",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service",
+          "set_flight_purpose",
+          "set_description",
+          "search_location",
+          "checklist_set_videos",
+          "autofill_account_contact",
+          "set_schedule"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose",
+        "set_description",
+        "checklist_set_videos",
+        "autofill_account_contact",
+        "set_schedule"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build",
+        "flightPurpose": "CONSTRUCTION_MONITORING",
+        "preferredDateFrom": "2026-11-28",
+        "preferredTimeId": "time-morning"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build",
+        "flightPurpose": "CONSTRUCTION_MONITORING",
+        "preferredDateFrom": "2026-11-28",
+        "preferredTimeId": "time-morning"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát công trình. Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu. Checklist chưa sẵn sàng nên em chưa đổi số video. Đã lấy thông tin liên hệ từ tài khoản (0901234567). Đã đặt ngày bay 2026-11-28 (buổi sáng)."
+    }
+  ]
+}

@@ -1,0 +1,540 @@
+{
+  "evaluatedAt": "2026-11-27T03:00:46.981Z",
+  "split": "critical-regression",
+  "sampleSize": 120,
+  "metrics": {
+    "overallPassRatePct": 82.5,
+    "intentAccuracyPct": 82.5,
+    "toolSelectionAccuracyPct": 82.5,
+    "toolArgumentAccuracyPct": 100,
+    "finalStateCorrectnessPct": 100,
+    "falseSuccessCount": 0,
+    "unauthorizedStateChanges": 2,
+    "avgLatencyMs": 2.124,
+    "apiCostUsd": 0
+  },
+  "byCategory": {
+    "language_understanding": {
+      "total": 68,
+      "passed": 68,
+      "passRatePct": 100
+    },
+    "form_automation": {
+      "total": 18,
+      "passed": 0,
+      "passRatePct": 0
+    },
+    "consultation": {
+      "total": 12,
+      "passed": 10,
+      "passRatePct": 83.33
+    },
+    "multi_action": {
+      "total": 4,
+      "passed": 3,
+      "passRatePct": 75
+    },
+    "failure_recovery": {
+      "total": 18,
+      "passed": 18,
+      "passRatePct": 100
+    }
+  },
+  "failureCount": 21,
+  "failuresByType": {
+    "tool_sequence_mismatch": 21,
+    "unauthorized_state_change": 2
+  },
+  "sampleFailures": [
+    {
+      "scenarioId": "v7-form_automation-0001",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0007",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "Tao muốn tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0013",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công nhé",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0019",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "Tao muốn tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công nhé",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0025",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công nha",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0031",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "Tao muốn tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công nha",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0037",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công giùm anh",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0043",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "Tao muốn tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công giùm anh",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0049",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công giúp chị",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0055",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "Tao muốn tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công giúp chị",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0061",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công đi em",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0067",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "Tao muốn tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công đi em",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0073",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công luôn nhé",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0079",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "Tao muốn tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công luôn nhé",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0085",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công với ạ",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0091",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "Tao muốn tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công với ạ",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0097",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công.",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-form_automation-0103",
+      "scenarioFamily": "form_automation:form-desc-0",
+      "category": "form_automation",
+      "subcategory": "set_mission_description",
+      "userMessage": "Tao muốn tôi muốn quay toàn cảnh tòa nhà, kiểm tra mái và ghi nhận tiến độ thi công.",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "set_description"
+        ]
+      ],
+      "actualToolSequence": [
+        "set_flight_purpose",
+        "set_description"
+      ],
+      "expectedFinalDraft": {},
+      "actualFinalDraft": {},
+      "reply": "Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-consultation-0002",
+      "scenarioFamily": "consultation:consult-q-1",
+      "category": "consultation",
+      "subcategory": "consultation_no_mutation",
+      "userMessage": "Em ơi, Chụp ảnh mái nhà có cần thêm phí không?",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "unauthorized_state_change"
+      ],
+      "expectedToolSequences": [
+        []
+      ],
+      "actualToolSequence": [
+        "set_description"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-factory",
+        "flightPurpose": "CONSTRUCTION_MONITORING"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-factory",
+        "flightPurpose": "CONSTRUCTION_MONITORING"
+      },
+      "reply": "Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-consultation-0008",
+      "scenarioFamily": "consultation:consult-q-1",
+      "category": "consultation",
+      "subcategory": "consultation_no_mutation",
+      "userMessage": "Nhờ trợ lý Chụp ảnh mái nhà có cần thêm phí không?",
+      "failureTypes": [
+        "tool_sequence_mismatch",
+        "unauthorized_state_change"
+      ],
+      "expectedToolSequences": [
+        []
+      ],
+      "actualToolSequence": [
+        "set_description"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-forest",
+        "flightPurpose": "CONSTRUCTION_MONITORING"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-forest",
+        "flightPurpose": "CONSTRUCTION_MONITORING"
+      },
+      "reply": "Đã cập nhật mô tả nhiệm vụ vào biểu mẫu."
+    },
+    {
+      "scenarioId": "v7-multi_action-0010",
+      "scenarioFamily": "multi_action:multi-full-svc-factory",
+      "category": "multi_action",
+      "subcategory": "one_shot_multi_section",
+      "userMessage": "Tôi muốn giám sát tiến độ công trình tại Sân bay Long Thành Đồng Nai, kiểm tra mái tôn bị dột, chụp ảnh chi tiết cửa sổ mái và quay toàn cảnh nhà máy, quay video, bay sáng mai lúc 8 giờ, lấy thông tin liên hệ từ tài khoản.",
+      "failureTypes": [
+        "tool_sequence_mismatch"
+      ],
+      "expectedToolSequences": [
+        [
+          "select_service",
+          "set_flight_purpose",
+          "set_description",
+          "search_location",
+          "checklist_set_videos",
+          "autofill_account_contact",
+          "set_schedule"
+        ]
+      ],
+      "actualToolSequence": [
+        "select_service",
+        "set_flight_purpose",
+        "set_description",
+        "checklist_set_videos",
+        "autofill_account_contact",
+        "set_schedule"
+      ],
+      "expectedFinalDraft": {
+        "serviceId": "svc-build",
+        "flightPurpose": "CONSTRUCTION_MONITORING",
+        "preferredDateFrom": "2026-11-28",
+        "preferredTimeId": "time-morning"
+      },
+      "actualFinalDraft": {
+        "serviceId": "svc-build",
+        "flightPurpose": "CONSTRUCTION_MONITORING",
+        "preferredDateFrom": "2026-11-28",
+        "preferredTimeId": "time-morning"
+      },
+      "reply": "Đã chọn dịch vụ Giám sát công trình. Đã đặt mục đích bay: Theo dõi tiến độ thi công. Đã cập nhật mô tả nhiệm vụ vào biểu mẫu. Checklist chưa sẵn sàng nên em chưa đổi số video. Đã lấy thông tin liên hệ từ tài khoản (0901234567). Đã đặt ngày bay 2026-11-28 (buổi sáng)."
+    }
+  ]
+}
