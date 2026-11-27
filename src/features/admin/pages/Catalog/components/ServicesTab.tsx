@@ -84,6 +84,7 @@ export function ServicesTab() {
       {dialog?.type === 'delete' && (
         <DeleteConfirmModal
           title={t.deleteTitle}
+          description={t.deleteDescription}
           name={dialog.service.name}
           onConfirm={() => catalogApi.deleteService(dialog.service.id)}
           onClose={() => setDialog(null)}

@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 import { ServicesTab } from '../components/ServicesTab'
 import { useMockTransport } from './helpers'
+import { ApiError } from '../../../../../shared/api/httpClient'
 
 useMockTransport()
 
@@ -108,5 +109,72 @@ describe('ServicesTab', () => {
     await waitFor(() =>
       expect(screen.queryByText('Giám sát công trình')).toBeNull(),
     )
+  })
+  it('temporarily deactivates and reactivates a service without invoking delete', async () => {
+    const remove = vi.spyOn(catalogApi, 'deleteService')
+    const update = vi.spyOn(catalogApi, 'updateService')
+    try {
+      render(<ServicesTab />)
+      await screen.findByText('Giám sát công trình')
+      fireEvent.click(screen.getByLabelText('Sửa Giám sát công trình'))
+      fireEvent.click(
+        await screen.findByRole('switch', { name: 'Bật hoạt động dịch vụ' }),
+      )
+      expect(screen.getByText('Tạm ngừng hoạt động')).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+      expect((await catalogApi.getService('svc-construction')).isActive).toBe(
+        false,
+      )
+      expect(await screen.findByText('Giám sát công trình')).toBeInTheDocument()
+      fireEvent.click(screen.getByLabelText('Sửa Giám sát công trình'))
+      const toggle = await screen.findByRole('switch', {
+        name: 'Bật hoạt động dịch vụ',
+      })
+      expect(toggle).not.toBeChecked()
+      fireEvent.click(toggle)
+      fireEvent.click(screen.getByRole('button', { name: 'Lưu' }))
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+      expect((await catalogApi.getService('svc-construction')).isActive).toBe(
+        true,
+      )
+      expect(update).toHaveBeenCalledTimes(2)
+      expect(remove).not.toHaveBeenCalled()
+    } finally {
+      remove.mockRestore()
+      update.mockRestore()
+    }
+  })
+  it('keeps a service with orders and explains why permanent deletion is blocked', async () => {
+    const remove = vi.spyOn(catalogApi, 'deleteService').mockRejectedValue(
+      new ApiError('Service in use', {
+        code: 'SERVICE_IN_USE',
+        status: 409,
+        method: 'DELETE',
+        path: '/api/services/svc-construction',
+      }),
+    )
+    try {
+      render(<ServicesTab />)
+      await screen.findByText('Giám sát công trình')
+      fireEvent.click(
+        screen.getByLabelText('Thao tác khác Giám sát công trình'),
+      )
+      fireEvent.click(screen.getByLabelText('Xoá Giám sát công trình'))
+      expect(screen.getByRole('dialog')).toHaveAccessibleName(
+        'Xóa vĩnh viễn dịch vụ',
+      )
+      fireEvent.click(screen.getByRole('button', { name: 'Xoá' }))
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'không thể xóa vĩnh viễn',
+      )
+      expect(screen.getByRole('alert')).toHaveTextContent('tạm ngừng hoạt động')
+      expect((await catalogApi.getService('svc-construction')).isActive).toBe(
+        true,
+      )
+      expect(remove).toHaveBeenCalledTimes(1)
+    } finally {
+      remove.mockRestore()
+    }
   })
 })
