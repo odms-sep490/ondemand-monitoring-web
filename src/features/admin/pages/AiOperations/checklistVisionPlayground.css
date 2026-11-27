@@ -1,0 +1,85 @@
+.aiops-vision-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+.aiops-vision-controls > .aiops-vision-control {
+  display: grid;
+  gap: 7px;
+  flex: 1 1 180px;
+  min-width: 0;
+  max-width: 280px;
+  font-weight: 600;
+}
+.aiops-vision-controls .ant-select {
+  width: 100%;
+}
+.aiops-vision-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 16px;
+}
+.aiops-vision-input-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 16px;
+  min-width: 0;
+}
+.aiops-vision-input-panel > label {
+  font-weight: 600;
+}
+.aiops-vision-input-panel .ant-upload-wrapper {
+  flex: 1;
+}
+.aiops-vision-input-panel .ant-upload-drag {
+  padding: 8px;
+}
+.aiops-vision-upload-icon {
+  font-size: 32px;
+  color: var(--ui-primary, #1677ff);
+}
+.aiops-vision-upload-title {
+  margin: 10px 0 6px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.aiops-vision-hint {
+  margin: 0;
+  color: var(--ui-text-2, #64748b);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.aiops-vision-preview {
+  display: block;
+  width: 100%;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+.aiops-vision-results {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+.aiops-vision-results td {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .aiops-vision-inputs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aiops-vision-controls > .aiops-vision-control {
+    max-width: none;
+  }
+}
+
+.aiops-vision-input-panel textarea {
+  flex: 1;
+  min-height: 180px;
+}
+.aiops-vision-results .aiops-table {
+  min-width: 560px;
+}

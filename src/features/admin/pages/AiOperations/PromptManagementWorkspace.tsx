@@ -1,3 +1,5 @@
+import { VERSION_COLOR, VERSION_LABEL } from './promptPresentation'
+import { isChecklistVisionPrompt, PromptRuntimeModelDisplay } from './PromptRuntimeModelDisplay'
 import ChecklistVisionPlayground from './ChecklistVisionPlayground'
 import { useEffect, useMemo, useState } from 'react'
 import { Alert, Button, Empty, Input, Modal, Select, Space, Spin, Tag } from 'antd'
@@ -23,24 +25,6 @@ import {
 } from '../../api/promptApi'
 
 type SubTab = 'editor' | 'versions' | 'playground' | 'history'
-
-const VERSION_COLOR: Record<string, string> = {
-  ACTIVE: 'green',
-  APPROVED: 'blue',
-  TESTED: 'cyan',
-  DRAFT: 'gold',
-  ARCHIVED: 'default',
-  REJECTED: 'red',
-}
-
-const VERSION_LABEL: Record<string, string> = {
-  ACTIVE: 'Đang dùng',
-  APPROVED: 'Đã duyệt',
-  TESTED: 'Đã kiểm thử',
-  DRAFT: 'Bản nháp',
-  ARCHIVED: 'Đã lưu trữ',
-  REJECTED: 'Đã từ chối',
-}
 
 const PROMPT_TYPE_LABEL: Record<string, string> = {
   SYSTEM: 'Hệ thống',
@@ -488,7 +472,7 @@ export function PromptManagementWorkspace() {
                 </div>
                 <code className="aiops-prompt-key" title={p.promptKey}>{p.promptKey}</code>
                 <small className="aiops-prompt-meta">
-                  {p.modelBinding} · {p.totalVersions} phiên bản
+                  <PromptRuntimeModelDisplay prompt={p} /> · {p.totalVersions} phiên bản
                   {p.avgLatencyMs ? ` · ${Math.round(p.avgLatencyMs)}ms` : ''}
                 </small>
               </button>
@@ -503,7 +487,7 @@ export function PromptManagementWorkspace() {
                   <div className="aiops-prompt-title-group">
                     <h3>{selectedPrompt.displayName}</h3>
                     <Tag color="blue">{PROMPT_TYPE_LABEL[selectedPrompt.promptType] ?? selectedPrompt.promptType}</Tag>
-                    <Tag>{selectedPrompt.modelBinding}</Tag>
+                    <Tag><PromptRuntimeModelDisplay prompt={selectedPrompt} /></Tag>
                   </div>
                   {selectedPrompt.description && (
                     <p className="aiops-prompt-desc">{selectedPrompt.description}</p>
@@ -954,13 +938,22 @@ export function PromptManagementWorkspace() {
               onChange={(e) => setEditMetaForm((f) => ({ ...f, description: e.target.value }))}
             />
           </label>
-          <label>
-            Model liên kết
-            <Input
-              value={editMetaForm.modelBinding}
-              onChange={(e) => setEditMetaForm((f) => ({ ...f, modelBinding: e.target.value }))}
-            />
-          </label>
+          {selectedPrompt && isChecklistVisionPrompt(selectedPrompt) ? (
+            <div>
+              <PromptRuntimeModelDisplay prompt={selectedPrompt} />
+              <p>
+                Nhà cung cấp và mô hình được quản lý bằng cấu hình hệ thống, không thay đổi tại đây.
+              </p>
+            </div>
+          ) : (
+            <label>
+              Model liên kết
+              <Input
+                value={editMetaForm.modelBinding}
+                onChange={(e) => setEditMetaForm((f) => ({ ...f, modelBinding: e.target.value }))}
+              />
+            </label>
+          )}
           <label>
             Trạng thái kích hoạt
             <Select
