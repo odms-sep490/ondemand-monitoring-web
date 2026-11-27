@@ -207,9 +207,8 @@ describe('inspector delivery suggestions', () => {
       expect.any(AbortSignal),
     )
     pending.resolve(assessment)
-    expect(
-      await screen.findByText('Content assessment · Uncertain'),
-    ).toBeVisible()
+    expect(await screen.findByText('Content assessment')).toBeVisible()
+    expect(screen.getByText('Uncertain')).toBeVisible()
     expect(screen.getByText('Viewing angle · Mismatch')).toBeVisible()
     expect(
       screen.getByText(assessment.criteria[0].observation).querySelector('strong'),

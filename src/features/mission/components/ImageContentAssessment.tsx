@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Alert, Button } from 'antd'
+import { Alert, Button, Tag } from 'antd'
+import { PictureOutlined, RobotOutlined } from '@ant-design/icons'
 import { ApiError } from '../../../shared/api/httpClient'
 import type { Language } from '../../../shared/i18n'
 import { checklistEvidenceApi } from '../api/checklistEvidenceApi'
@@ -12,6 +13,8 @@ import type {
 
 const messages = {
   en: {
+    title: 'AI checklist image assessment',
+    hint: 'Choose an image to compare with the checklist criteria.',
     assessmentDisabled:
       'AI image assessment has been turned off. You can still select evidence manually.',
     image: 'Image to assess',
@@ -35,6 +38,8 @@ const messages = {
     verdicts: { MATCH: 'Match', MISMATCH: 'Mismatch', UNCERTAIN: 'Uncertain' },
   },
   vi: {
+    title: 'AI đánh giá ảnh theo checklist',
+    hint: 'Chọn ảnh để đối chiếu với các tiêu chí của checklist.',
     assessmentDisabled:
       'AI đánh giá ảnh đã được tắt. Bạn vẫn có thể tự chọn bằng chứng.',
     image: 'Ảnh cần đánh giá',
@@ -195,19 +200,30 @@ function AssessmentForm({
 
   return (
     <div className="image-content-assessment">
-      <p id={id} className="customer-evidence-selection__metric-label">
-        {t.advisory}
-      </p>
-      <div className="customer-evidence-selection__actions">
-        {selectedImage && (
-          <div className="image-content-assessment__thumbnail">
+      <div className="image-content-assessment__header">
+        <span className="image-content-assessment__icon" aria-hidden="true">
+          <RobotOutlined />
+        </span>
+        <div>
+          <h4>{t.title}</h4>
+          <p>{t.hint}</p>
+        </div>
+      </div>
+      <div className="image-content-assessment__controls">
+        <div
+          className="image-content-assessment__thumbnail"
+          aria-hidden={selectedImage ? undefined : true}
+        >
+          {selectedImage ? (
             <EvidenceThumbnail
               key={imageId}
               link={selectedImage}
               alt={t.preview(selectedImage.fileName)}
             />
-          </div>
-        )}
+          ) : (
+            <PictureOutlined />
+          )}
+        </div>
         <label className="image-content-assessment__choice">
           {t.image}
           <select
@@ -228,7 +244,8 @@ function AssessmentForm({
           </select>
         </label>
         <Button
-          size="small"
+          type="primary"
+          icon={<RobotOutlined />}
           disabled={locked || !imageId}
           loading={busy}
           aria-label={t.assess}
@@ -239,13 +256,27 @@ function AssessmentForm({
           {t.assess}
         </Button>
       </div>
+      <p id={id} className="image-content-assessment__advisory">
+        {t.advisory}
+      </p>
       {error && <Alert type="warning" showIcon message={t[error]} />}
-      <div aria-live="polite">
+      <div aria-live="polite" className="image-content-assessment__feedback">
         {result && (
           <div className="image-content-assessment__result">
-            <strong>
-              {t.verdict} · {t.verdicts[result.verdict]}
-            </strong>
+            <div className="image-content-assessment__verdict">
+              <strong>{t.verdict}</strong>
+              <Tag
+                color={
+                  result.verdict === 'MATCH'
+                    ? 'success'
+                    : result.verdict === 'MISMATCH'
+                      ? 'error'
+                      : 'warning'
+                }
+              >
+                {t.verdicts[result.verdict]}
+              </Tag>
+            </div>
             {result.criteria.length ? (
               <ul>
                 {result.criteria.map(
