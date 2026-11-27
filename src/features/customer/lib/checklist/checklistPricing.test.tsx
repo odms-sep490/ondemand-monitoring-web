@@ -236,17 +236,18 @@ describe('ChecklistEditor media inputs', () => {
       return <ChecklistEditor checklist={checklist} />
     }
     render(<Harness />)
-    await screen.findByDisplayValue('Kiểm tra mái')
+    await screen.findByText('Kiểm tra mái')
     expect(
-      screen.getAllByText(
-        /Đã bao gồm: 10 ảnh · 1 video · Bổ sung: 0 ảnh · 0 video/,
-      ).length,
-    ).toBeGreaterThan(0)
-    fireEvent.change(screen.getByLabelText('Số ảnh tối thiểu 1'), {
+      screen.getAllByText('Đã bao gồm trong dịch vụ')[0].nextElementSibling,
+    ).toHaveTextContent('10 ảnh · 1 video')
+    expect(
+      screen.getAllByText('Bổ sung ngoài định mức')[0].nextElementSibling,
+    ).toHaveTextContent('Không có')
+    fireEvent.change(screen.getByLabelText('Số ảnh yêu cầu 1'), {
       target: { value: '30' },
     })
     expect(
-      await screen.findByText(/Bổ sung: 20 ảnh · 0 video/),
+      await screen.findByText('20 ảnh', { exact: true }),
     ).toBeInTheDocument()
     expect(
       screen.getByLabelText(/Chọn|select/i, { selector: '[disabled]' }),
@@ -481,6 +482,8 @@ describe('Cost shown where the customer chooses', () => {
     await waitFor(() => expect(row).toHaveTextContent('540.000'))
     // The exact customer-facing formula is visible with the selected row.
     const details = container.querySelector('details.checklist-quote-details')!
+    expect(details).not.toHaveAttribute('open')
+    fireEvent.click(details.querySelector('summary')!)
     expect(details).toHaveAttribute('open')
     expect(details).not.toHaveTextContent('STANDARD')
     expect(details).not.toHaveTextContent('Hồ sơ giá')

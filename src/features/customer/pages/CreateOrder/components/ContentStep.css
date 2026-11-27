@@ -1,205 +1,130 @@
-/*
- * ContentStep visual system. Kept separate from the shared CreateOrder.css so
- * the monitoring editor can respond to its actual container width.
- */
+/* Monitoring selection: natural document flow, with one compact summary column. */
 .co-content-shell {
   min-width: 0;
   container: monitoring-step / inline-size;
 }
-
 .co-content-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.94fr) minmax(320px, 1fr);
-  align-items: stretch;
-  gap: 24px;
+  gap: 20px;
+  align-items: start;
 }
-
-.co-content-editor,
-.co-content-aside,
-.co-content-sidegroup {
+.co-content-editor {
+  min-width: 0;
+  container: monitoring-editor / inline-size;
+}
+.co-content-editor > [role='region'] {
   min-width: 0;
 }
-
-/* Keep the checklist estimate aligned with the editor as a standalone sidebar card. */
 .co-page .co-content-layout .co-content-sidegroup {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  position: static;
-  align-self: stretch;
-  overflow: visible;
+  align-self: start;
+  min-width: 0;
 }
-
 .co-content-sidegroup .co-summary.co-content-aside {
   position: static;
-  top: auto;
-  border: 0;
-  border-radius: 0;
-  overflow: visible;
-  box-shadow: none;
-  align-self: stretch;
-}
-
-.co-content-aside .cus-service-ai {
-  margin-top: 0;
-}
-
-.co-content-editor {
-  container: monitoring-editor / inline-size;
-}
-
-.co-content-editor > [role='region'],
-.co-content-editor .checklist-card {
+  display: block;
   min-width: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
-
-.co-content-aside {
-  align-self: start;
+.co-page .co-content-editor .ant-card {
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  border-radius: 16px;
+  box-shadow: none;
 }
-
-.co-content-navigation {
-  padding: 16px 20px;
-  border-top: 1px solid var(--ui-border);
+.co-page .co-content-editor .ant-card > .ant-card-head {
+  min-height: 58px;
+  padding: 0 18px;
   background: var(--ui-surface);
-}
-
-.co-content-navigation .co-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-}
-
-.co-content-navigation .co-footer-spacer {
-  display: none;
-}
-
-.co-content-navigation .co-footer .ant-btn {
-  width: 100%;
-  min-height: 44px;
-  height: auto;
-  padding-block: 11px;
-  justify-content: center;
-  white-space: normal;
-  text-align: center;
-}
-
-.co-content-navigation .co-footer .ant-btn-primary {
-  order: -3;
-}
-
-.co-content-navigation .co-footer .ant-btn-default {
-  order: -2;
-}
-
-.co-content-navigation .co-draft-note,
-.co-content-navigation .co-footer-blocked {
-  order: -1;
-  text-align: center;
-}
-
-.co-content-service {
-  display: grid;
-  gap: 4px;
-  padding-bottom: 16px;
-  margin-bottom: 14px;
   border-bottom: 1px solid var(--ui-border);
 }
-
-.co-content-service-label {
-  color: var(--ui-text-2);
-  font-size: 12px;
-  line-height: 1.45;
+.co-page .co-content-editor .ant-card > .ant-card-body {
+  padding: 16px 18px;
 }
-
-.co-content-service-name {
-  color: var(--ui-text);
-  font-size: 16px;
-  line-height: 1.4;
-  font-weight: 700;
-  overflow-wrap: anywhere;
+.co-page .co-content-editor .ant-card-head-title {
+  padding: 14px 0;
+  font-size: 15px;
+  font-weight: 650;
 }
-
-.co-content-stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.co-summary.co-content-aside .co-content-stats .co-metric {
-  min-width: 0;
-  min-height: 72px;
-  padding: 10px 8px;
-  background: var(--ui-surface-2);
-  border: 1px solid var(--ui-border);
-  border-radius: 8px;
-}
-
-.co-summary.co-content-aside .co-content-stats .co-metric-label {
-  color: var(--ui-text-2);
-  font-size: 11px;
-  line-height: 1.3;
-  overflow-wrap: anywhere;
-}
-
-.co-summary.co-content-aside .co-content-stats .co-metric-value {
-  margin-top: 4px;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.3;
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-
-.co-content-hint {
+.co-page .co-content-editor .checklist-card.is-compact .checklist-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin: 14px 0 0;
-  color: var(--ui-text-2);
-  font-size: 13px;
-  line-height: 1.55;
-}
-
-.co-content-hint[role='alert'] {
-  color: var(--ui-danger);
-}
-
-/* The checklist is the primary working surface, not a nested stack of cards. */
-.co-page .co-content-editor .checklist-card .checklist-pricing-notice {
-  margin: 12px 0 14px;
-  padding: 10px 14px;
-  border-radius: 0 8px 8px 0;
-  background: color-mix(in srgb, var(--ui-warning-soft) 84%, var(--ui-surface));
-}
-
-.co-page .co-content-editor .checklist-card .checklist-fields {
-  gap: 4px;
-  margin-top: 8px;
   padding: 0;
+  max-height: none;
+  overflow: visible;
+  border: 0;
 }
-
-.co-content-editor .checklist-card .checklist-row.is-compact .checklist-row-header {
-  grid-template-columns: 20px minmax(0, 1fr) 112px 104px 68px;
-  grid-template-areas: 'check summary evidence price actions';
-  column-gap: 10px;
-  row-gap: 5px;
+.co-page .co-content-editor .checklist-card .checklist-row.is-compact {
+  display: block;
+  padding: 0;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  box-shadow: none;
+}
+.co-page
+  .co-content-editor
+  .checklist-card
+  .checklist-row.is-compact.is-selected {
+  border-color: color-mix(in srgb, var(--ui-primary) 28%, var(--ui-border));
+  background: color-mix(in srgb, var(--ui-primary-soft) 15%, var(--ui-surface));
+}
+.co-page
+  .co-content-editor
+  .checklist-card
+  .checklist-row.is-compact.is-expanded {
+  border-color: var(--ui-primary);
+}
+.co-page
+  .co-content-editor
+  .checklist-card
+  .checklist-row.is-compact.is-removed {
+  background: var(--ui-surface-2);
+  opacity: 0.8;
+  border-style: dashed;
+}
+.co-page .co-content-editor .checklist-card.is-compact .checklist-row-header {
+  display: grid;
+  grid-template-columns: 20px 28px minmax(0, 1fr) auto;
+  grid-template-areas: 'check index summary price' '. . evidence actions';
+  gap: 10px;
+  padding: 16px;
   align-items: center;
-  min-height: 48px;
-  padding: 6px 10px;
 }
-
 .co-content-editor .checklist-row-header > .checklist-check {
   grid-area: check;
 }
-
-.co-page .co-content-editor .checklist-card.is-compact .checklist-row-header > .checklist-index {
-  display: none;
+.co-page
+  .co-content-editor
+  .checklist-card
+  .checklist-row-header
+  > .checklist-index {
+  grid-area: index;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--ui-primary-soft);
+  color: var(--ui-primary);
+  font-size: 11px;
 }
-
-.co-page .co-content-editor .checklist-row-header > .checklist-summary {
+.co-page
+  .co-content-editor
+  .checklist-card
+  .checklist-row-header
+  > .checklist-summary {
   grid-area: summary;
-  display: block;
   min-width: 0;
-  margin: 0;
   padding: 0;
+  margin: 0;
   border: 0;
   background: transparent;
   color: var(--ui-text);
@@ -207,797 +132,263 @@
   font: inherit;
   font-size: 14px;
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.6;
   white-space: normal;
   overflow-wrap: anywhere;
-  cursor: text;
+  cursor: pointer;
 }
-
-.co-content-editor .checklist-custom-details {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 6px 10px;
-  min-width: 0;
-}
-
-.co-content-editor .checklist-custom-details .checklist-hint {
-  flex: 1 1 300px;
-  min-width: 0;
-  color: var(--ui-text-2);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.5;
-}
-.co-content-editor .checklist-row-header > .checklist-evidence-summary {
+.co-page
+  .co-content-editor
+  .checklist-card
+  .checklist-row-header
+  > .checklist-evidence-summary {
   grid-area: evidence;
   justify-self: start;
   margin: 0;
-  background: var(--ui-surface-2);
+  padding: 0;
+  background: transparent;
   color: var(--ui-text-2);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: normal;
+  border: 0;
 }
-
 .co-content-editor .checklist-row-header > .checklist-row-price {
   grid-area: price;
   align-self: center;
-  min-width: 0;
-  font-size: 13px;
+  justify-self: end;
+  font-size: 14px;
   font-weight: 700;
+  color: var(--ui-text);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  text-align: right;
 }
-
-.co-page .co-content-editor .checklist-card.is-compact .checklist-length-with-evidence {
+.co-page .co-content-editor .checklist-card .checklist-length-with-evidence {
   display: none;
 }
-
 .co-content-editor .checklist-row-actions {
   grid-area: actions;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.co-page
+  .co-content-editor
+  .checklist-card
+  .checklist-row-actions
+  .checklist-icon-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-}
-
-.co-content-editor .checklist-row-actions .checklist-icon-btn {
-  width: 32px;
+  justify-content: center;
+  gap: 5px;
+  width: auto;
+  min-width: 32px;
   height: 32px;
+  padding: 0 9px;
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  background: var(--ui-surface);
+  color: var(--ui-text-2);
+  font: inherit;
+  font-size: 12px;
 }
-
-.co-content-editor .checklist-row-actions .checklist-icon-btn:active:not(:disabled) {
+.co-page
+  .co-content-editor
+  .checklist-card
+  .checklist-row-actions
+  .checklist-icon-btn:hover:not(:disabled) {
+  color: var(--ui-primary);
+  border-color: var(--ui-primary);
   background: var(--ui-primary-soft);
 }
-
+.co-page
+  .co-content-editor
+  .checklist-card
+  .checklist-disclosure-toggle[aria-expanded='true'] {
+  color: var(--ui-primary);
+}
+.co-content-editor .checklist-disclosure-toggle .anticon {
+  transition: transform 160ms ease;
+  font-size: 10px;
+}
+.co-content-editor .checklist-disclosure-toggle[aria-expanded='true'] .anticon {
+  transform: rotate(180deg);
+}
+.co-content-editor .checklist-expandable-details {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  margin: 0 16px;
+}
+.co-content-editor .checklist-expandable-details.is-open {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  padding-bottom: 16px;
+}
+.co-content-editor .checklist-expandable-details-inner {
+  overflow: hidden;
+  min-height: 0;
+  border-top: 1px solid var(--ui-border);
+}
+.co-content-editor .checklist-expandable-details .odm-cg-static {
+  margin: 14px 0;
+}
+.co-content-editor
+  .checklist-expandable-details
+  .checklist-evidence-requirements {
+  margin-top: 14px;
+}
 .co-content-editor .checklist-row.is-compact > .checklist-guidance {
-  padding: 0 10px 6px 40px;
+  padding: 0 16px 14px 74px;
 }
-
-.co-content-editor .checklist-row.is-compact > .checklist-guidance > .odm-cg {
-  margin-top: 0;
-}
-
-.co-page .co-content-editor .checklist-card.is-compact .checklist-row.is-compact {
-  min-width: 0;
-  padding: 0;
+.co-page .co-content-editor .checklist-card .checklist-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 0;
+  padding: 10px;
+  margin: 0;
+  background: var(--ui-surface-2);
   border: 1px solid var(--ui-border);
   border-radius: 10px;
-  background: var(--ui-surface);
 }
-
-.co-page .co-content-editor .checklist-card.is-compact .checklist-row.is-compact.is-selected {
-  background: color-mix(in srgb, var(--ui-primary-soft) 28%, var(--ui-surface));
-  border-color: color-mix(in srgb, var(--ui-primary) 42%, var(--ui-border));
-  box-shadow: none;
-}
-
-.co-page .co-content-editor .checklist-row.is-removed .checklist-row-actions .checklist-icon-btn:not(.is-danger) {
-  display: none;
-}
-
 .co-page .co-content-editor .checklist-card .checklist-toolbar.is-simple {
   display: flex;
-  justify-content: flex-start;
-  min-height: 0;
-  margin-top: 4px;
   padding: 0;
   border: 0;
   background: transparent;
 }
-
-/* Keep each requirement on its own full-width row on wide screens too. */
-@container monitoring-editor (min-width: 760px) {
-  .co-page .co-content-editor .checklist-card.is-compact .checklist-fields {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-    overflow: visible;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-  }
-
-  .co-content-editor .checklist-row.is-compact .checklist-row-header {
-    min-height: 48px;
-    padding: 6px 10px;
-    column-gap: 8px;
-  }
-
-  .co-page .co-content-editor .checklist-card.is-compact .checklist-row.is-compact > .checklist-guidance {
-    padding: 0 10px 6px 38px;
-  }
-}
-
-/* One predictable toolbar instead of controls wrapping at arbitrary widths. */
-.co-page .co-content-editor .checklist-card .checklist-toolbar {
-  display: grid;
-  grid-template-columns: minmax(160px, 1fr) auto auto;
-  align-items: center;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 10px;
-}
-
 .co-content-editor .checklist-toolbar-selection {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 8px;
 }
-
-.co-content-editor .checklist-selectall,
-.co-content-editor .checklist-toolbar .checklist-clear {
-  min-height: 44px;
+.co-content-editor .checklist-selectall {
+  min-height: 32px;
+  align-items: center;
 }
-
 .co-content-editor .checklist-search-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
   min-width: 0;
-  min-height: 44px;
-  padding: 0 12px;
-  border: 1px solid var(--ui-border-strong);
+  padding: 0 10px;
+  border: 1px solid var(--ui-border);
   border-radius: 8px;
   background: var(--ui-surface);
-  color: var(--ui-text-3);
 }
-
-.co-content-editor .checklist-search-wrap:focus-within {
-  border-color: var(--ui-primary);
-  outline: 2px solid color-mix(in srgb, var(--ui-primary) 30%, transparent);
-  outline-offset: 1px;
-}
-
 .co-page .co-content-editor .checklist-search-wrap .checklist-search {
-  width: 100%;
   min-width: 0;
-  min-height: 42px;
+  width: 100%;
+  min-height: 36px;
+  margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
   background: transparent;
   box-shadow: none;
-  outline: none;
 }
-
 .co-content-editor .checklist-toolbar .checklist-view {
+  display: flex;
+  flex-wrap: wrap;
   margin: 0;
   gap: 4px;
 }
-
 .co-content-editor .checklist-toolbar .checklist-view button {
-  min-height: 44px;
-  padding-inline: 10px;
+  min-height: 34px;
 }
-
-/* Keep the embedded checklist focused on the choices themselves. */
-.order-agent-widget-content .co-content-sidegroup,
-.order-agent-widget-content .co-content-overview-card,
-.order-agent-widget-content .checklist-pricing-notice {
+.co-page .co-content-editor .checklist-card .checklist-quote {
+  flex: none;
+  margin-top: 16px;
+}
+.co-page .co-content-editor .checklist-card .checklist-quote-details {
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  box-shadow: none;
+}
+.co-page .co-content-editor .checklist-card .checklist-quote-details summary {
+  padding: 12px;
+  font-size: 12px;
+}
+.co-page.is-content-step .co-action-dock {
+  position: static;
+  margin-top: 20px;
+}
+/* The embedded assistant shows the same editor without duplicating its own summary. */
+.order-agent-widget-content .co-content-sidegroup {
   display: none;
 }
-
 .order-agent-widget-content .co-content-layout {
   display: block;
 }
-
-.order-agent-widget-content .checklist-card .ant-card-body {
-  padding: 10px 12px;
-}
-
-.order-agent-widget-content .checklist-row {
-  margin-block: 4px;
-}
-
-.order-agent-widget-content .co-content-editor {
-  position: static;
-  min-height: 0;
-}
-
-.order-agent-widget-content .co-content-editor > [role='region'] {
-  position: static;
-  display: block;
-  min-height: 0;
-}
-
-.co-page .order-agent-widget-content .checklist-card.is-compact,
-.co-page .order-agent-widget-content .checklist-card.is-compact > .ant-card-body,
-.co-page .order-agent-widget-content .checklist-card.is-compact .checklist-fields {
-  display: block;
-  flex: none;
-  min-height: 0;
-  max-height: none;
-  overflow: visible;
-}
-
-/* Follow the available content width rather than the outer screen width. */
-@container monitoring-step (max-width: 999px) {
+@container monitoring-step (max-width: 960px) {
   .co-content-layout {
     grid-template-columns: minmax(0, 1fr);
     gap: 16px;
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
   }
-
-  .co-content-sidegroup {
-    position: static;
-    top: auto;
-  }
-
-  .co-content-layout .co-summary.co-content-aside {
-    grid-column: 1;
-    position: static;
-    border: 0;
-    border-radius: 0;
-    overflow: visible;
-    background: transparent;
-  }
-
-  .co-content-navigation {
-    grid-column: 1;
-    position: sticky;
-    bottom: 0;
-    z-index: 40;
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-    border: 1px solid var(--ui-border);
-    border-radius: 12px 12px 0 0;
-    box-shadow: 0 -4px 12px color-mix(in srgb, var(--ui-text) 10%, transparent);
-  }
-
-  .co-content-navigation .co-footer {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .co-content-navigation .co-footer-spacer {
-    display: block;
-  }
-
-  .co-content-navigation .co-footer .ant-btn {
-    width: auto;
-    order: 0;
-    min-width: 0;
-  }
-
-  .co-content-navigation .co-draft-note {
-    display: inline;
-    order: 0;
-  }
-
-  .co-content-navigation .co-footer-blocked {
-    display: block;
-    order: -1;
-    flex: 1 1 100%;
-    text-align: left;
-  }
-
-  /* Avoid overlaying the on-screen keyboard while text fields are focused. */
-  .co-content-layout:has(.checklist-search:focus, textarea:focus, input[type='number']:focus, select:focus)
-    .co-content-navigation {
-    position: static;
-    border-radius: 12px;
-    box-shadow: none;
+  .co-page .co-content-layout .co-content-sidegroup {
+    align-items: stretch;
   }
 }
-
-/* Step 3 uses a progressive checklist: compact choices first, details on demand. */
-.co-page.is-content-step .co-content-editor .checklist-card .checklist-fields {
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.co-page.is-content-step .co-content-editor .checklist-row.is-compact {
-  border: 1px solid var(--ui-border);
-  border-radius: 11px;
-  background: var(--ui-surface);
-  cursor: pointer;
-  transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.co-page.is-content-step
-  .co-content-editor
-  .checklist-row.is-compact.is-selected {
-  border-color: color-mix(in srgb, var(--ui-primary) 36%, var(--ui-border));
-  background: color-mix(in srgb, var(--ui-primary-soft) 22%, var(--ui-surface));
-}
-
-.co-page.is-content-step
-  .co-content-editor
-  .checklist-row.is-compact
-  .checklist-row-header {
-  grid-template-columns: 20px minmax(0, 1fr) 128px 100px 104px;
-  grid-template-areas: 'check summary evidence price actions';
-  column-gap: 10px;
-  min-height: 58px;
-  padding: 8px 12px;
-}
-
-.co-page.is-content-step
-  .co-content-editor
-  .checklist-row-header
-  > .checklist-summary-toggle {
-  width: 100%;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ui-text);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.45;
-  text-align: left;
-  cursor: pointer;
-}
-
-.co-page.is-content-step
-  .co-content-editor
-  .checklist-row-header
-  > .checklist-summary-toggle:focus-visible,
-.co-page.is-content-step
-  .co-content-editor
-  .checklist-row-actions
-  .checklist-disclosure-toggle:focus-visible {
-  outline: 2px solid var(--ui-primary);
-  outline-offset: 3px;
-}
-
-.co-page.is-content-step .co-content-editor .checklist-row-actions {
-  gap: 4px;
-}
-
-.co-page.is-content-step
-  .co-content-editor
-  .checklist-disclosure-toggle
-  .anticon {
-  transition: transform 160ms ease;
-}
-
-.co-page.is-content-step
-  .co-content-editor
-  .checklist-row.is-expanded
-  .checklist-disclosure-toggle
-  .anticon {
-  transform: rotate(180deg);
-}
-
-.co-page.is-content-step .checklist-expandable-details {
-  display: grid;
-  grid-template-rows: 0fr;
-  margin-inline: 12px;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    grid-template-rows 180ms ease,
-    opacity 150ms ease,
-    visibility 180ms;
-}
-
-.co-page.is-content-step
-  .checklist-expandable-details.is-open {
-  grid-template-rows: 1fr;
-  padding-bottom: 12px;
-  opacity: 1;
-  visibility: visible;
-}
-
-.co-page.is-content-step .checklist-expandable-details-inner {
-  min-height: 0;
-  overflow: hidden;
-  border-top: 1px solid var(--ui-border);
-}
-
-.co-page.is-content-step .checklist-expandable-details .odm-cg-static {
-  margin: 10px 0;
-}
-
-.co-page.is-content-step .checklist-expandable-details .checklist-evidence-requirements {
-  margin-top: 10px;
-}
-
-/* The dock stays in the scroll flow, so it is reachable without covering rows. */
-.co-page.is-content-step .co-action-dock {
-  position: sticky;
-  z-index: 20;
-  bottom: 10px;
-  margin-top: 12px;
-  box-shadow: 0 -2px 18px color-mix(in srgb, var(--ui-text) 9%, transparent);
-}
-
-.co-page.is-content-step .co-content-sidegroup .co-pricing-estimate-card > .ant-card-head {
-  min-height: 48px;
-  padding-inline: 14px;
-}
-
-.co-page.is-content-step .co-content-sidegroup .co-pricing-estimate-card > .ant-card-body {
-  padding: 12px 14px 14px;
-}
-
-.co-page.is-content-step .co-checklist-cost > .co-hint {
-  margin: 0 0 6px;
-  line-height: 1.45;
-}
-
-.co-page.is-content-step .co-checklist-cost > .co-money-row {
-  padding-block: 6px;
-}
-
-.co-page.is-content-step .co-checklist-cost > .co-money-total {
-  margin-top: 8px;
-  padding: 10px 12px;
-}
-
-.co-page.is-content-step .co-checklist-cost > .co-estimate-notice {
-  margin-top: 8px;
-  font-size: 12px;
-}
-
-@media (max-height: 600px) {
-  .co-page.is-content-step .co-action-dock {
-    position: static;
+@container monitoring-editor (max-width: 640px) {
+  .co-page .co-content-editor .checklist-card.is-compact .checklist-row-header {
+    grid-template-columns: 20px 24px minmax(0, 1fr);
+    grid-template-areas: 'check index summary' '. . evidence' '. price actions';
+    padding: 14px;
+    gap: 8px;
   }
-}
-
-@container monitoring-editor (max-width: 759px) {
-  .co-page.is-content-step
-    .co-content-editor
-    .checklist-row.is-compact
-    .checklist-row-header {
-    grid-template-columns: 20px minmax(0, 1fr) auto;
-    grid-template-areas:
-      'check summary actions'
-      'check evidence evidence'
-      'check price price';
-    min-height: 58px;
-    padding: 9px 10px;
-  }
-
-  .co-page.is-content-step .co-content-editor .checklist-row-actions {
-    gap: 2px;
-  }
-
-  .co-page.is-content-step
-    .co-content-editor
-    .checklist-row-actions
-    .checklist-icon-btn {
-    width: 38px;
-    height: 38px;
-  }
-
-  .co-page.is-content-step .checklist-expandable-details {
-    margin-inline: 10px;
-  }
-}
-
-@media (max-width: 760px) {
-  .co-page.is-content-step {
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .co-page.is-content-step .co-action-dock {
-    bottom: 0;
-    padding-bottom: calc(9px + env(safe-area-inset-bottom, 0px));
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .co-page.is-content-step .co-content-editor .checklist-row.is-compact,
-  .co-page.is-content-step .checklist-expandable-details,
-  .co-page.is-content-step .checklist-disclosure-toggle .anticon {
-    transition-duration: 0.01ms;
-  }
-}
-
-/* In the AI workspace the modal owns scrolling, including the full checklist. */
-.co-page .order-agent-widget-content .co-content-editor {
-  position: static;
-  min-height: 0;
-}
-
-.co-page .order-agent-widget-content .co-content-editor > [role='region'] {
-  position: static;
-  display: block;
-}
-
-.co-page .order-agent-widget-content .co-content-editor .checklist-card.is-compact,
-.co-page .order-agent-widget-content .co-content-editor .checklist-card.is-compact > .ant-card-body,
-.co-page .order-agent-widget-content .co-content-editor .checklist-card.is-compact .checklist-fields {
-  display: block;
-  flex: none;
-  max-height: none;
-  overflow: visible;
-}
-
-@media (max-height: 600px) {
-  .co-content-sidegroup {
-    position: static;
-  }
-}
-
-@media (max-height: 480px) {
-  .co-content-navigation {
-    position: static;
-  }
-}
-
-/* Container queries use the editor width: the app also has a permanent side navigation. */
-@container monitoring-editor (max-width: 930px) {
-  .co-page .co-content-editor .checklist-card .checklist-toolbar {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .co-content-editor .checklist-search-wrap {
-    grid-column: 1 / -1;
-    grid-row: 1;
-  }
-
-  .co-content-editor .checklist-toolbar-selection {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .co-content-editor .checklist-toolbar .checklist-view {
-    grid-column: 2;
-    grid-row: 2;
-  }
-}
-
-@container monitoring-editor (max-width: 759px) {
-  .co-content-editor .checklist-card .checklist-row.is-compact .checklist-row-header {
-    grid-template-columns: 20px minmax(0, 1fr) auto;
-    grid-template-areas:
-      'check summary actions'
-      'check evidence evidence'
-      'check price price';
-    gap: 4px 8px;
-    min-height: 48px;
-    padding: 8px 10px;
-  }
-
   .co-content-editor .checklist-row-header > .checklist-row-price {
+    grid-column: 2 / 4;
     justify-self: start;
-    text-align: left;
-    min-width: 0;
+    padding-top: 7px;
   }
-
-
-  .co-content-editor .checklist-row.is-compact > .checklist-guidance {
-    padding: 0 10px 6px 38px;
+  .co-content-editor .checklist-row-actions {
+    grid-column: 2 / 4;
+    grid-row: 4;
+    justify-self: start;
   }
-}
-
-@container monitoring-editor (max-width: 530px) {
   .co-page .co-content-editor .checklist-card .checklist-toolbar {
     grid-template-columns: minmax(0, 1fr);
   }
-
-  .co-content-editor .checklist-toolbar-selection,
-  .co-content-editor .checklist-toolbar .checklist-view,
   .co-content-editor .checklist-search-wrap {
-    grid-column: 1;
-    grid-row: auto;
+    grid-column: 1 / -1;
   }
-
-  .co-content-editor .checklist-toolbar .checklist-view button {
-    flex: 1 1 0;
-    justify-content: center;
-  }
-
-  .co-content-editor .checklist-row-actions .checklist-icon-btn {
-    width: 44px;
-    height: 44px;
+  .co-content-editor .checklist-row.is-compact > .checklist-guidance {
+    padding-left: 16px;
   }
 }
-
+@container monitoring-step (max-width: 580px) {
+  .co-page .co-content-layout .co-content-sidegroup {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .co-page .co-content-editor .ant-card > .ant-card-head {
+    padding-inline: 14px;
+  }
+  .co-page .co-content-editor .ant-card > .ant-card-body {
+    padding: 14px;
+  }
+  .co-page .co-content-editor .ant-card-head-wrapper {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-block: 12px;
+  }
+  .co-page .co-content-editor .ant-card-head-title {
+    padding: 0;
+  }
+  .co-page .co-content-editor .ant-card-extra {
+    margin-left: 0;
+  }
+  .co-content-editor .checklist-card .checklist-add-top {
+    min-height: 36px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .co-content-editor .checklist-card .checklist-row {
+  .co-content-editor .checklist-disclosure-toggle .anticon {
     transition: none;
   }
 }
 
-/* Phones: Back and Continue share one row, the draft note is dropped. */
-@media (max-width: 640px) {
-  .co-content-navigation .co-footer {
-    flex-wrap: wrap;
-  }
-  .co-content-navigation .co-footer-spacer,
-  .co-content-navigation .co-draft-note {
-    display: none;
-  }
-  .co-content-navigation .co-footer .ant-btn-primary {
-    flex: 1 1 0;
-    min-width: 0;
-    height: auto;
-    min-height: 38px;
-    white-space: normal;
-  }
-}
-
-/* Step 3: compact, scannable checklist cards with a dedicated desktop scroll area. */
-.co-page .co-content-editor .checklist-card.is-compact {
-  border-radius: 14px;
-}
-
-.co-page .co-content-editor .checklist-card.is-compact .ant-card-head {
-  min-height: 60px;
-  padding-inline: 18px;
-  border-bottom-color: var(--ui-border);
-}
-
-.co-page .co-content-editor .checklist-card.is-compact .ant-card-head-title {
-  padding-block: 12px;
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.co-page .co-content-editor .checklist-card.is-compact .ant-card-body {
-  padding: 12px 18px 16px;
-}
-
-.co-page
-  .co-content-editor
-  .checklist-card.is-compact
-  > .ant-card-body
-  > .checklist-hint {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.co-page
-  .co-content-editor
-  .checklist-card.is-compact
-  .checklist-toolbar.is-simple {
-  min-height: 42px;
-  margin-top: 6px;
-}
-
-.co-page .co-content-editor .checklist-card.is-compact .checklist-selectall {
-  min-height: 40px;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.co-page .co-content-editor .checklist-card.is-compact .checklist-fields {
-  max-height: none;
-  gap: 6px;
-  margin-top: 6px;
-  padding: 2px 2px 4px;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
-
-.co-page
-  .co-content-editor
-  .checklist-card.is-compact
-  .checklist-row.is-compact {
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  align-items: stretch;
-  height: auto;
-  min-height: 0;
-  margin: 0 2px;
-  border: 1px solid color-mix(in srgb, var(--ui-primary) 32%, var(--ui-border));
-  border-radius: 11px;
-  background: var(--ui-surface);
-}
-
-.co-page
-  .co-content-editor
-  .checklist-card.is-compact
-  .checklist-row.is-compact.is-selected {
-  border-color: color-mix(in srgb, var(--ui-primary) 54%, var(--ui-border));
-  background: color-mix(in srgb, var(--ui-primary-soft) 28%, var(--ui-surface));
-  box-shadow: none;
-}
-
-.co-page.is-content-step .co-content-editor .checklist-row.is-compact:hover {
-  border-color: color-mix(in srgb, var(--ui-primary) 32%, var(--ui-border));
-}
-
-.co-page
-  .co-content-editor
-  .checklist-card.is-compact
-  .checklist-row.is-compact.is-removed {
-  border-color: var(--ui-border);
-  background: var(--ui-surface-2);
-}
-
-.co-page .co-content-editor .checklist-row.is-compact .checklist-row-header {
-  min-height: 48px;
-  padding: 6px 10px;
-  column-gap: 8px;
-}
-
-.co-page
-  .co-content-editor
-  .checklist-row.is-compact
-  .checklist-row-header
-  > .checklist-summary {
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.co-page
-  .co-content-editor
-  .checklist-row.is-compact
-  .checklist-row-header
-  > .checklist-evidence-summary {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--ui-surface-2);
-  color: var(--ui-text-2);
-  font-size: 12px;
-}
-
-.co-page
-  .co-content-editor
-  .checklist-row.is-compact
-  .checklist-row-header
-  > .checklist-row-price {
-  font-size: 14px;
-}
-
-.co-page .co-content-editor .checklist-row.is-compact > .checklist-guidance {
-  display: block;
-  position: static;
-  flex: 0 0 auto;
-  height: auto;
-  padding: 0 8px 8px 60px;
-}
-
-.co-page
-  .co-content-editor
-  .checklist-row.is-compact
-  > .checklist-guidance
-  > .odm-cg {
-  border-radius: 10px;
-}
-
-.co-page
-  .co-content-editor
-  .checklist-row.is-compact
-  > .checklist-guidance
-  > .odm-cg
-  > summary {
-  min-height: 40px;
-  padding: 7px 12px;
-  font-size: 14px;
-}
-
-.co-content-editor .checklist-quote:not(:empty) {
-  margin-top: 12px;
-}
-
+/* Preserve the original pricing and selection-summary components. */
 .co-content-aside .co-checklist-cost {
   display: grid;
   gap: 10px;
@@ -1060,7 +451,11 @@
   border: 1px solid var(--ui-border);
   border-radius: 12px;
   background:
-    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--ui-primary-soft) 78%, transparent), transparent 46%),
+    radial-gradient(
+      circle at 100% 0,
+      color-mix(in srgb, var(--ui-primary-soft) 78%, transparent),
+      transparent 46%
+    ),
     var(--ui-surface);
   box-shadow: var(--ui-shadow-1);
 }
@@ -1165,13 +560,18 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--ui-primary), color-mix(in srgb, var(--ui-primary) 64%, #61b7ff));
+  background: linear-gradient(
+    90deg,
+    var(--ui-primary),
+    color-mix(in srgb, var(--ui-primary) 64%, #61b7ff)
+  );
   transition: width 180ms ease;
 }
 
 .co-content-overview-added {
   padding-top: 7px;
-  border-top: 1px solid color-mix(in srgb, var(--ui-primary) 16%, var(--ui-border));
+  border-top: 1px solid
+    color-mix(in srgb, var(--ui-primary) 16%, var(--ui-border));
 }
 
 .co-content-overview-media {
@@ -1231,101 +631,36 @@
   line-height: 1.45;
 }
 
-@container monitoring-step (min-width: 1000px) {
-  /* Let the sidebar determine the shared height; the checklist fills that space. */
-  .co-content-editor {
-    position: relative;
-    min-height: clamp(520px, calc(100dvh - 220px), 740px);
-  }
-
-  .co-content-editor > [role='region'] {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-
-  .co-page .co-content-editor .checklist-card.is-compact {
-    display: flex;
-    flex: 1 1 0;
-    flex-direction: column;
-    min-height: 0;
-  }
-
-  .co-page .co-content-editor .checklist-card.is-compact > .ant-card-head {
-    flex-shrink: 0;
-  }
-
-  .co-page .co-content-editor .checklist-card.is-compact > .ant-card-body {
-    display: flex;
-    flex: 1 1 0;
-    flex-direction: column;
-    min-height: 0;
-  }
-
-  .co-page .co-content-editor .checklist-card.is-compact > .ant-card-body > :not(.checklist-fields) {
-    flex-shrink: 0;
-  }
-
-  .co-page .co-content-editor .checklist-card.is-compact .checklist-fields {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    min-height: 0;
-    flex: 1 1 0;
-    max-height: none;
-    padding-right: 7px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-color: var(--ui-primary) var(--ui-surface-2);
-    scrollbar-gutter: stable;
-    scrollbar-width: thin;
-  }
-
-  .co-page
-    .co-content-editor
-    .checklist-card.is-compact
-    .checklist-fields::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  .co-page
-    .co-content-editor
-    .checklist-card.is-compact
-    .checklist-fields::-webkit-scrollbar-track {
-    border-radius: 999px;
-    background: var(--ui-surface-2);
-  }
-
-  .co-page
-    .co-content-editor
-    .checklist-card.is-compact
-    .checklist-fields::-webkit-scrollbar-thumb {
-    border: 2px solid var(--ui-surface-2);
-    border-radius: 999px;
-    background: var(--ui-primary);
-  }
+.co-page.is-content-step
+  .co-content-sidegroup
+  .co-pricing-estimate-card
+  > .ant-card-head {
+  min-height: 48px;
+  padding-inline: 14px;
 }
 
-@container monitoring-step (max-width: 999px) {
-  .co-page .co-content-editor .checklist-card.is-compact .checklist-fields {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    max-height: none;
-    overflow: visible;
-  }
+.co-page.is-content-step
+  .co-content-sidegroup
+  .co-pricing-estimate-card
+  > .ant-card-body {
+  padding: 12px 14px 14px;
+}
 
-  .co-page
-    .co-content-editor
-    .checklist-card.is-compact
-    .checklist-row.is-compact {
-    margin-inline: 0;
-  }
+.co-page.is-content-step .co-checklist-cost > .co-hint {
+  margin: 0 0 6px;
+  line-height: 1.45;
+}
 
-  .co-page .co-content-editor .checklist-row.is-compact > .checklist-guidance {
-    padding-left: 38px;
-  }
+.co-page.is-content-step .co-checklist-cost > .co-money-row {
+  padding-block: 6px;
+}
+
+.co-page.is-content-step .co-checklist-cost > .co-money-total {
+  margin-top: 8px;
+  padding: 10px 12px;
+}
+
+.co-page.is-content-step .co-checklist-cost > .co-estimate-notice {
+  margin-top: 8px;
+  font-size: 12px;
 }
