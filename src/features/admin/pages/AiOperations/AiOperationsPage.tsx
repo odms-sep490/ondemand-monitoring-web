@@ -785,12 +785,8 @@ export function AiOperationsPage({
                       <td>
                         <strong>{m.name}</strong>
                         <div className="aiops-cell-sub">
-                          {m.code} · {m.version} · {m.modelSize}
-                          {m.code === 'checklist-image-vision' && <div>
-                            Nhiệt độ sinh kết quả: {String(m.config.temperature ?? (m.source === 'Ollama' ? 0 : 'Mặc định nhà cung cấp'))}
-                            {' · '}Thời gian chờ: {Math.min(Number(m.config.timeoutSec ?? 90), m.source === 'Ollama' ? 90 : 25)} giây
-                            {' · '}Giới hạn token: {String(m.config.maxTokens ?? (m.source === 'Ollama' ? 'Tự động theo số tiêu chí' : 4096))}
-                          </div>}
+                          {m.code}
+                          {m.code !== 'checklist-image-vision' && <> · {m.version} · {m.modelSize}</>}
                         </div>
                       </td>
                       <td>
@@ -800,13 +796,13 @@ export function AiOperationsPage({
                       <td>
                         <div>{m.runtime}</div>
                         <div className="aiops-cell-sub">
-                          {m.device} · {m.endpoint}
+                          {m.device && <>{m.device} · </>}{m.endpoint}
                         </div>
                       </td>
                       <td>
                         <div>{m.source}</div>
                         <div className="aiops-cell-sub">
-                          {m.license} · {m.code === 'checklist-image-vision' ? 'Mã kiểm tra' : 'SHA'}: {m.checksumSha256}
+                          {m.license}{m.code !== 'checklist-image-vision' && <> · SHA: {m.checksumSha256}</>}
                         </div>
                       </td>
                       <td>
@@ -836,7 +832,9 @@ export function AiOperationsPage({
                             icon={<SettingOutlined />}
                             onClick={() => {
                               setConfigTarget(m)
-                              setConfigDraft(JSON.stringify(m.config ?? {}, null, 2))
+                              setConfigDraft(JSON.stringify(m.code === 'checklist-image-vision'
+                                ? { ...(m.source === 'Ollama' ? { temperature: 0 } : {}), timeoutSec: m.source === 'Ollama' ? 90 : 25, ...m.config }
+                                : m.config ?? {}, null, 2))
                             }}
                           >
                             Cấu hình
@@ -1865,9 +1863,13 @@ export function AiOperationsPage({
         confirmLoading={busyKey.startsWith('config:')}
       >
         <p className="aiops-modal-hint">
-          Chỉ cho phép các tham số an toàn: <code>temperature</code>, <code>timeoutSec</code>,{' '}
-          <code>maxTokens</code>, <code>threshold</code>, <code>blurThreshold</code>,{' '}
-          <code>language</code>, <code>sampleRate</code>.
+          {configTarget?.code === 'checklist-image-vision' ? <>
+            Nhiệt độ sinh kết quả (<code>temperature</code>): 0–2. Thời gian chờ (<code>timeoutSec</code>):
+            1–{configTarget.source === 'Ollama' ? 90 : 25} giây. Giới hạn token (<code>maxTokens</code>): 1–4096.
+            Khi bỏ maxTokens, Ollama tự tính theo số tiêu chí, OpenRouter dùng 4096 token.
+          </> : <>Chỉ cho phép các tham số an toàn: <code>temperature</code>, <code>timeoutSec</code>,{' '}
+            <code>maxTokens</code>, <code>threshold</code>, <code>blurThreshold</code>,{' '}
+            <code>language</code>, <code>sampleRate</code>.</>}
         </p>
         <Input.TextArea
           rows={8}
