@@ -18,6 +18,9 @@ describe('parseRealApiRoutes', () => {
 })
 
 describe('matchesRealApiRoute', () => {
+  it('uses historical trace routes in hybrid mode', () => {
+    expect(matchesRealApiRoute(env.realApiRoutes, 'GET', '/api/admin/ai-ops/traces/AI-123')).toBe(true)
+  })
   it('matches trailing wildcard for collection and detail', () => {
     expect(matchesRealApiRoute(routes, 'GET', '/api/admin/users')).toBe(true)
     expect(matchesRealApiRoute(routes, 'GET', '/api/admin/users/u1')).toBe(true)

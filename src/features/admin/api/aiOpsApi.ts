@@ -143,6 +143,9 @@ export type TraceSpan = {
   name: string
   durationMs: number
   status: string
+  versionId?: string | null
+  contentHash?: string | null
+  staleCacheUsed?: boolean | null
 }
 
 export type AiTraceView = {
@@ -341,6 +344,8 @@ export const aiOpsApi = {
     apiRequest<ServiceHealthView[]>(`${BASE}/services`, { signal }),
   listTraces: (limit = 80, signal?: AbortSignal) =>
     apiRequest<AiTraceView[]>(`${BASE}/traces?limit=${limit}`, { signal }),
+  getTrace: (traceId: string) =>
+    apiRequest<AiTraceView>(`${BASE}/traces/${encodeURIComponent(traceId)}`),
   listEvaluations: (signal?: AbortSignal) =>
     apiRequest<AiEvaluationView[]>(`${BASE}/evaluations`, { signal }),
   syncEvaluations: () =>

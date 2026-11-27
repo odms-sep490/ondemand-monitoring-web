@@ -72,6 +72,7 @@ const realApiRoutes = [
   ...parseRealApiRoutes(
     'GET /api/admin/config/checklist-image-ai,PUT /api/admin/config/checklist-image-ai',
   ),
+  ...parseRealApiRoutes('GET /api/admin/ai-ops/traces/*'),
 ]
 
 export const env = {
