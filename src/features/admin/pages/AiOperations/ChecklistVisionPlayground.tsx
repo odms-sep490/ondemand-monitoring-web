@@ -249,7 +249,7 @@ export default function ChecklistVisionPlayground({
                       <tr key={finding.code}>
                         <td>
                           <strong>Tiêu chí {index + 1}</strong>
-                          <div>{instructions[index]}</div>
+                          <div>{finding.label}</div>
                         </td>
                         <td>
                           <Tag color={verdict.color}>{verdict.label}</Tag>

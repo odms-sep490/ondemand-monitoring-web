@@ -19,7 +19,7 @@ it('posts the JPEG with the selected draft and renders the returned finding', as
     { id: 'draft', versionNumber: 2, status: 'DRAFT' },
   ] as PromptVersionView[]
   vi.mocked(apiRequest).mockResolvedValue({
-    findings: [{ code: 'PHOTO_1', verdict: 'MATCH', observation: 'Visible' }],
+    findings: [{ code: 'PHOTO_1', verdict: 'MATCH', observation: 'Visible', label: 'Roof inspection' }],
   })
   render(<ChecklistVisionPlayground versions={versions} />)
   const image = new File(
@@ -56,6 +56,8 @@ it('posts the JPEG with the selected draft and renders the returned finding', as
     language: 'en',
   })
   expect(await screen.findByText('Visible')).toBeTruthy()
+  expect(screen.getByText('Roof inspection')).toBeVisible()
+  expect(screen.queryByText('inspect roof')).toBeNull()
   expect(screen.getByText('Phù hợp')).toBeInTheDocument()
   expect(screen.getByRole('table')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Chạy thử ảnh' })).toBeEnabled()

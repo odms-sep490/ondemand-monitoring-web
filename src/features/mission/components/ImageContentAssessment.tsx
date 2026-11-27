@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Alert, Button, Tag } from 'antd'
-import { PictureOutlined, RobotOutlined } from '@ant-design/icons'
+import { Alert, Button, Tag, Tooltip } from 'antd'
+import { InfoCircleOutlined, RobotOutlined } from '@ant-design/icons'
 import { ApiError } from '../../../shared/api/httpClient'
 import type { Language } from '../../../shared/i18n'
 import { checklistEvidenceApi } from '../api/checklistEvidenceApi'
@@ -13,8 +13,9 @@ import type {
 
 const messages = {
   en: {
-    title: 'AI checklist image assessment',
-    hint: 'Choose an image to compare with the checklist criteria.',
+    title: 'AI checklist assessment',
+    run: 'Assess image',
+    information: 'About AI assessment',
     assessmentDisabled:
       'AI image assessment has been turned off. You can still select evidence manually.',
     image: 'Image to assess',
@@ -38,8 +39,9 @@ const messages = {
     verdicts: { MATCH: 'Match', MISMATCH: 'Mismatch', UNCERTAIN: 'Uncertain' },
   },
   vi: {
-    title: 'AI đánh giá ảnh theo checklist',
-    hint: 'Chọn ảnh để đối chiếu với các tiêu chí của checklist.',
+    title: 'AI đánh giá checklist',
+    run: 'Đánh giá ảnh',
+    information: 'Thông tin đánh giá AI',
     assessmentDisabled:
       'AI đánh giá ảnh đã được tắt. Bạn vẫn có thể tự chọn bằng chứng.',
     image: 'Ảnh cần đánh giá',
@@ -200,63 +202,68 @@ function AssessmentForm({
 
   return (
     <div className="image-content-assessment">
-      <div className="image-content-assessment__header">
-        <span className="image-content-assessment__icon" aria-hidden="true">
-          <RobotOutlined />
-        </span>
-        <div>
-          <h4>{t.title}</h4>
-          <p>{t.hint}</p>
+      <div className="image-content-assessment__toolbar">
+        <div className="image-content-assessment__header">
+          <span className="image-content-assessment__icon" aria-hidden="true">
+            <RobotOutlined />
+          </span>
+          <div>
+            <h4>{t.title}</h4>
+            <Tooltip title={t.advisory}>
+              <button
+                type="button"
+                className="image-content-assessment__info"
+                aria-label={t.information}
+              >
+                <InfoCircleOutlined />
+              </button>
+            </Tooltip>
+          </div>
         </div>
-      </div>
-      <div className="image-content-assessment__controls">
-        <div
-          className="image-content-assessment__thumbnail"
-          aria-hidden={selectedImage ? undefined : true}
-        >
-          {selectedImage ? (
-            <EvidenceThumbnail
-              key={imageId}
-              link={selectedImage}
-              alt={t.preview(selectedImage.fileName)}
-            />
-          ) : (
-            <PictureOutlined />
+        <div className="image-content-assessment__controls">
+          {selectedImage && (
+            <div className="image-content-assessment__thumbnail">
+              <EvidenceThumbnail
+                key={imageId}
+                link={selectedImage}
+                alt={t.preview(selectedImage.fileName)}
+              />
+            </div>
           )}
-        </div>
-        <label className="image-content-assessment__choice">
-          {t.image}
-          <select
-            value={imageId}
-            disabled={locked}
-            onChange={(event) => {
-              setImageId(event.target.value)
-              setResult(null)
-              setError(null)
-            }}
+          <label className="image-content-assessment__choice">
+            <span className="image-content-assessment__sr-only">{t.image}</span>
+            <select
+              value={imageId}
+              disabled={locked}
+              onChange={(event) => {
+                setImageId(event.target.value)
+                setResult(null)
+                setError(null)
+              }}
+            >
+              <option value="">{t.choose}</option>
+              {images.map(({ evidenceId, fileName }) => (
+                <option key={evidenceId} value={evidenceId}>
+                  {fileName}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Button
+            type="primary"
+            icon={<RobotOutlined />}
+            disabled={locked || !imageId}
+            loading={busy}
+            aria-label={t.assess}
+            aria-busy={busy}
+            aria-describedby={id}
+            onClick={() => void requestAssessment()}
           >
-            <option value="">{t.choose}</option>
-            {images.map(({ evidenceId, fileName }) => (
-              <option key={evidenceId} value={evidenceId}>
-                {fileName}
-              </option>
-            ))}
-          </select>
-        </label>
-        <Button
-          type="primary"
-          icon={<RobotOutlined />}
-          disabled={locked || !imageId}
-          loading={busy}
-          aria-label={t.assess}
-          aria-busy={busy}
-          aria-describedby={id}
-          onClick={() => void requestAssessment()}
-        >
-          {t.assess}
-        </Button>
+            {t.run}
+          </Button>
+        </div>
       </div>
-      <p id={id} className="image-content-assessment__advisory">
+      <p id={id} className="image-content-assessment__sr-only">
         {t.advisory}
       </p>
       {error && <Alert type="warning" showIcon message={t[error]} />}
