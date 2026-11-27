@@ -1,11 +1,27 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { MissionCapturedMediaPanel } from './MissionCapturedMediaPanel'
+import { MissionCapturedMediaPanel, notifyFlightLocalMediaChanged } from './MissionCapturedMediaPanel'
 import {
   operatorMediaApi,
   type LocalMedia,
 } from '../../../../media/api/operatorMediaApi'
 import type { Mission } from '../../../types/omss'
+import { authSession } from '../../../../auth/api/authSession'
+const updates = vi.hoisted(() => new Map<string, () => void>())
+const session = vi.hoisted(() => ({ userId: 'u1' }))
+vi.mock('../../../../auth/hooks/useAuthSession', () => ({
+  useAuthSession: () => ({ user: { id: session.userId }, sessionKey: session.userId }),
+}))
+vi.mock('../../../../mission/realtime/useMissionWorkspaceUpdates', () => ({
+  useMissionWorkspaceUpdates: (id: string, components: readonly string[], callback: () => void) => {
+    updates.set(`${id}:${components.join(',')}`, callback)
+  },
+}))
+vi.mock('../../../../mission/realtime/missionWorkspaceUpdates', () => ({
+  // An unchanged backend version produces no callback. Local refresh must
+  // still work for files that have not been registered with the backend.
+  notifyMissionWorkspaceChanged: vi.fn(),
+}))
 vi.mock('../../../../media/api/operatorMediaApi', () => ({
   operatorMediaApi: { reviewItems: vi.fn(), previewUrl: vi.fn(), thumbnailUrl: vi.fn() },
 }))
@@ -35,8 +51,64 @@ const media = (missionId: string, fileName: string): LocalMedia => ({
   thumbnailUrl: 'https://media.test/thumbnail',
   status: 'VALIDATING',
 })
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => { vi.clearAllMocks(); updates.clear(); session.userId = 'u1' })
 describe('Cockpit shared Mission library', () => {
+  it('refreshes local captures despite an unchanged backend version and scopes the event by Mission', async () => {
+    vi.mocked(operatorMediaApi.reviewItems).mockResolvedValueOnce([])
+    render(<MissionCapturedMediaPanel mission={mission} />)
+    await waitFor(() => expect(operatorMediaApi.reviewItems).toHaveBeenCalledOnce())
+    vi.mocked(operatorMediaApi.reviewItems).mockResolvedValue([{
+      ...media('exact-uuid', 'before-s3.jpg'), uploadChannel: 'FLIGHT_CONTROLLER',
+      localAvailable: true, localPreviewUrl: 'http://controller/local/photo',
+    }])
+    act(() => notifyFlightLocalMediaChanged('another-mission'))
+    act(() => notifyFlightLocalMediaChanged('exact-uuid', { ...authSession.capture(), generation: -1 }))
+    expect(operatorMediaApi.reviewItems).toHaveBeenCalledOnce()
+    act(() => notifyFlightLocalMediaChanged('exact-uuid'))
+    expect(await screen.findByText('before-s3.jpg')).toBeInTheDocument()
+    expect(screen.getByRole('img')).toHaveAttribute('src', 'http://controller/local/photo')
+  })
+  it('refreshes media in place on a scoped update without a polling timer', async () => {
+    vi.mocked(operatorMediaApi.reviewItems).mockResolvedValue([media('exact-uuid', 'kept.jpg')])
+    const interval = vi.spyOn(window, 'setInterval')
+    try {
+      render(<MissionCapturedMediaPanel mission={mission} />)
+      await screen.findByText('kept.jpg')
+      const image = screen.getByRole('img')
+      let resolveRefresh!: (items: LocalMedia[]) => void
+      vi.mocked(operatorMediaApi.reviewItems).mockImplementationOnce(() => new Promise(resolve => { resolveRefresh = resolve }))
+      act(() => updates.get('exact-uuid:media')!())
+      expect(screen.getByText('kept.jpg')).toBeInTheDocument()
+      expect(screen.getByRole('img')).toBe(image)
+      await act(async () => resolveRefresh([media('exact-uuid', 'kept.jpg'), media('exact-uuid', 'new.jpg')]))
+      expect(await screen.findByText('new.jpg')).toBeInTheDocument()
+      expect(screen.getAllByRole('img')).toContain(image)
+      expect(interval.mock.calls.some(([, delay]) => delay === 5000)).toBe(false)
+    } finally { interval.mockRestore() }
+  })
+
+  it('keeps existing media on a failed background refresh', async () => {
+    vi.mocked(operatorMediaApi.reviewItems).mockResolvedValue([media('exact-uuid', 'kept.jpg')])
+    render(<MissionCapturedMediaPanel mission={mission} />)
+    await screen.findByText('kept.jpg')
+    const image = screen.getByRole('img')
+    vi.mocked(operatorMediaApi.reviewItems).mockRejectedValueOnce(new Error('offline'))
+    await act(async () => updates.get('exact-uuid:media')!())
+    expect(screen.getByRole('img')).toBe(image)
+    expect(screen.getByText('kept.jpg')).toBeInTheDocument()
+  })
+  it('clears retained media when the account changes on the same Mission', async () => {
+    vi.mocked(operatorMediaApi.reviewItems).mockResolvedValueOnce([media('exact-uuid', 'old-account.jpg')])
+    const { rerender } = render(<MissionCapturedMediaPanel mission={mission} />)
+    await screen.findByText('old-account.jpg')
+    let resolveNew!: (items: LocalMedia[]) => void
+    vi.mocked(operatorMediaApi.reviewItems).mockImplementationOnce(() => new Promise(resolve => { resolveNew = resolve }))
+    session.userId = 'u2'
+    rerender(<MissionCapturedMediaPanel mission={mission} />)
+    expect(screen.queryByText('old-account.jpg')).not.toBeInTheDocument()
+    await act(async () => resolveNew([media('exact-uuid', 'new-account.jpg')]))
+    expect(await screen.findByText('new-account.jpg')).toBeInTheDocument()
+  })
   it('shows manually uploaded media with backend preview and refreshes after upload', async () => {
     vi.mocked(operatorMediaApi.reviewItems).mockResolvedValue([
       media('exact-uuid', 'manual-drone.jpg'),

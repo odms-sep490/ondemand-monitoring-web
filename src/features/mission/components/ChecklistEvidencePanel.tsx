@@ -88,6 +88,7 @@ function MissionEvidencePanel({
   hideAssessmentRequirement = false,
   canSelectForCustomer = false,
   inspectionView = false,
+  refreshing = false,
   refresh,
   loadCandidates,
   attachCandidate,
@@ -102,6 +103,8 @@ function MissionEvidencePanel({
   hideAssessmentRequirement?: boolean
   canSelectForCustomer?: boolean
   inspectionView?: boolean
+  /** Keep the mounted review state while background data is being revalidated. */
+  refreshing?: boolean
   refresh: () => void
   loadCandidates?: EvidenceCandidateLoader
   attachCandidate?: (
@@ -406,7 +409,7 @@ function MissionEvidencePanel({
           missionId={missionId}
           item={item}
           refresh={refresh}
-          mutationBusy={busy}
+          mutationBusy={busy || refreshing}
           onDetach={canDetach ? detachEvidence : undefined}
         />
       )}

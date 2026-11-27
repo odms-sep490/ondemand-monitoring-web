@@ -4,9 +4,13 @@ import { LocalMediaDiscardAction } from '../../../../media/components/LocalMedia
 import { MediaRemovalAction } from '../../../../media/components/MediaRemovalAction'
 import { useApiQuery } from '../../../../../shared/hooks/useApiQuery'
 import { missionApi } from '../../../../mission/api/missionApi'
+import { useAuthSession } from '../../../../auth/hooks/useAuthSession'
+import { authSession, type SessionStamp } from '../../../../auth/api/authSession'
+import { useMissionWorkspaceUpdates } from '../../../../mission/realtime/useMissionWorkspaceUpdates'
+import { notifyMissionWorkspaceChanged } from '../../../../mission/realtime/missionWorkspaceUpdates'
 import { MissionStaffMediaImport } from './MissionStaffMediaImport'
 import { VideoThumbnail } from '../../../../../shared/components/media/VideoThumbnail'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '../../../../../shared/i18n'
 import type { Mission } from '../../../types/omss'
 import {
@@ -15,6 +19,18 @@ import {
 } from '../../../../media/api/operatorMediaApi'
 import { inFlightControlMessages } from './InFlightControl.messages'
 import './MissionCapturedMediaPanel.css'
+
+const LOCAL_MEDIA_CHANGED = 'odm.flight.local-media-changed'
+type LocalMediaChange = { missionId: string; session: SessionStamp }
+
+/** Local controller files can change before any backend workspace version does. */
+export function notifyFlightLocalMediaChanged(missionId: string, session = authSession.capture()) {
+  if (!authSession.isCurrent(session)) return
+  window.dispatchEvent(new CustomEvent<LocalMediaChange>(LOCAL_MEDIA_CHANGED, {
+    detail: { missionId, session },
+  }))
+  notifyMissionWorkspaceChanged(missionId, ['media'])
+}
 
 function formatFileSize(bytes: number) {
   if (!Number.isFinite(bytes) || bytes <= 0) return '0 KB'
@@ -33,9 +49,10 @@ function formatCapturedAt(value: string, locale: string) {
 }
 
 export function MissionCapturedMediaPanel({ mission }: { mission: Mission }) {
+  const { user, sessionKey } = useAuthSession()
   return (
     <MissionCapturedMediaContent
-      key={mission.backendId ?? mission.id}
+      key={`${sessionKey}:${user?.id ?? 'anonymous'}:${mission.backendId ?? mission.id}`}
       mission={mission}
     />
   )
@@ -59,6 +76,32 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
     'IMAGE' | 'VIDEO' | null
   >(null)
   const requestGeneration = useRef(0)
+  const ownerSession = useRef(authSession.capture())
+  const refreshMedia = useCallback(() => setReloadKey((key) => key + 1), [])
+  const mediaChanged = useCallback(() => {
+    notifyFlightLocalMediaChanged(missionId, ownerSession.current)
+  }, [missionId])
+  useMissionWorkspaceUpdates(missionId, ['media'], refreshMedia)
+  useMissionWorkspaceUpdates(missionId, ['permissions'], permissions.reload)
+  useEffect(() => {
+    const refreshLocalMedia = (event: Event) => {
+      const change = (event as CustomEvent<LocalMediaChange>).detail
+      const owner = ownerSession.current
+      if (change.missionId === missionId && authSession.isCurrent(owner) &&
+        change.session.generation === owner.generation && change.session.epoch === owner.epoch) {
+        refreshMedia()
+      }
+    }
+    window.addEventListener(LOCAL_MEDIA_CHANGED, refreshLocalMedia)
+    return () => window.removeEventListener(LOCAL_MEDIA_CHANGED, refreshLocalMedia)
+  }, [missionId, refreshMedia])
+  // Controller-only files need a local rescan even when the backend version
+  // did not change while this window was in the background.
+  useEffect(() => {
+    const refreshVisible = () => { if (!document.hidden) refreshMedia() }
+    window.addEventListener('focus', refreshVisible)
+    return () => window.removeEventListener('focus', refreshVisible)
+  }, [refreshMedia])
 
   useEffect(() => {
     const generation = ++requestGeneration.current
@@ -100,13 +143,11 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
     setLoading(true)
     setError(false)
     void refresh()
-    const timer = window.setInterval(() => void refresh(), 5000)
 
     return () => {
       requestGeneration.current += 1
-      window.clearInterval(timer)
     }
-  }, [missionAliases, missionId, reloadKey, t.mediaPanel.loadFailed])
+  }, [missionAliases, missionId, reloadKey])
 
   const imageCount = items.filter((item) => item.mediaType === 'IMAGE').length
   const videoCount = items.filter((item) => item.mediaType === 'VIDEO').length
@@ -154,7 +195,7 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
           className={`captured-media__refresh${refreshing ? ' is-refreshing' : ''}`}
           aria-label={t.mediaPanel.refresh}
           title={t.mediaPanel.refresh}
-          onClick={() => setReloadKey((key) => key + 1)}
+          onClick={refreshMedia}
           disabled={refreshing}
         >
           <span aria-hidden="true">↻</span>
@@ -165,7 +206,7 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
         key={missionId}
         missionId={missionId}
         missionStatus={mission.state}
-        onUploaded={() => setReloadKey((key) => key + 1)}
+        onUploaded={mediaChanged}
       />
       <div
         className="captured-media__filters"
@@ -238,7 +279,7 @@ function MissionCapturedMediaContent({ mission }: { mission: Mission }) {
               key={item.localMediaId}
               item={item}
               canRemove={canRemove}
-              onRemoved={() => setReloadKey(key => key + 1)}
+              onRemoved={mediaChanged}
               locale={locale}
               imageLabel={t.mediaPanel.image}
               videoLabel={t.mediaPanel.video}

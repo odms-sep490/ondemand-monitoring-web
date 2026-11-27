@@ -1,3 +1,4 @@
+import { inspectionCorrectionApi } from '../inspection/inspectionCorrectionApi'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   fireEvent,
@@ -61,6 +62,29 @@ const props = {
 afterEach(() => vi.restoreAllMocks())
 
 describe('MonitoringChecklistSection', () => {
+  it.each([true, false])('only shows the initial loading message without existing data (compact=%s)', (compact) => {
+    const view = render(<MonitoringChecklistSection {...props} compact={compact} loading data={undefined} />)
+    expect(screen.getByText(/Đang tải danh sách kiểm tra/)).toBeInTheDocument()
+    view.rerender(<MonitoringChecklistSection {...props} compact={compact} loading />)
+    expect(screen.queryByText(/Đang tải danh sách kiểm tra/)).toBeNull()
+    expect(screen.getByText(item.content)).toBeInTheDocument()
+  })
+
+  it('keeps the expanded checklist mounted when background refresh temporarily hides correction controls', async () => {
+    vi.spyOn(inspectionCorrectionApi, 'list').mockResolvedValue([])
+    const view = render(<MonitoringChecklistSection {...props} compact />)
+    const row = view.container.querySelector('.mc-row')!
+    const detail = view.container.querySelector('.mc-detail')!
+    expect(detail).not.toBeNull()
+    view.rerender(<MonitoringChecklistSection {...props} compact loading resultKnown={false} />)
+    expect(screen.queryByText(/Đang tải danh sách kiểm tra/)).toBeNull()
+    expect(view.container.querySelector('.mc-row')).toBe(row)
+    expect(view.container.querySelector('.mc-detail')).toBe(detail)
+    view.rerender(<MonitoringChecklistSection {...props} compact />)
+    expect(view.container.querySelector('.mc-detail')).toBe(detail)
+    await waitFor(() => expect(inspectionCorrectionApi.list).toHaveBeenCalled())
+  })
+
   it('renders all accepted guidance sections from the mission response without edit controls', () => {
     render(
       <MonitoringChecklistSection
@@ -352,7 +376,7 @@ describe('MonitoringChecklistSection', () => {
         { loading: true },
         { error: new Error('reload failed') },
       ])(
-        'does not expose stale capability during unknown/error/loading state %j',
+        'blocks mutations during unknown/error/loading state %j',
         (state) => {
           render(
             <MonitoringChecklistSection
@@ -370,7 +394,8 @@ describe('MonitoringChecklistSection', () => {
               }}
             />,
           )
-          expect(selectionButton()).toBeNull()
+          if ('resultKnown' in state) expect(selectionButton()).toBeNull()
+          else expect(selectionButton()).toBeDisabled()
         },
       )
     },

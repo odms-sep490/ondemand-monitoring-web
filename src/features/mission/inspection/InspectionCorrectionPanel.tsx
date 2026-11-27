@@ -1,3 +1,4 @@
+import { useMissionWorkspaceUpdates } from '../realtime/useMissionWorkspaceUpdates'
 import { SupplementInspectionResult } from './SupplementInspectionResult'
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Button, Input, Tag, Radio } from 'antd'
@@ -51,8 +52,6 @@ function CorrectionContent({
     [error, setError] = useState<string | null>(null)
   const [resultRefresh, setResultRefresh] = useState(0)
   const [mode, setMode] = useState<CorrectionMode>('DOSSIER_ADJUSTMENT')
-  const refreshRef = useRef(refresh)
-  refreshRef.current = refresh
   const command = useRef(crypto.randomUUID())
   const active = query.data?.find((row) => row.status !== 'RESOLVED')
   const reviewAttempt = useRef('')
@@ -103,12 +102,7 @@ function CorrectionContent({
   const reasonFor = (row: MissionChecklistExecution) =>
     reasons[`${row.id}:${row.version}`] ?? row.assessmentNote ?? ''
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (!document.hidden) { query.reload(); refreshRef.current?.() }
-    }, 15000)
-    return () => clearInterval(timer)
-  }, [query.reload])
+  useMissionWorkspaceUpdates(missionId, ['corrections'], query.reload)
   async function act(operation: () => Promise<unknown>) {
     if (busy || query.loading) return
     setBusy(true)
