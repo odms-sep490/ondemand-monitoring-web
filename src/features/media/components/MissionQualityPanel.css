@@ -21,6 +21,16 @@
   padding: 14px 18px 16px;
 }
 
+.mission-quality-panel.is-collapsed > .ant-card-head {
+  min-height: 40px;
+  padding: 0 12px;
+  border-bottom: 0;
+}
+
+.mission-quality-panel.is-collapsed > .ant-card-body {
+  display: none;
+}
+
 .mission-quality-content {
   display: flex;
   flex-direction: column;
@@ -34,10 +44,8 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 10px 14px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  padding: 0 0 12px;
+  border-bottom: 1px solid #edf2f7;
 }
 
 .mission-quality-panel .mission-quality-summary {
@@ -54,10 +62,10 @@
 .mq-stat-pill {
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  border: 1px solid #cbd5e1;
+  min-height: 32px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: 1px solid transparent;
   background: #ffffff;
   color: #334155;
   font-size: 12px;
@@ -97,6 +105,10 @@
   color: #b91c1c;
 }
 
+.mq-stat-pill[aria-pressed='true'] {
+  box-shadow: inset 0 -2px 0 currentColor;
+}
+
 .mq-stat-pill:focus-visible {
   outline: 2px solid #1565e8;
   outline-offset: 2px;
@@ -111,8 +123,15 @@
 }
 
 .mission-quality-panel .image-quality-actions .ant-select {
-  width: 148px;
+  width: 160px;
 }
+.mission-quality-panel .image-quality-actions .ant-btn {
+  height: 32px;
+  border-radius: 7px;
+  box-shadow: none;
+}
+.mission-quality-panel .image-quality-actions .ant-btn-icon-only { width: 32px; }
+
 
 .mission-quality-compact-alert {
   padding: 8px 12px;
@@ -218,13 +237,17 @@
   .mission-quality-panel > .ant-card-body {
     padding: 12px;
   }
+  .mission-quality-toolbar { gap: 10px; }
   .mission-quality-panel .image-quality-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32px;
     width: 100%;
     margin-left: 0;
   }
   .mission-quality-panel .image-quality-actions .ant-select {
-    flex: 1;
-    min-width: 120px;
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
   }
   .mission-quality-panel .mission-quality-row {
     gap: 10px;

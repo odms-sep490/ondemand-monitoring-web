@@ -8,6 +8,8 @@ import {
   QuestionCircleFilled,
   LoadingOutlined,
   FileImageOutlined,
+  ReloadOutlined,
+  ScanOutlined,
 } from '@ant-design/icons'
 import { apiRequest } from '../../../shared/api/httpClient'
 import { missionApi } from '../../mission/api/missionApi'
@@ -217,9 +219,9 @@ function Panel({
   if (canReview !== true) return null
 
   return (
-    <Card className="mission-quality-panel" size="small" title="Kiểm duyệt chất lượng ảnh" extra={
+    <Card className={`mission-quality-panel${open ? '' : ' is-collapsed'}`} size="small" title="Kiểm duyệt chất lượng ảnh" extra={
       <Button size="small" aria-expanded={open} onClick={() => setOpen(value => !value)}>
-        {open ? 'Thu gọn' : 'Mở kiểm tra chất lượng AI'}
+        {open ? 'Thu gọn' : 'Mở kiểm duyệt'}
       </Button>
     }>
       {open && (
@@ -229,6 +231,7 @@ function Panel({
               <button
                 type="button"
                 className={`mq-stat-pill${filter === 'ALL' ? ' is-active' : ''}`}
+                aria-pressed={filter === 'ALL'}
                 onClick={() => setFilter('ALL')}
               >
                 {`Tổng ảnh: ${rows.length}`}
@@ -237,6 +240,7 @@ function Panel({
                 <button
                   type="button"
                   className={`mq-stat-pill is-pass${filter === 'PASS' ? ' is-active' : ''}`}
+                  aria-pressed={filter === 'PASS'}
                   onClick={() => setFilter(filter === 'PASS' ? 'ALL' : 'PASS')}
                 >
                   {`Đạt: ${passCount}`}
@@ -246,6 +250,7 @@ function Panel({
                 <button
                   type="button"
                   className={`mq-stat-pill is-review${filter === 'REVIEW_REQUIRED' ? ' is-active' : ''}`}
+                  aria-pressed={filter === 'REVIEW_REQUIRED'}
                   onClick={() => setFilter(filter === 'REVIEW_REQUIRED' ? 'ALL' : 'REVIEW_REQUIRED')}
                 >
                   {`Xem lại: ${reviewCount}`}
@@ -255,6 +260,7 @@ function Panel({
                 <button
                   type="button"
                   className={`mq-stat-pill is-fail${filter === 'FAIL' ? ' is-active' : ''}`}
+                  aria-pressed={filter === 'FAIL'}
                   onClick={() => setFilter(filter === 'FAIL' ? 'ALL' : 'FAIL')}
                 >
                   {`Không đạt: ${failCount}`}
@@ -264,6 +270,7 @@ function Panel({
                 <button
                   type="button"
                   className={`mq-stat-pill is-error${filter === 'FAILED' ? ' is-active' : ''}`}
+                  aria-pressed={filter === 'FAILED'}
                   onClick={() => setFilter(filter === 'FAILED' ? 'ALL' : 'FAILED')}
                 >
                   {`Lỗi: ${errorCount}`}
@@ -273,6 +280,7 @@ function Panel({
                 <button
                   type="button"
                   className={`mq-stat-pill${filter === 'UNCHECKED' ? ' is-active' : ''}`}
+                  aria-pressed={filter === 'UNCHECKED'}
                   onClick={() => setFilter(filter === 'UNCHECKED' ? 'ALL' : 'UNCHECKED')}
                 >
                   {`Chờ: ${uncheckedCount}`}
@@ -281,12 +289,8 @@ function Panel({
             </div>
 
             <div className="image-quality-actions">
-              <Button type="primary" size="small" loading={busy} onClick={() => void batch()}>
-                Kiểm tra tất cả
-              </Button>
-              <Button size="small" onClick={() => void load()}>Tải lại</Button>
               <Select
-                size="small"
+                size="middle"
                 aria-label="Lọc chất lượng ảnh"
                 value={filter}
                 onChange={setFilter}
@@ -299,6 +303,12 @@ function Panel({
                   ['UNCHECKED', 'Chưa kiểm tra'],
                 ].map(([value, label]) => ({ value, label }))}
               />
+              <Button type="primary" size="small" icon={<ScanOutlined />} loading={busy} onClick={() => void batch()}>
+                Kiểm tra tất cả
+              </Button>
+              <Tooltip title="Tải lại danh sách">
+                <Button size="small" icon={<ReloadOutlined />} aria-label="Tải lại" onClick={() => void load()} />
+              </Tooltip>
             </div>
           </div>
 
