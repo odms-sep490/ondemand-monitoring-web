@@ -65,6 +65,7 @@ const busyScheduleApiRoutes = parseRealApiRoutes(
 const realApiRoutes = [
   ...parseRealApiRoutes(import.meta.env.VITE_REAL_API_ROUTES),
   ...parseRealApiRoutes('GET /api/manager/missions/*/financial-summary'),
+  ...parseRealApiRoutes('GET /api/missions/*/workspace-version'),
   ...staffLicenseApiRoutes,
   ...depositRefundApiRoutes,
   ...busyScheduleApiRoutes,

@@ -1,3 +1,4 @@
+import { missionWorkspaceMutation } from '../realtime/missionWorkspaceMutation'
 import { apiRequest } from '../../../shared/api/httpClient'
 import type {
   ContentAssessment,
@@ -30,7 +31,9 @@ export const checklistEvidenceApi = {
     executionId: string,
     body: CustomerEvidenceSelectionRequest,
   ) =>
-    apiRequest<MissionChecklistEvidence[]>(
+    missionWorkspaceMutation<MissionChecklistEvidence[]>(
+      missionId,
+      ['checklist'],
       `${root(missionId)}/checklist-executions/${encodeURIComponent(executionId)}/customer-selection`,
       { method: 'PUT', body },
     ),
@@ -45,7 +48,9 @@ export const checklistEvidenceApi = {
     mediaId: string,
     expectedVersion: number,
   ) =>
-    apiRequest<MissionChecklistEvidence[]>(
+    missionWorkspaceMutation<MissionChecklistEvidence[]>(
+      missionId,
+      ['checklist'],
       `${root(missionId)}/checklist-executions/${encodeURIComponent(executionId)}/evidence/${encodeURIComponent(mediaId)}`,
       { method: 'PUT', body: { expectedVersion } },
     ),
@@ -54,7 +59,9 @@ export const checklistEvidenceApi = {
     mediaId: string,
     targets: { executionId: string; expectedVersion: number }[],
   ) =>
-    apiRequest<MissionChecklistEvidence[]>(
+    missionWorkspaceMutation<MissionChecklistEvidence[]>(
+      missionId,
+      ['checklist'],
       `${root(missionId)}/checklist-evidence/batch`,
       { method: 'POST', body: { mediaId, targets } },
     ),
@@ -64,7 +71,9 @@ export const checklistEvidenceApi = {
     evidenceId: string,
     expectedVersion: number,
   ) =>
-    apiRequest<void>(
+    missionWorkspaceMutation<void>(
+      missionId,
+      ['checklist'],
       `${root(missionId)}/checklist-executions/${encodeURIComponent(executionId)}/evidence/${encodeURIComponent(evidenceId)}`,
       { method: 'DELETE', query: { expectedVersion } },
     ),

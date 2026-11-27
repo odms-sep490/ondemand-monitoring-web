@@ -1,3 +1,4 @@
+import { missionWorkspaceMutation } from '../realtime/missionWorkspaceMutation'
 import { apiRequest } from '../../../shared/api/httpClient'
 import type {
   ChecklistExecutionUpdateRequest,
@@ -16,7 +17,9 @@ export const checklistExecutionApi = {
     executionId: string,
     body: ChecklistExecutionUpdateRequest,
   ) =>
-    apiRequest<MissionChecklistExecution>(
+    missionWorkspaceMutation<MissionChecklistExecution>(
+      missionId,
+      ['checklist'],
       `${path(missionId)}/${encodeURIComponent(executionId)}`,
       { method: 'PATCH', body },
     ),
