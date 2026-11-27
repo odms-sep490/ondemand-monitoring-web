@@ -824,7 +824,12 @@
   margin-top: 0;
   border-radius: 8px;
 }
-.mc-detail .odm-cg[open] {
+/* Collapsed guidance sizes to its summary, without inline-size containment. */
+.mc-detail details.odm-cg:not([open]) {
+  container-type: normal;
+}
+.mc-detail .odm-cg[open],
+.mc-detail .odm-cg-static {
   width: 100%;
 }
 .mc-detail .odm-cg > summary {
