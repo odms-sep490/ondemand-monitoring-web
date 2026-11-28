@@ -83,7 +83,7 @@ describe('InFlightControl', () => {
         onAutoStartPlanConsumed={vi.fn()}
       />,
     )
-    expect(screen.getByText('Phi công drone')).toBeInTheDocument()
+    expect(screen.getByText('Phi công thiết bị')).toBeInTheDocument()
     expect(screen.getByText('Đang chờ GPS từ PX4')).toBeInTheDocument()
   })
 

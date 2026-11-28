@@ -1,7 +1,9 @@
 import { useStaffLocalEvidence } from '../../../../media/upload/useStaffLocalEvidence'
 import { evidenceQueueFeedback } from '../../../../media/i18n/evidenceQueueFeedback'
 import { loadStaffEvidenceCandidates } from '../../../../media/upload/loadStaffEvidenceCandidates'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useAuthSession } from '../../../../auth/hooks/useAuthSession'
+import { notifyFlightLocalMediaChanged } from './MissionCapturedMediaPanel'
 import type { Mission } from '../../../types/omss'
 import { useI18n } from '../../../../../shared/i18n'
 import { useMissionMonitoring } from '../../../../mission/hooks/useMissionMonitoring'
@@ -36,15 +38,23 @@ function formatScheduledAt(value: string | undefined, locale: string) {
       }).format(date)
 }
 
-export function MissionChecklistPanel({
-  mission,
-  progress,
-  onChecklistChanged,
-}: {
+type MissionChecklistPanelProps = {
   mission: Mission
   progress: number
   onChecklistChanged?: () => void
-}) {
+}
+
+export function MissionChecklistPanel(props: MissionChecklistPanelProps) {
+  const { user, sessionKey } = useAuthSession()
+  const missionId = props.mission.backendId ?? props.mission.id
+  return <MissionChecklistContent key={`${sessionKey}:${user?.id ?? 'anonymous'}:${missionId}`} {...props} />
+}
+
+function MissionChecklistContent({
+  mission,
+  progress,
+  onChecklistChanged,
+}: MissionChecklistPanelProps) {
   const { t, locale } = useI18n(inFlightControlMessages)
   const missionId = mission.backendId ?? mission.id
   const missionAliases = useMemo(
@@ -53,6 +63,11 @@ export function MissionChecklistPanel({
   )
   const monitoring = useMissionMonitoring(missionId)
   const localEvidence = useStaffLocalEvidence(missionId, missionAliases, monitoring.error ? undefined : monitoring.data?.checklist)
+  // A new evidence ID requires a local-source lookup. Keep the existing rows
+  // mounted until it resolves, without carrying them across users or Missions.
+  const previousEvidence = useRef<typeof localEvidence.data>(undefined)
+  if (localEvidence.data?.missionId === missionId) previousEvidence.current = localEvidence.data
+  const checklistData = previousEvidence.current
   const canUploadMedia =
     !monitoring.error && monitoring.data?.checklist.missionId === missionId &&
     monitoring.data.permissions.canUploadMedia === true
@@ -89,15 +104,18 @@ export function MissionChecklistPanel({
     .filter((job) => job.stage === 'DONE' || job.stage === 'FAILED')
     .map((job) => `${job.id}:${job.stage}`)
     .join('|')
+  const refreshCallbacks = useRef({ reload: monitoring.reload, onChecklistChanged })
+  refreshCallbacks.current = { reload: monitoring.reload, onChecklistChanged }
   useEffect(() => {
     if (!finishedEvidenceJobs) return
-    void monitoring.reload()
-    onChecklistChanged?.()
-  }, [finishedEvidenceJobs, monitoring.reload, onChecklistChanged])
+    refreshCallbacks.current.reload()
+    refreshCallbacks.current.onChecklistChanged?.()
+    notifyFlightLocalMediaChanged(missionId)
+  }, [finishedEvidenceJobs, missionId])
   const refreshChecklist = useCallback(() => {
-    monitoring.reload()
-    onChecklistChanged?.()
-  }, [monitoring.reload, onChecklistChanged])
+    refreshCallbacks.current.reload()
+    refreshCallbacks.current.onChecklistChanged?.()
+  }, [])
   const visibleEvidenceJobs = evidenceQueue.jobs.filter(
     (job) => job.stage !== 'DONE',
   )
@@ -194,7 +212,7 @@ export function MissionChecklistPanel({
       >
         <MonitoringChecklistSection
           missionId={missionId}
-          data={localEvidence.data}
+          data={checklistData}
           loading={monitoring.loading || localEvidence.loading}
           error={monitoring.error}
           canExecute={

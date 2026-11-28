@@ -10,6 +10,7 @@ import {
 import { ApiError } from '../../../shared/api/httpClient'
 import { setLanguage } from '../../../shared/i18n'
 import { checklistEvidenceApi } from '../api/checklistEvidenceApi'
+import { MonitoringChecklistSection } from './MonitoringChecklistSection'
 import { ChecklistEvidencePanel } from './ChecklistEvidencePanel'
 import { CustomerEvidenceSelection } from './CustomerEvidenceSelection'
 import type {
@@ -118,6 +119,155 @@ describe('inspector delivery suggestions', () => {
     return { promise, resolve }
   }
 
+  it.each([true, false])(
+    'preserves AI results and draft choices during background refresh (compact=%s)',
+    async (compact) => {
+      setLanguage('en')
+      vi.spyOn(checklistEvidenceApi, 'getDeliverySuggestion').mockResolvedValue(
+        { ...result, contentAssessmentAvailable: true },
+      )
+      const pending = pendingAssessment()
+      const assess = vi
+        .spyOn(checklistEvidenceApi, 'assessImageContent')
+        .mockReturnValue(pending.promise)
+      const save = vi.spyOn(checklistEvidenceApi, 'selectForCustomer')
+      const refresh = vi.fn()
+      const props = {
+        missionId: 'm',
+        data: {
+          missionId: 'm',
+          legacySnapshot: false,
+          readyForSubmission: false,
+          executions: [item],
+        },
+        resultStatus: 'DRAFT' as const,
+        canAssess: true,
+        canSelectForCustomer: true,
+        assessmentOnly: true,
+        hideWorkflowPanels: true,
+        compact,
+        refresh,
+      }
+      const view = render(
+        <MonitoringChecklistSection {...props} loading={false} />,
+      )
+      fireEvent.click(
+        view.container.querySelector<HTMLButtonElement>(
+          '.mc-row[aria-expanded="false"]',
+        )!,
+      )
+      fireEvent.click(screen.getByRole('checkbox', { name: /one.jpg/ }))
+      fireEvent.click(screen.getByRole('button', { name: requestName }))
+      const select = await screen.findByRole('combobox', {
+        name: 'Image to assess',
+      })
+      fireEvent.change(select, { target: { value: 'pending' } })
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Assess image content' }),
+      )
+      view.rerender(<MonitoringChecklistSection {...props} loading />)
+      expect(select).toBeInTheDocument()
+      expect(select).toBeDisabled()
+      await act(async () => {
+        pending.resolve(assessment)
+      })
+      expect(await screen.findByText('Content assessment')).toBeVisible()
+      view.rerender(
+        <MonitoringChecklistSection
+          {...props}
+          loading={false}
+          data={structuredClone(props.data)}
+        />,
+      )
+      expect(screen.getByRole('combobox', { name: 'Image to assess' })).toBe(
+        select,
+      )
+      expect(select).toHaveValue('pending')
+      expect(select).not.toBeDisabled()
+      expect(screen.getByRole('checkbox', { name: /one.jpg/ })).toBeChecked()
+      view.rerender(
+        <MonitoringChecklistSection
+          {...props}
+          loading={false}
+          error={new Error('offline')}
+        />,
+      )
+      expect(screen.getByText('Content assessment')).toBeVisible()
+      expect(select).toBeDisabled()
+      view.rerender(<MonitoringChecklistSection {...props} loading={false} />)
+      expect(screen.getByText('Content assessment')).toBeVisible()
+      expect(assess).toHaveBeenCalledTimes(1)
+      expect(save).not.toHaveBeenCalled()
+      // A real revision change must still invalidate the old suggestion and assessment.
+      view.rerender(
+        <MonitoringChecklistSection
+          {...props}
+          loading={false}
+          data={{
+            ...props.data,
+            executions: [{ ...item, version: item.version + 1 }],
+          }}
+        />,
+      )
+      expect(screen.queryByText('Content assessment')).toBeNull()
+    },
+  )
+
+  it.each(['vi', 'en'] as const)(
+    'requests and displays assessment in the active %s language',
+    async (lang) => {
+      setLanguage(lang)
+      const label = lang === 'vi' ? 'Mặt ngoài công trình' : 'Building exterior'
+      const observation =
+        lang === 'vi'
+          ? 'Ảnh thể hiện rõ mặt ngoài công trình.'
+          : 'The building exterior is clearly visible.'
+      vi.spyOn(checklistEvidenceApi, 'getDeliverySuggestion').mockResolvedValue(
+        { ...result, contentAssessmentAvailable: true },
+      )
+      const assess = vi
+        .spyOn(checklistEvidenceApi, 'assessImageContent')
+        .mockResolvedValue({
+          ...assessment,
+          verdict: 'MATCH',
+          criteria: [
+            { code: 'EXTERIOR', label, verdict: 'MATCH', observation },
+          ],
+        })
+      render(
+        <CustomerEvidenceSelection
+          missionId="m"
+          item={item}
+          refresh={vi.fn()}
+        />,
+      )
+      fireEvent.click(
+        screen.getByRole('button', {
+          name: lang === 'vi' ? 'Lấy gợi ý ảnh từ AI' : requestName,
+        }),
+      )
+      const select = await screen.findByRole('combobox', {
+        name: lang === 'vi' ? 'Ảnh cần đánh giá' : 'Image to assess',
+      })
+      fireEvent.change(select, { target: { value: 'pending' } })
+      fireEvent.click(
+        screen.getByRole('button', {
+          name:
+            lang === 'vi' ? 'Đánh giá nội dung ảnh' : 'Assess image content',
+        }),
+      )
+      expect(await screen.findByText(observation)).toBeVisible()
+      expect(screen.getByText(new RegExp(label))).toBeVisible()
+      expect(assess).toHaveBeenCalledWith(
+        'm',
+        'e',
+        'pending',
+        { expectedVersion: 7, language: lang },
+        expect.any(AbortSignal),
+      )
+    },
+  )
+
   it.each([undefined, false])(
     'hides assessment when availability is %s',
     async (available) => {
@@ -162,7 +312,10 @@ describe('inspector delivery suggestions', () => {
           evidence: [
             evidence('one'),
             { ...evidence('two'), previewUrl: '/two-preview.jpg' },
-            { ...evidence('pending', false), thumbnailUrl: '/pending-thumb.jpg' },
+            {
+              ...evidence('pending', false),
+              thumbnailUrl: '/pending-thumb.jpg',
+            },
             evidence('unlisted'),
             { ...evidence('clip'), mediaType: 'VIDEO', fileName: 'clip.mp4' },
           ],
@@ -193,7 +346,9 @@ describe('inspector delivery suggestions', () => {
     expect(assess).not.toHaveBeenCalled()
     fireEvent.change(select, { target: { value: 'pending' } })
     expect(
-      screen.getByRole('img', { name: 'Selected image preview for pending.jpg' }),
+      screen.getByRole('img', {
+        name: 'Selected image preview for pending.jpg',
+      }),
     ).toHaveAttribute('src', '/pending-thumb.jpg')
     fireEvent.click(button)
     fireEvent.click(button)
@@ -211,7 +366,9 @@ describe('inspector delivery suggestions', () => {
     expect(screen.getByText('Uncertain')).toBeVisible()
     expect(screen.getByText('Viewing angle · Mismatch')).toBeVisible()
     expect(
-      screen.getByText(assessment.criteria[0].observation).querySelector('strong'),
+      screen
+        .getByText(assessment.criteria[0].observation)
+        .querySelector('strong'),
     ).toBeNull()
     expect(image).toBeChecked()
     expect(video).toBeChecked()
@@ -233,8 +390,18 @@ describe('inspector delivery suggestions', () => {
     ],
     ['CONCURRENT_UPDATE', 409, /Hãy lấy gợi ý ảnh mới/, true],
     ['OTHER_CONFLICT', 409, /Bạn vẫn có thể tự chọn bằng chứng/, false],
-    ['RATE_LIMITED', 429, /Có quá nhiều yêu cầu đánh giá. Hãy thử lại sau/, false],
-    ['AI_PROVIDER_UNAVAILABLE', 502, /AI đánh giá ảnh hiện không khả dụng/, false],
+    [
+      'RATE_LIMITED',
+      429,
+      /Có quá nhiều yêu cầu đánh giá. Hãy thử lại sau/,
+      false,
+    ],
+    [
+      'AI_PROVIDER_UNAVAILABLE',
+      502,
+      /AI đánh giá ảnh hiện không khả dụng/,
+      false,
+    ],
     [
       'CHECKLIST_IMAGE_ASSESSMENT_DISABLED',
       409,

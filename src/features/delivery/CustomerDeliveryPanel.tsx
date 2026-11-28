@@ -1,5 +1,5 @@
 import { VideoThumbnail } from '../../shared/components/media/VideoThumbnail'
-import { CheckCircleFilled, DownloadOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, DownloadOutlined, FileImageOutlined, PictureOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import {
   Alert,
   Button,
@@ -29,6 +29,7 @@ import { getActionableHandedOverMilestones } from '../finance/missionMilestoneUt
 import type { MissionPaymentAllocation } from '../finance/types'
 import { DeliveryMissionPaymentCard } from './DeliveryMissionPaymentCard'
 import './delivery.css'
+import './CustomerDeliveryPanel.css'
 import { MissionDeliveryTabs } from './MissionDeliveryTabs'
 
 type CustomerDeliveryPanelProps = {
@@ -355,7 +356,7 @@ function ScopedCustomerDeliveryPanel({
     return (
       <section
         id="customer-delivery-panel"
-        className="ui-card delivery-shell delivery-customer delivery-empty-state"
+        className="ui-card delivery-shell delivery-customer delivery-customer-results delivery-empty-state"
         aria-labelledby="delivery-title"
         aria-busy={loadState === 'loading'}
         tabIndex={-1}
@@ -363,6 +364,7 @@ function ScopedCustomerDeliveryPanel({
         {notificationHolder}
         <header className="delivery-hero">
           <div className="delivery-hero__copy">
+          <span className="delivery-customer-results__icon" aria-hidden="true"><FileImageOutlined /></span>
             <span className="delivery-eyebrow">{t.eyebrow}</span>
             <h2 id="delivery-title">{t.title}</h2>
             <p>{t.subtitle}</p>
@@ -402,6 +404,8 @@ function ScopedCustomerDeliveryPanel({
   const downloadableCount = delivery.assets.filter(
     (asset) => asset.downloadable,
   ).length
+  const imageCount = delivery.assets.filter(asset => asset.type.toUpperCase().includes('IMAGE')).length
+  const videoCount = delivery.assets.filter(asset => asset.type.toUpperCase().includes('VIDEO')).length
   const hasAssets = delivery.assets.length > 0
   const isDelivered = delivery.deliveryStatus === 'DELIVERED'
   const allOriginalsAvailable =
@@ -416,7 +420,7 @@ function ScopedCustomerDeliveryPanel({
   return (
     <section
       id="customer-delivery-panel"
-      className="ui-card delivery-shell delivery-customer"
+      className="ui-card delivery-shell delivery-customer delivery-customer-results"
       aria-labelledby="delivery-title"
       aria-busy={loadState === 'loading'}
       tabIndex={-1}
@@ -424,6 +428,7 @@ function ScopedCustomerDeliveryPanel({
       {notificationHolder}
       <header className="delivery-hero">
         <div className="delivery-hero__copy">
+          <span className="delivery-customer-results__icon" aria-hidden="true"><FileImageOutlined /></span>
           <span className="delivery-eyebrow">{t.eyebrow}</span>
           <h2 id="delivery-title">{t.title}</h2>
           <p>{t.subtitle}</p>
@@ -493,9 +498,6 @@ function ScopedCustomerDeliveryPanel({
                   <CheckCircleFilled />
                 </span>
                 <div className="delivery-complete-card__copy">
-                  <span className="delivery-complete-card__eyebrow">
-                    {t.deliveredEyebrow}
-                  </span>
                   <strong>{t.deliveredTitle}</strong>
                   <p>{t.deliveredText(delivery.assets.length)}</p>
                 </div>
@@ -555,6 +557,10 @@ function ScopedCustomerDeliveryPanel({
                       )
                     : t.badgePreview}
               </span>
+            </div>
+            <div className="delivery-customer-results__counts" aria-label={t.mediaSummary}>
+              <span><PictureOutlined aria-hidden="true" />{t.imageCount(imageCount)}</span>
+              <span><VideoCameraOutlined aria-hidden="true" />{t.videoCount(videoCount)}</span>
             </div>
             <div className="delivery-grid">
               {delivery.assets.map((asset, index) => {

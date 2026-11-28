@@ -1,3 +1,4 @@
+import { useMissionWorkspaceUpdates } from '../realtime/useMissionWorkspaceUpdates'
 import { useEffect, useState } from 'react'
 import { Alert, Button, Input, Tag } from 'antd'
 import {
@@ -86,12 +87,7 @@ function CorrectionWorkspace({ missionId }: { missionId: string }) {
     query.reload()
     monitoring.reload()
   }
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (!document.hidden && !workspaceBusy && !busy) query.reload()
-    }, 15000)
-    return () => clearInterval(timer)
-  }, [query.reload, workspaceBusy, busy])
+  useMissionWorkspaceUpdates(missionId, ['corrections'], query.reload)
   async function decide(
     action: 'resubmit' | 'require-flight',
   ) {

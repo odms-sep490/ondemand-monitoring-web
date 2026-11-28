@@ -7,6 +7,7 @@ import { PostflightCompletedView } from './PostflightCompletedView'
 
 const testState = vi.hoisted(() => ({
   reviewData: null as unknown,
+  backgroundLoading: false,
   monitoringData: null as unknown,
   submitMissionResult: vi.fn(),
   canComplete: false,
@@ -16,6 +17,7 @@ vi.mock('../../../../mission/api/missionApi', () => ({
   missionApi: {
     completeMission: vi.fn(),
     failMission: vi.fn(),
+    getPermissions: vi.fn().mockResolvedValue({ canReviewMissionMedia: false }),
     submitMissionResult: testState.submitMissionResult,
   },
 }))
@@ -23,7 +25,7 @@ vi.mock('../../../../mission/api/missionApi', () => ({
 vi.mock('../../../../mission/hooks/useMissionMonitoring', () => ({
   useMissionMonitoring: () => ({
     data: testState.monitoringData as never,
-    loading: false,
+    loading: testState.backgroundLoading,
     error: null,
     reload: vi.fn(),
   }),
@@ -32,7 +34,7 @@ vi.mock('../../../../mission/hooks/useMissionMonitoring', () => ({
 vi.mock('../usePostflightReviewData', () => ({
   usePostflightReviewData: () => ({
     data: testState.reviewData as never,
-    loading: false,
+    loading: testState.backgroundLoading,
     error: null,
     reload: vi.fn(),
   }),
@@ -56,6 +58,7 @@ vi.mock('../../../../mission/components/MonitoringChecklistSection', () => ({
 
 describe('PostflightCompletedView', () => {
   beforeEach(() => {
+    testState.backgroundLoading = false
     testState.canComplete = false
     vi.mocked(missionApi.completeMission).mockReset()
     testState.submitMissionResult.mockReset()
@@ -114,6 +117,21 @@ describe('PostflightCompletedView', () => {
       result: null,
     }
     act(() => setLanguage('vi'))
+  })
+
+  it('keeps tab summaries and content stable while refreshing existing data', () => {
+    const element = <PostflightCompletedView inspectionOnly missionId="mission-1" missionLabel="MS-1"
+      completed={{ overallOk: true, ticketCreated: false, droneStatus: 'AVAILABLE' }}
+      deviceId="d" inspectionResults={null} notes="" telemetrySnapshot={null} />
+    const view = render(element)
+    const tabs = screen.getAllByRole('tab')
+    const summaries = tabs.map(tab => tab.textContent)
+    testState.backgroundLoading = true
+    view.rerender(<PostflightCompletedView inspectionOnly missionId="mission-1" missionLabel="MS-1"
+      completed={{ overallOk: true, ticketCreated: false, droneStatus: 'AVAILABLE' }}
+      deviceId="d" inspectionResults={null} notes="" telemetrySnapshot={null} />)
+    expect(screen.getAllByRole('tab').map(tab => tab.textContent)).toEqual(summaries)
+    expect(screen.getAllByRole('tab')[0]).toBe(tabs[0])
   })
 
   it('confirms inspection without returning to the flight stepper', async () => {

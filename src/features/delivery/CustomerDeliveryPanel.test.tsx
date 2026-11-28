@@ -598,6 +598,9 @@ describe('CustomerDeliveryPanel', () => {
     render(<CustomerDeliveryPanel orderId="o1" />)
 
     expect(await screen.findByText('Bàn giao hoàn tất')).toBeInTheDocument()
+    const counts = screen.getByLabelText('Số lượng ảnh và video')
+    expect(within(counts).getByText('1 ảnh')).toBeInTheDocument()
+    expect(within(counts).getByText('1 video')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Tải tất cả (2 tệp)' }),
     ).toBeInTheDocument()

@@ -309,7 +309,7 @@ export type AiOverviewView = {
 const BASE = '/api/admin/ai-ops'
 
 export type ChecklistVisionResult = {
-  findings: Array<{ code: string; verdict: string; observation: string }>
+  findings: Array<{ code: string; verdict: string; observation: string; label: string }>
 }
 
 export const aiOpsApi = {

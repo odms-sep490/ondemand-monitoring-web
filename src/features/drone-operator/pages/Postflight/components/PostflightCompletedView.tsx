@@ -46,9 +46,7 @@ export function PostflightCompletedView({
 }) {
   const { t, lang } = useI18n(postflightPageMessages)
   const review = usePostflightReviewData(missionId)
-  const monitoring = useMissionMonitoring(missionId, undefined, {
-    autoRefresh: false,
-  })
+  const monitoring = useMissionMonitoring(missionId)
   const [busyAction, setBusyAction] = useState<'complete' | 'send' | 'restore' | 'fail' | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [missionCompletedLocally, setMissionCompletedLocally] = useState(false)
@@ -376,7 +374,7 @@ export function PostflightCompletedView({
     {
       id: 'checklist',
       label: t.reviewTabChecklist,
-      summary: monitoring.loading
+      summary: monitoring.loading && !monitoring.data
         ? t.reviewTabLoading
         : monitoring.error
           ? t.reviewTabNoData
@@ -387,7 +385,7 @@ export function PostflightCompletedView({
     {
       id: 'preflight',
       label: t.reviewTabPreflight,
-      summary: review.loading
+      summary: review.loading && !review.data
         ? t.reviewTabLoading
         : preflight
           ? preflight.items.length
@@ -398,7 +396,7 @@ export function PostflightCompletedView({
     {
       id: 'weather',
       label: t.reviewWeather,
-      summary: review.loading
+      summary: review.loading && !review.data
         ? t.reviewTabLoading
         : currentWeather
           ? currentWeather.safeToFly ? t.reviewPass : t.reviewWarn
@@ -409,7 +407,7 @@ export function PostflightCompletedView({
       label: t.reviewTabPostflight,
       summary: deviceChecks.length > 0
         ? (lang === 'vi' ? `${deviceChecks.length} thiết bị` : `${deviceChecks.length} devices`)
-        : review.loading
+        : review.loading && !review.data
         ? t.reviewTabLoading
         : postflight
           ? postflightItems.length
@@ -420,7 +418,7 @@ export function PostflightCompletedView({
     {
       id: 'media',
       label: t.reviewMedia,
-      summary: review.loading
+      summary: review.loading && !review.data
         ? t.reviewTabLoading
         : t.reviewTabMediaCount(media.length),
     },

@@ -169,12 +169,10 @@ export function MonitoringChecklistSection(props: ComponentProps<typeof Monitori
         props.canAttach ||
         props.canExecute,
     )
-  if (!hasCorrectionPanel) {
-    return <MonitoringChecklistContent {...props} />
-  }
   return (
     <div className="monitoring-inspection-stack">
-      <InspectionCorrectionPanel
+      {hasCorrectionPanel && <InspectionCorrectionPanel
+        key="corrections"
         missionId={props.missionId}
         rows={props.data!.executions}
         canRequest={(props.canReviewCorrections ?? props.canAssess) && props.resultStatus !== 'APPROVED'}
@@ -186,8 +184,8 @@ export function MonitoringChecklistSection(props: ComponentProps<typeof Monitori
             nonce: (prev?.nonce ?? 0) + 1,
           }))
         }
-      />
-      <MonitoringChecklistContent {...props} focusRequest={focusRequest} />
+      />}
+      <MonitoringChecklistContent key="checklist" {...props} focusRequest={focusRequest} />
     </div>
   )
 }
@@ -297,12 +295,12 @@ function MonitoringChecklistContent({
     !error
   const canEditAssessment =
     canAssess && !hideAssessment && resultKnown && !locked && !loading && !error
+  // Keep capability separate from refresh state so AI results and draft choices stay mounted.
+  // The evidence panel blocks mutations while the latest permissions are being fetched.
   const canEditCustomerSelection = (item: MissionChecklistExecution) =>
     !hideAssessment &&
     item.assessmentStatus === 'COMPLIANT' &&
     resultKnown &&
-    !loading &&
-    !error &&
     (item.customerSelectionEditable ??
       (canAssess && canSelectForCustomer && !locked))
   const editable = canEditExecution || canEditAssessment
@@ -364,7 +362,7 @@ function MonitoringChecklistContent({
             }}
           />
         </div>
-        {loading && (
+        {loading && !data && (
           <p role="status" className="mc-note">
             {t.loading}{' '}
           </p>
@@ -377,7 +375,7 @@ function MonitoringChecklistContent({
             </button>
           </div>
         ) : null}
-        {!loading && !error && data ? (
+        {data ? (
           <>
             {resultStatus === 'REJECTED' && (
               <p className="mc-note is-warn">
@@ -508,7 +506,8 @@ function MonitoringChecklistContent({
                       />
                       <ChecklistEvidencePanel
                         inspectionView={assessmentOnly || canAssess || canSelectForCustomer}
-                        canSelectForCustomer={canEditCustomerSelection(item)}
+                      canSelectForCustomer={canEditCustomerSelection(item)}
+                      refreshing={loading || Boolean(error)}
                         missionId={missionId}
                         item={item}
                         canAttach={
@@ -556,7 +555,7 @@ function MonitoringChecklistContent({
           <strong>{t.previewLocked}</strong>
           <span>{t.previewHint} </span>
         </div>
-        {loading && <p role="status">{t.loading}</p>}
+        {loading && !data && <p role="status">{t.loading}</p>}
         {error ? (
           <div role="alert">
             <p>{monitoringErrorMessage(error)}</p>
@@ -611,7 +610,7 @@ function MonitoringChecklistContent({
           {t.reload}{' '}
         </button>
       </header>
-      {loading && <p role="status">{t.loadingResult}</p>}
+      {loading && !data && <p role="status">{t.loadingResult}</p>}
       {error ? (
         <div role="alert">
           <p>{monitoringErrorMessage(error)}</p>
@@ -620,7 +619,7 @@ function MonitoringChecklistContent({
           </button>
         </div>
       ) : null}
-      {!loading && !error && data ? (
+      {data ? (
         <>
           <div
             className={`monitoring-summary${finalReady ? ' is-ready' : ''}`}
@@ -778,6 +777,7 @@ function MonitoringChecklistContent({
                     <ChecklistEvidencePanel
                       inspectionView={assessmentOnly || canAssess || canSelectForCustomer}
                         canSelectForCustomer={canEditCustomerSelection(item)}
+                        refreshing={loading || Boolean(error)}
                       missionId={missionId}
                       item={item}
                       canAttach={

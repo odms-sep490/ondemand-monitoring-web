@@ -3,6 +3,7 @@ import { Button, FormField, Modal } from '../../../../../shared/components/ui'
 import type { Drone, Mission } from '../../../types/omss'
 import { getLanguage, useI18n } from '../../../../../shared/i18n'
 import { useMissionMonitoring } from '../../../../mission/hooks/useMissionMonitoring'
+import { authSession } from '../../../../auth/api/authSession'
 import { inFlightControlMessages } from './InFlightControl.messages'
 import './SatelliteFlightMap.css'
 import { type FlightCommand, type ControlStatus } from '../inFlightTypes'
@@ -30,7 +31,7 @@ import { GpsCockpitView } from './GpsCockpitView'
 import { MissionControlCamera } from './MissionControlCamera'
 import { isConstructionChecklistMission } from '../planHelpers'
 import { MissionChecklistPanel } from './MissionChecklistPanel'
-import { MissionCapturedMediaPanel } from './MissionCapturedMediaPanel'
+import { MissionCapturedMediaPanel, notifyFlightLocalMediaChanged } from './MissionCapturedMediaPanel'
 
 interface Props {
   normalFlightAllowed?: boolean
@@ -100,10 +101,22 @@ export default function InFlightControl({
   const restrictedZones = useRestrictedZones()
   const restrictedGpsZones = useRestrictedGpsZones()
   const missionId = mission.backendId ?? mission.id
+  // Automatic captures finish before the controller advances the waypoint.
+  // Reuse its existing telemetry stream; local-only files have no S3 event yet.
+  useEffect(() => {
+    if (controlStatus?.missionId !== missionId || !controlStatus.autoPlan) return
+    notifyFlightLocalMediaChanged(missionId)
+  }, [missionId, controlStatus?.missionId, controlStatus?.autoPlan?.currentIndex,
+    controlStatus?.autoPlan?.status, controlStatus?.autoPlan?.active])
   useEffect(() => {
     if (mission.failureRequestedAt) setMissionFailureRequested(true)
   }, [mission.failureRequestedAt])
   const completionMonitoring = useMissionMonitoring(missionId)
+  const completionReload = useRef(completionMonitoring.reload)
+  completionReload.current = completionMonitoring.reload
+  // Evidence mutations only revalidate completion; they never replace the
+  // Flight page or reset its camera, map, and control state.
+  const refreshCompletion = useCallback(() => completionReload.current(), [])
   const completionChecklist = completionMonitoring.data?.checklist
   const hasAssignedChecklist =
     (completionChecklist?.executions.length ?? 0) > 0
@@ -150,7 +163,7 @@ export default function InFlightControl({
 
   useControlStatus({ setControlStatus, setIsOnline, setStreamRevision })
 
-  const { sendCommand } = useFlightCommand({
+  const { sendCommand: executeFlightCommand } = useFlightCommand({
     normalFlightAllowed,
     setLastCommand,
     preflightReady,
@@ -163,6 +176,14 @@ export default function InFlightControl({
     onRTB,
     onEmergency,
   })
+  const sendCommand = useCallback(async (...args: Parameters<typeof executeFlightCommand>) => {
+    const [command] = args
+    const session = authSession.capture()
+    await executeFlightCommand(...args)
+    if (command === 'photo' || command === 'video_toggle') {
+      notifyFlightLocalMediaChanged(missionId, session)
+    }
+  }, [executeFlightCommand, missionId])
 
   useCockpitAutomation({
     preflightReady,
@@ -533,7 +554,7 @@ export default function InFlightControl({
           <MissionChecklistPanel
             mission={mission}
             progress={displayedProgress}
-            onChecklistChanged={completionMonitoring.reload}
+            onChecklistChanged={refreshCompletion}
           />
         ) : mediaPanelOpen ? (
           <MissionCapturedMediaPanel mission={mission} />

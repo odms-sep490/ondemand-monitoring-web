@@ -3,6 +3,8 @@ import { defineMessages } from '../../../../../shared/i18n'
 export const orderFeedbackCardMessages = defineMessages({
   vi: {
     title: 'Đánh giá đơn hàng',
+    saved: 'Đã đánh giá',
+    yourComment: 'Nhận xét của bạn',
     intro: 'Bạn đã nghiệm thu kết quả. Hãy cho chúng tôi biết trải nghiệm của bạn.',
     overall: 'Đánh giá chung',
     quality: 'Chất lượng kết quả',
@@ -18,6 +20,8 @@ export const orderFeedbackCardMessages = defineMessages({
   },
   en: {
     title: 'Rate this order',
+    saved: 'Submitted',
+    yourComment: 'Your comment',
     intro: 'You have accepted the result. Tell us how it went.',
     overall: 'Overall rating',
     quality: 'Result quality',

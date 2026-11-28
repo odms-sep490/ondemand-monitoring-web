@@ -166,7 +166,7 @@ describe('Exact Mission result actions', () => {
     monitoring.data!.checklist.readyForFinalApproval = false
     const state = missionResultActions('m1', 'COMPLETED', monitoring)
     expect(state.submitReady).toBe(false)
-    expect(state.readinessReason).toBe('Còn 1 mục checklist chưa hoàn tất.')
+    expect(state.readinessReason).toBe('Còn 1 mục danh mục kiểm tra chưa hoàn tất.')
   })
   it('localizes a stale generic checklist-not-ready submit error', () => {
     expect(

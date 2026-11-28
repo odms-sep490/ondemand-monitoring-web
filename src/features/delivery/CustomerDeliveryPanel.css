@@ -1,0 +1,177 @@
+.delivery-customer-results .delivery-hero {
+  align-items: center;
+  padding: 18px 20px;
+  gap: 16px;
+  background: var(--d-surface);
+}
+.delivery-customer-results .delivery-hero__copy {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 12px;
+}
+.delivery-customer-results__icon {
+  grid-row: 1 / 4;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--d-border);
+  border-radius: 10px;
+  background: var(--d-blue-soft);
+  color: var(--d-blue);
+  font-size: 20px;
+}
+.delivery-customer-results .delivery-eyebrow {
+  display: none;
+}
+.delivery-customer-results .delivery-hero h2 {
+  grid-column: 2;
+  font-size: 18px;
+  line-height: 1.45;
+}
+.delivery-customer-results .delivery-hero p {
+  grid-column: 2;
+  margin: 3px 0 0;
+  font-size: 13px;
+}
+.delivery-customer-results .delivery-status {
+  padding: 5px 10px;
+  font-weight: 600;
+}
+.delivery-customer-results .delivery-status::before {
+  box-shadow: none;
+}
+.delivery-customer-results .delivery-progress {
+  padding: 12px 20px;
+  gap: 12px;
+  background: var(--d-muted-surface);
+}
+.delivery-customer-results .delivery-progress li {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  text-align: left;
+  padding: 0 12px;
+}
+.delivery-customer-results .delivery-progress li:not(:last-child)::after {
+  inset: 3px 0 3px auto;
+  width: 1px;
+  height: auto;
+  background: var(--d-border);
+}
+.delivery-customer-results .delivery-progress__marker {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-width: 1px;
+  font-size: 11px;
+}
+.delivery-customer-results .delivery-content {
+  gap: 18px;
+  padding: 20px;
+}
+.delivery-customer-results .delivery-complete-card {
+  padding: 12px 14px;
+  border-radius: 9px;
+  background: var(--d-surface);
+  border-color: var(--d-border);
+  border-left: 3px solid var(--ui-success);
+}
+.delivery-customer-results .delivery-complete-card__main {
+  gap: 10px;
+}
+.delivery-customer-results .delivery-complete-card__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 17px;
+}
+.delivery-customer-results .delivery-complete-card__copy strong {
+  font-size: 14px;
+  text-transform: none;
+}
+.delivery-customer-results .delivery-section__head {
+  align-items: center;
+  margin-bottom: 0;
+}
+.delivery-customer-results .delivery-section {
+  gap: 10px;
+}
+.delivery-customer-results__counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+.delivery-customer-results__counts > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  box-sizing: border-box;
+  padding: 4px 12px 4px 5px;
+  border: 1px solid color-mix(in srgb, var(--d-blue) 16%, var(--d-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--d-blue-soft) 55%, var(--d-surface));
+  color: var(--d-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.delivery-customer-results__counts > span > .anticon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--d-surface);
+  color: var(--d-blue);
+  font-size: 13px;
+}
+.delivery-customer-results .delivery-grid {
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+}
+.delivery-customer-results .delivery-asset {
+  padding: 9px;
+  gap: 9px;
+  border-radius: 10px;
+}
+.delivery-customer-results .delivery-download,
+.delivery-customer-results .delivery-complete-card > .ant-btn {
+  min-height: 36px;
+  height: auto;
+  border-radius: 7px;
+}
+@media (max-width: 640px) {
+  .delivery-customer-results .delivery-hero {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+  }
+  .delivery-customer-results .delivery-content {
+    padding: 16px;
+  }
+  .delivery-customer-results .delivery-progress {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 12px 16px;
+  }
+  .delivery-customer-results .delivery-progress li {
+    padding: 0;
+  }
+  .delivery-customer-results .delivery-progress li::after {
+    display: none;
+  }
+  .delivery-customer-results .delivery-progress__short {
+    display: none;
+  }
+  .delivery-customer-results .delivery-progress__full {
+    display: inline;
+  }
+}

@@ -1,3 +1,6 @@
+import { useRef } from 'react'
+import { useMissionWorkspaceUpdates } from '../../../mission/realtime/useMissionWorkspaceUpdates'
+import type { WorkspaceComponent } from '../../../mission/realtime/missionWorkspaceUpdates'
 import { useApiQuery } from '../../../../shared/hooks/useApiQuery'
 import { missionApi } from '../../../mission/api/missionApi'
 import type { MissionResultMedia } from '../../../mission/types/mission'
@@ -29,33 +32,82 @@ export type PostflightReviewData = {
 }
 
 export function usePostflightReviewData(missionId: string) {
-  return useApiQuery<PostflightReviewData>(async (signal) => {
-    const [mission, preflight, weather, postflight, media] = await Promise.allSettled([
-      missionApi.getMissionById(missionId, signal),
-      fetchCurrentPersistedPreflight(missionId, signal),
-      fetchLatestWeatherCheck(missionId, signal),
-      fetchLatestPostflightCheck(missionId, signal),
-      missionApi.getMissionMedia(missionId, signal),
-    ])
-    if (signal.aborted) {
-      throw new DOMException('Postflight review request was cancelled', 'AbortError')
-    }
+  const cached = useRef<
+    { missionId: string; data: PostflightReviewData } | undefined
+  >(undefined)
+  const dirty = useRef(new Set<WorkspaceComponent>())
+  const query = useApiQuery<PostflightReviewData>(
+    async (signal) => {
+      const previous =
+        cached.current?.missionId === missionId
+          ? cached.current.data
+          : undefined
+      const all =
+        !previous ||
+        dirty.current.size === 0 ||
+        Object.keys(previous.loadErrors).length > 0
+      const checksChanged =
+        all || dirty.current.has('permissions') || dirty.current.has('result')
+      const mediaChanged = all || dirty.current.has('media')
+      const [mission, preflight, weather, postflight, media] =
+        await Promise.allSettled([
+          checksChanged
+            ? missionApi.getMissionById(missionId, signal)
+            : previous!.mission,
+          checksChanged
+            ? fetchCurrentPersistedPreflight(missionId, signal)
+            : previous!.preflight,
+          checksChanged
+            ? fetchLatestWeatherCheck(missionId, signal)
+            : previous!.weather,
+          checksChanged
+            ? fetchLatestPostflightCheck(missionId, signal)
+            : previous!.postflight,
+          mediaChanged
+            ? missionApi.getMissionMedia(missionId, signal)
+            : previous!.media,
+        ])
+      if (signal.aborted) {
+        throw new DOMException(
+          'Postflight review request was cancelled',
+          'AbortError',
+        )
+      }
 
-    return {
-      mission: mission.status === 'fulfilled'
-        ? mission.value as unknown as BackendMission
-        : null,
-      preflight: preflight.status === 'fulfilled' ? preflight.value : null,
-      weather: weather.status === 'fulfilled' ? weather.value : null,
-      postflight: postflight.status === 'fulfilled' ? postflight.value : null,
-      media: media.status === 'fulfilled' ? media.value : [],
-      loadErrors: {
-        ...(mission.status === 'rejected' ? { mission: mission.reason } : {}),
-        ...(preflight.status === 'rejected' ? { preflight: preflight.reason } : {}),
-        ...(weather.status === 'rejected' ? { weather: weather.reason } : {}),
-        ...(postflight.status === 'rejected' ? { postflight: postflight.reason } : {}),
-        ...(media.status === 'rejected' ? { media: media.reason } : {}),
-      },
-    }
-  }, [missionId])
+      const data: PostflightReviewData = {
+        mission:
+          mission.status === 'fulfilled'
+            ? (mission.value as unknown as BackendMission)
+            : null,
+        preflight: preflight.status === 'fulfilled' ? preflight.value : null,
+        weather: weather.status === 'fulfilled' ? weather.value : null,
+        postflight: postflight.status === 'fulfilled' ? postflight.value : null,
+        media: media.status === 'fulfilled' ? media.value : [],
+        loadErrors: {
+          ...(mission.status === 'rejected' ? { mission: mission.reason } : {}),
+          ...(preflight.status === 'rejected'
+            ? { preflight: preflight.reason }
+            : {}),
+          ...(weather.status === 'rejected' ? { weather: weather.reason } : {}),
+          ...(postflight.status === 'rejected'
+            ? { postflight: postflight.reason }
+            : {}),
+          ...(media.status === 'rejected' ? { media: media.reason } : {}),
+        },
+      }
+      cached.current = { missionId, data }
+      dirty.current.clear()
+      return data
+    },
+    [missionId],
+  )
+  useMissionWorkspaceUpdates(
+    missionId,
+    ['result', 'permissions', 'media'],
+    (changed) => {
+      changed.forEach((part) => dirty.current.add(part))
+      query.reload()
+    },
+  )
+  return query
 }

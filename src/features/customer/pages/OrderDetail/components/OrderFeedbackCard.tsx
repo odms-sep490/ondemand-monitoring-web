@@ -1,5 +1,5 @@
 import { CheckCircleFilled, StarFilled } from '@ant-design/icons'
-import { Alert, Button, Card, Input, Rate, Tag, Typography, message } from 'antd'
+import { Alert, Button, Card, Input, Rate, Typography, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { ApiError } from '../../../../../shared/api/httpClient'
 import { useI18n } from '../../../../../shared/i18n'
@@ -61,6 +61,7 @@ export function OrderFeedbackCard({ orderId, refreshKey }: Props) {
         feedback={state.feedback}
         labels={criterionLabels}
         t={t}
+        scoreHint={(lang === 'vi' ? SCORE_HINTS_VI : SCORE_HINTS_EN)[state.feedback.rating]}
       />
     )
   }
@@ -99,8 +100,8 @@ export function OrderFeedbackCard({ orderId, refreshKey }: Props) {
     <Card
       className="od-feedback-card"
       title={
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-          <StarFilled style={{ color: '#f59e0b' }} />
+        <span className="od-feedback-title">
+          <span className="od-feedback-title-icon"><StarFilled aria-hidden="true" /></span>
           {t.title}
         </span>
       }
@@ -192,69 +193,51 @@ function SubmittedFeedback({
   feedback,
   labels,
   t,
+  scoreHint,
 }: {
   feedback: OrderFeedback
   labels: [CriterionKey, string][]
   t: (typeof orderFeedbackCardMessages)['vi']
+  scoreHint: string
 }) {
   return (
     <Card
-      className="od-feedback-card"
+      className="od-feedback-card od-feedback-card--submitted"
       title={
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-          <StarFilled style={{ color: '#f59e0b' }} />
+        <span className="od-feedback-title">
+          <span className="od-feedback-title-icon"><StarFilled aria-hidden="true" /></span>
           {t.title}
         </span>
       }
+      extra={<span className="od-feedback-saved"><CheckCircleFilled aria-hidden="true" />{t.saved}</span>}
       size="small"
     >
-      <div className="od-feedback-submitted-banner">
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            color: '#065f46',
-            fontWeight: 600,
-          }}
-        >
-          <CheckCircleFilled style={{ color: '#10b981', fontSize: 18 }} />
-          {t.thanks}
-        </span>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-          <Rate
-            disabled
-            value={feedback.rating}
-            aria-label={t.overall}
-            style={{ fontSize: 18, color: '#f59e0b' }}
-          />
-          <Tag color="gold" style={{ margin: 0, fontWeight: 700 }}>
-            {feedback.rating}/5
-          </Tag>
-        </span>
-      </div>
-
-      <div className="od-feedback-criteria-list">
-        {labels.map(([key, label]) =>
-          feedback[key] ? (
-            <div key={key} className="od-feedback-criterion">
-              <Typography.Text strong style={{ fontSize: 13 }}>
-                {label}
-              </Typography.Text>
-              <Rate
-                disabled
-                value={feedback[key] ?? 0}
-                aria-label={label}
-                style={{ fontSize: 16, color: '#f59e0b' }}
-              />
+      <div className="od-feedback-summary">
+        <div className="od-feedback-summary-score">
+          <span className="od-feedback-summary-label">{t.overall}</span>
+          <div className="od-feedback-score-number"><strong>{feedback.rating}</strong><span>/ 5</span></div>
+          <Rate disabled value={feedback.rating} aria-label={t.overall} />
+          <strong className="od-feedback-score-hint">{scoreHint}</strong>
+        </div>
+        <div className="od-feedback-summary-details">
+          <p className="od-feedback-thanks">{t.thanks}</p>
+          <div className="od-feedback-summary-criteria">
+            {labels.map(([key, label]) => feedback[key] ? (
+              <div key={key} className="od-feedback-summary-criterion">
+                <span>{label}</span>
+                <Rate disabled value={feedback[key] ?? 0} aria-label={label} />
+                <strong>{feedback[key]}<small> / 5</small></strong>
+              </div>
+            ) : null)}
+          </div>
+          {feedback.comment ? (
+            <div className="od-feedback-comment">
+              <span className="od-feedback-summary-label">{t.yourComment}</span>
+              <blockquote>{feedback.comment}</blockquote>
             </div>
-          ) : null,
-        )}
+          ) : null}
+        </div>
       </div>
-
-      {feedback.comment ? (
-        <div className="od-feedback-quote">“{feedback.comment}”</div>
-      ) : null}
     </Card>
   )
 }
